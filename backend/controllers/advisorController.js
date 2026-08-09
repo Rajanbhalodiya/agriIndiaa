@@ -315,6 +315,78 @@ const getFarmer = async (req, res) => {
     }
 }
 
+// API to send OTP for Advisor Forgot Password
+const forgotPasswordAdvisor = async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) {
+            return res.json({ success: false, message: 'Phone number is required' });
+        }
+
+        const advisor = await advisorModel.findOne({ phone });
+        if (!advisor) {
+            return res.json({ success: false, message: 'No advisor account found with this phone number' });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+        advisor.resetOtp = otp;
+        advisor.resetOtpExpire = expiry;
+        await advisor.save();
+
+        res.json({
+            success: true,
+            message: `Verification OTP sent to phone. (Testing OTP: ${otp})`,
+            otp
+        });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// API to Reset Password using OTP for Advisor
+const resetPasswordAdvisor = async (req, res) => {
+    try {
+        const { phone, otp, newPassword } = req.body;
+        if (!phone || !otp || !newPassword) {
+            return res.json({ success: false, message: 'All fields are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.json({ success: false, message: 'Password must be at least 6 characters' });
+        }
+
+        const advisor = await advisorModel.findOne({ phone });
+        if (!advisor) {
+            return res.json({ success: false, message: 'Advisor not found' });
+        }
+
+        if (!advisor.resetOtp || advisor.resetOtp !== otp) {
+            return res.json({ success: false, message: 'Invalid OTP' });
+        }
+
+        if (new Date() > advisor.resetOtpExpire) {
+            return res.json({ success: false, message: 'OTP has expired' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        advisor.password = hashedPassword;
+        advisor.resetOtp = '';
+        advisor.resetOtpExpire = undefined;
+        await advisor.save();
+
+        res.json({ success: true, message: 'Password reset successfully! Please login with your new password.' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
 export { 
     changeAvailability, 
     advisorList, 
@@ -328,5 +400,7 @@ export {
     addFarmer,
     registerAdvisor,
     advisorFarmers,
-    getFarmer
+    getFarmer,
+    forgotPasswordAdvisor,
+    resetPasswordAdvisor
 }

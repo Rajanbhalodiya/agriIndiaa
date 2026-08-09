@@ -11,7 +11,9 @@ import {
   updateAdvisorProfile,
   addFarmer,
   advisorFarmers,
-  getFarmer
+  getFarmer,
+  forgotPasswordAdvisor,
+  resetPasswordAdvisor
 } from '../controllers/advisorController.js';
 import authAdvisor from '../middlewares/authAdvisor.js';
 
@@ -20,6 +22,8 @@ const advisorRouter = express.Router();
 advisorRouter.get('/list', advisorList);
 advisorRouter.post('/login', loginAdvisor);
 advisorRouter.post('/register', registerAdvisor);
+advisorRouter.post('/forgot-password', forgotPasswordAdvisor);
+advisorRouter.post('/reset-password', resetPasswordAdvisor);
 
 // Protected Advisor routes
 advisorRouter.use(authAdvisor);

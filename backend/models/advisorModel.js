@@ -15,7 +15,9 @@ const advisorSchema = new mongoose.Schema({
     price: { type: Number },
     address: { type: Object },
     date: { type: Date },
-    slots_booked: { type: Object, default: {} }
+    slots_booked: { type: Object, default: {} },
+    resetOtp: { type: String, default: '' },
+    resetOtpExpire: { type: Date }
 }, { minimize: false })
 
 const advisorModel = mongoose.models.advisor || mongoose.model('advisor', advisorSchema)
