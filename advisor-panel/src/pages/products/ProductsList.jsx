@@ -129,32 +129,38 @@ export default function ProductsList() {
                   {product.name}
                 </h3>
 
-                <div className="mt-auto flex items-end justify-between">
-                  <div>
-                    {product.packSizes && product.packSizes.length > 1 ? (
-                      <>
-                        <div className="text-lg font-bold text-primary-700">
-                          {/* Show price range */}
-                          ₹{Math.min(...product.packSizes.map(p => p.price))} - ₹{Math.max(...product.packSizes.map(p => p.price))}
-                        </div>
-                        <div className="text-xs text-primary-600 font-medium mt-0.5">Multiple Sizes</div>
-                        {/* Size selector */}
-                        <select
-                          value={selectedPack[product._id] || product.packSizes[0].size}
-                          onChange={(e) => setSelectedPack(prev => ({ ...prev, [product._id]: e.target.value }))}
-                          className="mt-2 w-full p-1 border border-gray-200 rounded"
-                        >
-                          {product.packSizes.map(p => (
-                            <option key={p.size} value={p.size}>
-                              {p.size} - ₹{p.price}
-                            </option>
-                          ))}
-                        </select>
-                      </>
+                <div className="mt-auto flex items-end justify-between gap-2">
+                  <div className="flex-1">
+                    {product.packSizes && product.packSizes.length > 0 ? (
+                      (() => {
+                        const chosenSize = selectedPack[product._id] || product.packSizes[0].size;
+                        const chosenPack = product.packSizes.find(p => p.size === chosenSize) || product.packSizes[0];
+                        return (
+                          <>
+                            <div className="text-lg font-bold text-primary-700 flex items-baseline gap-1">
+                              ₹{chosenPack.price}
+                              <span className="text-xs font-normal text-gray-500">/ {chosenPack.size}</span>
+                            </div>
+                            {product.packSizes.length > 1 && (
+                              <select
+                                value={chosenSize}
+                                onChange={(e) => setSelectedPack(prev => ({ ...prev, [product._id]: e.target.value }))}
+                                className="mt-1.5 w-full p-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium text-gray-700 cursor-pointer"
+                              >
+                                {product.packSizes.map(p => (
+                                  <option key={p.size} value={p.size}>
+                                    {p.size} (₹{p.price})
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </>
+                        );
+                      })()
                     ) : (
-                      <div className="text-lg font-bold text-primary-700">
-                        ₹{product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].price : product.price}
-                        <span className="text-xs font-normal text-gray-400 ml-1">/ {product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].size : (product.unit || 'kg')}</span>
+                      <div className="text-lg font-bold text-primary-700 flex items-baseline gap-1">
+                        ₹{product.price}
+                        <span className="text-xs font-normal text-gray-500">/ {product.unit || 'kg'}</span>
                       </div>
                     )}
                   </div>
