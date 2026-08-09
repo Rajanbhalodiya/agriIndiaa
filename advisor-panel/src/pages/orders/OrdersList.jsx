@@ -179,6 +179,16 @@ export default function OrdersList() {
                       </div>
                     </div>
 
+                    <div className="text-xs space-y-1 bg-gray-50 p-2.5 rounded-xl border border-gray-100 mt-2">
+                      <span className="font-semibold text-gray-700 block mb-1">Items Breakdown</span>
+                      {order.items?.map((item, idx) => (
+                        <div key={idx} className="text-gray-600 flex justify-between gap-2">
+                          <span>{item.name} {item.packSize ? `(${item.packSize})` : ''} <span className="text-gray-400">x{item.quantity}</span></span>
+                          <span className="font-medium text-gray-800">₹{item.price * item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+
                     <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                       <div>
                         <span className="text-xs text-gray-400 block">Total</span>
@@ -215,7 +225,7 @@ export default function OrdersList() {
                     <th className="p-4 font-medium">Order ID</th>
                     <th className="p-4 font-medium">Farmer</th>
                     <th className="p-4 font-medium">Date</th>
-                    <th className="p-4 font-medium">Items</th>
+                    <th className="p-4 font-medium">Items & Packaging</th>
                     <th className="p-4 font-medium">Total</th>
                     <th className="p-4 font-medium">Status</th>
                     <th className="p-4 font-medium">Payment</th>
@@ -235,7 +245,17 @@ export default function OrdersList() {
                         </td>
                         <td className="p-4 text-gray-700 font-medium">{order.farmerName}</td>
                         <td className="p-4 text-gray-600 text-xs font-medium">{formatDateTime(order.date)}</td>
-                        <td className="p-4 text-gray-600">{order.items?.length || 0}</td>
+                        <td className="p-4">
+                          <div className="text-xs space-y-1 max-w-[220px]">
+                            {order.items?.map((item, idx) => (
+                              <div key={idx} className="text-gray-700 leading-tight">
+                                <span className="font-medium">{item.name}</span>
+                                {item.packSize && <span className="text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded text-[11px] font-semibold ml-1.5">{item.packSize}</span>}
+                                <span className="text-gray-500 ml-1 font-medium">x{item.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
                         <td className="p-4 font-bold text-gray-900">₹{order.totalAmount}</td>
                         <td className="p-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${

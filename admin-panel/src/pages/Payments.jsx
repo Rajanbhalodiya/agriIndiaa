@@ -383,7 +383,10 @@ export default function Payments() {
                   <tbody className="divide-y divide-gray-100">
                     {selectedInvoiceOrder.items?.map((item, index) => (
                       <tr key={index}>
-                        <td className="px-4 py-3 text-gray-900">{item.name}</td>
+                        <td className="px-4 py-3 text-gray-900">
+                          <div>{item.name}</div>
+                          {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
+                        </td>
                         <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
                         <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
                         <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>

@@ -258,7 +258,7 @@ export default function FarmerProfile() {
                     <div className="space-y-1">
                       {order.items?.map((item, idx) => (
                         <div key={idx} className="flex justify-between text-xs sm:text-sm text-gray-700">
-                          <span>{item.name} x {item.quantity}</span>
+                          <span>{item.name} {item.packSize ? `(${item.packSize})` : ''} <span className="text-gray-400">x {item.quantity}</span></span>
                           <span className="font-medium">₹{item.price * item.quantity}</span>
                         </div>
                       ))}
