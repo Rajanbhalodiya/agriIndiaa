@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
 import productOrderModel from "../models/productOrderModel.js"
+import { sendSMS } from "../utils/smsService.js"
 
 const changeAvailability = async (req , res) => {
     try {
@@ -315,6 +316,75 @@ const getFarmer = async (req, res) => {
     }
 }
 
+// API to send OTP for Advisor Login
+const sendAdvisorOTP = async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) {
+            return res.json({ success: false, message: 'Phone number is required' });
+        }
+
+        const advisor = await advisorModel.findOne({ phone });
+        if (!advisor) {
+            return res.json({ success: false, message: 'No advisor account found with this phone number' });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+        advisor.resetOtp = otp;
+        advisor.resetOtpExpire = expiry;
+        await advisor.save();
+
+        await sendSMS({
+            phone: advisor.phone,
+            message: `Your Agriculture ERP login OTP is: ${otp}. Valid for 10 minutes.`
+        });
+
+        res.json({
+            success: true,
+            message: `Login OTP sent to ${phone}. (Testing OTP: ${otp})`,
+            otp
+        });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// API to verify OTP for Advisor Login
+const verifyAdvisorOTP = async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+        if (!phone || !otp) {
+            return res.json({ success: false, message: 'Phone number and OTP are required' });
+        }
+
+        const advisor = await advisorModel.findOne({ phone });
+        if (!advisor) {
+            return res.json({ success: false, message: 'Advisor not found' });
+        }
+
+        if (!advisor.resetOtp || advisor.resetOtp !== otp) {
+            return res.json({ success: false, message: 'Invalid OTP' });
+        }
+
+        if (new Date() > advisor.resetOtpExpire) {
+            return res.json({ success: false, message: 'OTP has expired' });
+        }
+
+        advisor.resetOtp = '';
+        advisor.resetOtpExpire = undefined;
+        await advisor.save();
+
+        const token = jwt.sign({ id: advisor._id }, process.env.JWT_SECRET);
+        res.json({ success: true, token, message: 'OTP Verified Successfully' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
 // API to send OTP for Advisor Forgot Password
 const forgotPasswordAdvisor = async (req, res) => {
     try {
@@ -336,9 +406,14 @@ const forgotPasswordAdvisor = async (req, res) => {
         advisor.resetOtpExpire = expiry;
         await advisor.save();
 
+        await sendSMS({
+            phone: advisor.phone,
+            message: `Your Agriculture ERP password reset OTP is: ${otp}. Valid for 10 minutes.`
+        });
+
         res.json({
             success: true,
-            message: `Verification OTP sent to phone. (Testing OTP: ${otp})`,
+            message: `Verification OTP sent to ${phone}. (Testing OTP: ${otp})`,
             otp
         });
     } catch (error) {
@@ -402,5 +477,7 @@ export {
     advisorFarmers,
     getFarmer,
     forgotPasswordAdvisor,
-    resetPasswordAdvisor
+    resetPasswordAdvisor,
+    sendAdvisorOTP,
+    verifyAdvisorOTP
 }

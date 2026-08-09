@@ -2842,3 +2842,16 @@
 2026-08-09 15:48:44 info: Server Started on port 4000
 2026-08-09 15:48:56 info: Server Started on port 4000
 2026-08-09 15:49:13 info: Server Started on port 4000
+2026-08-09 15:50:49 info: POST /api/advisor/forgot-password
+2026-08-09 15:51:43 info: POST /api/advisor/reset-password
+2026-08-09 15:51:54 info: POST /api/advisor/forgot-password
+2026-08-09 15:52:22 info: POST /api/advisor/reset-password
+2026-08-09 15:52:37 info: POST /api/advisor/login
+2026-08-09 15:52:37 info: GET /api/advisor/dashboard
+2026-08-09 15:52:37 info: GET /api/advisor/profile
+2026-08-09 15:52:37 info: GET /api/advisor/profile
+2026-08-09 15:52:38 info: GET /api/advisor/dashboard
+2026-08-09 15:53:23 info: Server Started on port 4000
+2026-08-09 15:53:37 info: Server Started on port 4000
+2026-08-09 15:53:50 info: Server Started on port 4000
+2026-08-09 15:54:11 info: Server Started on port 4000
