@@ -2855,3 +2855,31 @@
 2026-08-09 15:53:37 info: Server Started on port 4000
 2026-08-09 15:53:50 info: Server Started on port 4000
 2026-08-09 15:54:11 info: Server Started on port 4000
+2026-08-09 15:55:08 info: POST /api/advisor/forgot-password
+2026-08-09 15:55:08 info: MOCK SMS Sent to 9510459100: Your Agriculture ERP password reset OTP is: 242249. Valid for 10 minutes.
+2026-08-09 15:55:31 info: Server Started on port 4000
+2026-08-09 15:57:16 info: Server Started on port 4000
+2026-08-09 15:57:34 info: Server Started on port 4000
+2026-08-09 15:58:56 info: POST /api/advisor/forgot-password
+2026-08-09 15:58:57 info: MOCK SMS Sent to 9510459100: Your AgriIndia verification OTP for password reset is: 972835. Valid for 10 minutes.
+2026-08-09 16:00:58 info: Server Started on port 4000
+2026-08-09 16:02:49 info: POST /api/advisor/forgot-password
+2026-08-09 16:03:20 info: POST /api/advisor/forgot-password
+2026-08-09 16:03:56 info: Server Started on port 4000
+2026-08-09 16:04:47 info: Server Started on port 4000
+2026-08-09 16:05:25 info: POST /api/advisor/forgot-password
+2026-08-09 16:05:26 info: MOCK SMS Sent to 9510459100: Your AgriIndia verification OTP is: 955193. Valid for 10 minutes.
+2026-08-09 16:06:20 info: POST /api/advisor/register
+2026-08-09 16:06:42 info: POST /api/advisor/forgot-password
+2026-08-09 16:06:42 info: MOCK SMS Sent to 9898485650: Your AgriIndia verification OTP is: 288791. Valid for 10 minutes.
+2026-08-09 16:07:15 info: Server Started on port 4000
+2026-08-09 16:07:19 info: Server Started on port 4000
+2026-08-09 16:07:28 info: POST /api/advisor/forgot-password
+2026-08-09 16:12:38 info: POST /api/advisor/forgot-password
+2026-08-09 16:13:00 info: POST /api/advisor/login
+2026-08-09 16:13:04 info: POST /api/advisor/forgot-password
+2026-08-09 16:13:46 info: POST /api/advisor/login
+2026-08-09 16:13:46 info: GET /api/advisor/dashboard
+2026-08-09 16:13:46 info: GET /api/advisor/profile
+2026-08-09 16:13:46 info: GET /api/advisor/profile
+2026-08-09 16:13:47 info: GET /api/advisor/dashboard

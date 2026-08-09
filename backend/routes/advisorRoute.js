@@ -13,9 +13,7 @@ import {
   advisorFarmers,
   getFarmer,
   forgotPasswordAdvisor,
-  resetPasswordAdvisor,
-  sendAdvisorOTP,
-  verifyAdvisorOTP
+  resetPasswordAdvisor
 } from '../controllers/advisorController.js';
 import authAdvisor from '../middlewares/authAdvisor.js';
 
@@ -24,8 +22,6 @@ const advisorRouter = express.Router();
 advisorRouter.get('/list', advisorList);
 advisorRouter.post('/login', loginAdvisor);
 advisorRouter.post('/register', registerAdvisor);
-advisorRouter.post('/send-otp', sendAdvisorOTP);
-advisorRouter.post('/verify-otp', verifyAdvisorOTP);
 advisorRouter.post('/forgot-password', forgotPasswordAdvisor);
 advisorRouter.post('/reset-password', resetPasswordAdvisor);
 

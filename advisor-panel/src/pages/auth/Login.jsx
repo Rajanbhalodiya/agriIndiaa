@@ -67,39 +67,21 @@ export default function Login() {
     }
     setPhoneNumber(phoneValue);
     
-    try {
-      const res = await apiFetch('/advisor/send-otp', {
-        method: 'POST',
-        body: JSON.stringify({ phone: phoneValue }),
-      });
-      if (res.success) {
-        setOtpSent(true);
-        alert(res.message || `OTP sent to ${phoneValue}`);
-      } else {
-        alert(res.message || 'Failed to send OTP');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error sending OTP to phone number');
-    }
+    // Simulate API call to send OTP
+    setOtpSent(true);
+    alert('OTP Sent to ' + phoneValue + '. For testing, enter any 6 digits.');
   };
 
   const onVerifyOtp = async (data) => {
-    try {
-      const res = await apiFetch('/advisor/verify-otp', {
-        method: 'POST',
-        body: JSON.stringify({ phone: phoneNumber, otp: data.otp }),
-      });
-      if (res.success) {
-        localStorage.setItem('token', res.token);
-        window.location.href = '/';
-      } else {
-        alert(res.message || 'Invalid OTP');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error verifying OTP');
-    }
+    // Simulate API call to verify OTP
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Verifying OTP for', phoneNumber, ':', data.otp);
+        localStorage.setItem('token', 'mock_advisor_token');
+        window.location.href = '/'; 
+        resolve();
+      }, 1500);
+    });
   };
 
   const [showForgotModal, setShowForgotModal] = useState(false);
