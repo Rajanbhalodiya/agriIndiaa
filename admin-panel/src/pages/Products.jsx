@@ -157,18 +157,22 @@ export default function Products() {
 
                 <div className="flex items-center justify-between pt-2 border-t border-gray-50 text-sm">
                   <div>
-                    {product.packSizes && product.packSizes.length > 1 ? (
-                      <>
-                        <span className="font-bold text-gray-900">₹{Math.min(...product.packSizes.map(p => p.price))}</span> - <span className="font-bold text-gray-900">₹{Math.max(...product.packSizes.map(p => p.price))}</span>
-                        <span className="text-xs text-primary-600 block font-medium mt-0.5">Multiple Sizes</span>
-                      </>
+                    {product.packSizes && product.packSizes.length > 0 ? (
+                      <div className="space-y-1">
+                        {product.packSizes.map((p, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5 text-xs">
+                            <span className="font-bold text-gray-900">₹{p.price}</span>
+                            <span className="bg-primary-50 text-primary-700 border border-primary-100 px-1.5 py-0.5 rounded text-[10px] font-semibold">{p.size}</span>
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <>
-                        <span className="font-bold text-gray-900">₹{product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].price : product.price}</span>
-                        <span className="text-xs text-gray-400"> / {product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].size : (product.unit || 'kg')}</span>
+                        <span className="font-bold text-gray-900">₹{product.price || 0}</span>
+                        <span className="text-xs text-gray-400"> / {product.unit || 'kg'}</span>
                       </>
                     )}
-                    <span className="text-xs text-gray-500 block mt-1">Stock: {product.stock}</span>
+                    <span className="text-xs text-gray-500 block mt-1 font-medium">Stock: {product.stock}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Link
@@ -199,7 +203,7 @@ export default function Products() {
                   <tr>
                     <th className="px-6 py-4 font-semibold">Product</th>
                     <th className="px-6 py-4 font-semibold">Category</th>
-                    <th className="px-6 py-4 font-semibold">Price</th>
+                    <th className="px-6 py-4 font-semibold">Price & Packaging</th>
                     <th className="px-6 py-4 font-semibold">Stock</th>
                     <th className="px-6 py-4 font-semibold">Status</th>
                     <th className="px-6 py-4 font-semibold text-right">Actions</th>
@@ -227,14 +231,18 @@ export default function Products() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {product.packSizes && product.packSizes.length > 1 ? (
-                          <div className="flex flex-col">
-                            <span className="font-bold text-gray-900">₹{Math.min(...product.packSizes.map(p => p.price))} - ₹{Math.max(...product.packSizes.map(p => p.price))}</span>
-                            <span className="text-[10px] uppercase font-bold text-primary-600 tracking-wider mt-1">Multiple Sizes</span>
+                        {product.packSizes && product.packSizes.length > 0 ? (
+                          <div className="space-y-1 max-w-[200px]">
+                            {product.packSizes.map((p, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-xs">
+                                <span className="font-bold text-gray-900">₹{p.price}</span>
+                                <span className="bg-primary-50 text-primary-700 border border-primary-100 px-1.5 py-0.5 rounded text-[11px] font-semibold">{p.size}</span>
+                              </div>
+                            ))}
                           </div>
                         ) : (
                           <span className="font-semibold text-gray-900">
-                            ₹{product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].price : product.price} <span className="text-xs font-normal text-gray-400">/ {product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].size : (product.unit || 'kg')}</span>
+                            ₹{product.price || 0} <span className="text-xs font-normal text-gray-400">/ {product.unit || 'kg'}</span>
                           </span>
                         )}
                       </td>
