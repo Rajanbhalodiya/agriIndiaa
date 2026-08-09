@@ -6,6 +6,7 @@ const productOrderSchema = new mongoose.Schema({
     items: [{
         productId: { type: String, required: true },
         name: { type: String, required: true },
+        packSize: { type: String }, // e.g., '100 ml', '1 Liter'
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         image: { type: String }

@@ -12,7 +12,7 @@ export const generateWhatsAppBillText = (order) => {
   let itemsText = '';
   if (order.items && order.items.length > 0) {
     itemsText = order.items.map((item, idx) => 
-      `${idx + 1}. *${item.name}* x ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString()}`
+      `${idx + 1}. *${item.name}* ${item.packSize ? `(${item.packSize})` : ''} x ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString()}`
     ).join('\n');
   } else {
     itemsText = '1. Order Items';

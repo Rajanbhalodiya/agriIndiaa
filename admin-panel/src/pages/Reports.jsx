@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
+import { API_BASE_URL } from '../services/api';
 import { 
   MdBarChart, 
   MdTrendingUp, 
@@ -40,9 +41,9 @@ export default function Reports() {
       const headers = { 'Authorization': `Bearer ${token}` };
 
       const [ordersRes, advisorsRes, farmersRes] = await Promise.all([
-        fetch('http://localhost:4000/api/admin/product-orders', { headers }).then(r => r.json()).catch(() => ({ success: false })),
-        fetch('http://localhost:4000/api/admin/all-advisores', { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false })),
-        fetch('http://localhost:4000/api/admin/all-farmers', { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false }))
+        fetch(`${API_BASE_URL}/admin/product-orders`, { headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`${API_BASE_URL}/admin/all-advisores`, { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`${API_BASE_URL}/admin/all-farmers`, { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false }))
       ]);
 
       if (ordersRes.success) setOrders(ordersRes.orders || []);
@@ -509,7 +510,7 @@ export default function Reports() {
                 <p className="text-xs text-gray-500 mt-1">Ranked by total revenue collected from farmer orders</p>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto no-scrollbar">
                 <table className="w-full text-left text-sm text-gray-500">
                   <thead className="bg-gray-50 text-xs uppercase text-gray-700 font-semibold">
                     <tr>
@@ -571,7 +572,7 @@ export default function Reports() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto no-scrollbar">
                 <table className="w-full text-left text-sm text-gray-500">
                   <thead className="bg-gray-50 text-xs uppercase text-gray-700 font-semibold">
                     <tr>

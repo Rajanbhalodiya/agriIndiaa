@@ -25,9 +25,11 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Clear token when visiting login page
-    localStorage.removeItem('token');
-  }, []);
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
   
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm({
     resolver: zodResolver(loginSchema),

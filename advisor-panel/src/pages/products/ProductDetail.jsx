@@ -18,6 +18,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedPackIndex, setSelectedPackIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -56,9 +57,20 @@ export default function ProductDetail() {
   }
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...product, quantity }));
+    let packSize = product.unit || 'kg';
+    let price = product.price;
+
+    if (product.packSizes && product.packSizes.length > 0) {
+      packSize = product.packSizes[selectedPackIndex].size;
+      price = product.packSizes[selectedPackIndex].price;
+    }
+    
+    dispatch(addToCart({ ...product, quantity, packSize, price }));
     setIsCartOpen(true);
   };
+
+  const displayPrice = product.packSizes && product.packSizes.length > 0 ? product.packSizes[selectedPackIndex].price : product.price;
+  const displayUnit = product.packSizes && product.packSizes.length > 0 ? product.packSizes[selectedPackIndex].size : (product.unit || 'kg');
 
   return (
     <motion.div 
@@ -100,15 +112,15 @@ export default function ProductDetail() {
                 </span>
                 <span className={`flex items-center gap-1 text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
                   <MdInventory className="w-4 h-4" />
-                  {product.stock > 0 ? `${product.stock} ${product.unit} In Stock` : 'Out of Stock'}
+                  {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
                 </span>
               </div>
               <h1 className="text-3xl font-bold text-gray-900 tracking-tight leading-tight mb-2">
                 {product.name}
               </h1>
               <div className="flex items-end gap-3 mb-6">
-                <div className="text-3xl font-bold text-primary-700">₹{product.price}</div>
-                <div className="text-gray-500 mb-1">/ {product.unit}</div>
+                <div className="text-3xl font-bold text-primary-700">₹{displayPrice}</div>
+                <div className="text-gray-500 mb-1">/ {displayUnit}</div>
               </div>
             </div>
 
@@ -121,6 +133,27 @@ export default function ProductDetail() {
             </div>
 
             <div className="mt-auto space-y-4">
+              {product.packSizes && product.packSizes.length > 1 && (
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Select Size:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.packSizes.map((pack, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedPackIndex(index)}
+                        className={`px-4 py-2 rounded-xl border text-sm font-medium transition-colors ${
+                          selectedPackIndex === index
+                            ? 'bg-primary-50 border-primary-500 text-primary-700'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300'
+                        }`}
+                      >
+                        {pack.size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden h-12">
                   <button 

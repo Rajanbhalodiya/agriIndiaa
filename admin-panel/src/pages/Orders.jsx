@@ -4,6 +4,7 @@ import EmptyState from '../components/EmptyState';
 import { MdCheckCircle, MdCancel, MdReceipt } from 'react-icons/md';
 import { FaWhatsapp } from 'react-icons/fa';
 import { sendWhatsAppBill } from '../utils/whatsappHelper';
+import { API_BASE_URL } from '../services/api';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -28,7 +29,7 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/admin/product-orders', {
+      const response = await fetch(`${API_BASE_URL}/admin/product-orders`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
         }
@@ -59,7 +60,7 @@ export default function Orders() {
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      const response = await fetch('http://localhost:4000/api/admin/update-product-order-status', {
+      const response = await fetch(`${API_BASE_URL}/admin/update-product-order-status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,44 +147,145 @@ export default function Orders() {
           description="Try adjusting your search query or status filter." 
         />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-500">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Farmer</th>
-                  <th className="px-6 py-4 font-semibold">Advisor</th>
-                  <th className="px-6 py-4 font-semibold">Items</th>
-                  <th className="px-6 py-4 font-semibold">Amount</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold">Payment</th>
-                  <th className="px-6 py-4 font-semibold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{order.farmerName}</div>
-                      <div className="text-xs text-gray-400">{formatDateTime(order.date)}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {order.advisorImage && (
-                          <img src={order.advisorImage} alt="" className="w-8 h-8 rounded bg-gray-100 object-cover" />
-                        )}
-                        <span>{order.advisorName}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-xs space-y-1">
-                        {order.items?.map(item => (
-                          <div key={item._id}>{item.name} (x{item.quantity})</div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">₹{order.totalAmount}</td>
-                    <td className="px-6 py-4">
+        <div className="space-y-4">
+          {/* Mobile Card View (< md) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {filteredOrders.map((order) => (
+              <div
+                key={order._id}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-base">{order.farmerName}</h4>
+                    <p className="text-xs text-gray-400">{formatDateTime(order.date)}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                    order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
+                    order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                    'bg-orange-100 text-orange-700'
+                  }`}>
+                    {order.status}
+                  </span>
+                </div>
+
+                <div className="text-xs space-y-1 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                  <span className="font-semibold text-gray-700 block mb-1">Items ({order.items?.length || 0})</span>
+                  {order.items?.map(item => (
+                    <div key={item._id} className="text-gray-600 flex justify-between">
+                      <span>{item.name} {item.packSize ? `(${item.packSize})` : ''} (x{item.quantity})</span>
+                      <span className="font-medium">₹{item.price * item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-50 text-xs text-gray-600">
+                  <div>
+                    <span className="text-gray-400 block">Advisor</span>
+                    <span className="font-semibold text-gray-800">{order.advisorName}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Payment Status</span>
+                    <span className={`font-semibold ${order.payment ? 'text-green-600' : 'text-gray-400'}`}>
+                      {order.payment ? 'Paid' : 'Unpaid'}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-gray-400 block">Total</span>
+                    <span className="text-base font-bold text-gray-900">₹{order.totalAmount}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100">
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setSelectedInvoiceOrder(order)}
+                      className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 px-3 py-1.5 rounded-lg bg-primary-50 font-medium transition-colors"
+                      title="View Bill"
+                    >
+                      <MdReceipt className="w-4 h-4" />
+                      Bill
+                    </button>
+                    <button 
+                      onClick={() => sendWhatsAppBill(order)}
+                      className="flex items-center gap-1 text-xs text-green-600 hover:text-green-800 px-3 py-1.5 rounded-lg bg-green-50 font-medium transition-colors"
+                      title="Send Bill on WhatsApp"
+                    >
+                      <FaWhatsapp className="w-4 h-4" />
+                      WhatsApp
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {order.payment && order.status !== 'Completed' && order.status !== 'Cancelled' && (
+                      <>
+                        <button 
+                          onClick={() => updateStatus(order, 'Completed')}
+                          className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg border border-green-200"
+                          title="Approve Order & Send Bill"
+                        >
+                          <MdCheckCircle className="w-5 h-5" />
+                        </button>
+                        <button 
+                          onClick={() => updateStatus(order, 'Cancelled')}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
+                          title="Cancel Order"
+                        >
+                          <MdCancel className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                    <button 
+                      onClick={() => setSelectedOrder(order)}
+                      className="text-xs text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg bg-gray-100 font-medium transition-colors"
+                    >
+                      Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left text-sm text-gray-500">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Farmer</th>
+                    <th className="px-6 py-4 font-semibold">Advisor</th>
+                    <th className="px-6 py-4 font-semibold">Items</th>
+                    <th className="px-6 py-4 font-semibold">Amount</th>
+                    <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-6 py-4 font-semibold">Payment</th>
+                    <th className="px-6 py-4 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredOrders.map((order) => (
+                    <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">{order.farmerName}</div>
+                        <div className="text-xs text-gray-400">{formatDateTime(order.date)}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {order.advisorImage && (
+                            <img src={order.advisorImage} alt="" className="w-8 h-8 rounded bg-gray-100 object-cover shrink-0" />
+                          )}
+                          <span>{order.advisorName}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-xs space-y-1">
+                          {order.items?.map(item => (
+                            <div key={item._id}>{item.name} {item.packSize ? `(${item.packSize})` : ''} (x{item.quantity})</div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-900">₹{order.totalAmount}</td>
+                      <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           order.status === 'Completed' ? 'bg-green-100 text-green-700' :
                           order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
@@ -192,60 +294,61 @@ export default function Orders() {
                         }`}>
                           {order.status}
                         </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {order.payment ? (
-                        <span className="text-green-600 font-medium text-sm">Paid</span>
-                      ) : (
-                        <span className="text-gray-400 text-sm">Unpaid</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end items-center gap-3">
-                        <button 
-                          onClick={() => setSelectedInvoiceOrder(order)}
-                          className="text-primary-600 hover:text-primary-800 p-1.5 rounded hover:bg-primary-50 transition-colors"
-                          title="View Bill"
-                        >
-                          <MdReceipt className="w-5 h-5" />
-                        </button>
-
-                        <button 
-                          onClick={() => sendWhatsAppBill(order)}
-                          className="text-green-600 hover:text-green-800 p-1.5 rounded hover:bg-green-50 transition-colors"
-                          title="Send Bill on WhatsApp to Farmer"
-                        >
-                          <FaWhatsapp className="w-5 h-5 text-green-600" />
-                        </button>
-
-                        {order.payment && order.status !== 'Completed' && order.status !== 'Cancelled' ? (
-                          <div className="flex justify-end gap-2 border-l pl-3 border-gray-200">
-                            <button 
-                              onClick={() => updateStatus(order, 'Completed')}
-                              className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
-                              title="Approve Order & Send Bill"
-                            >
-                              <MdCheckCircle className="w-5 h-5" />
-                            </button>
-                            <button 
-                              onClick={() => updateStatus(order, 'Cancelled')}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                              title="Cancel Order"
-                            >
-                              <MdCancel className="w-5 h-5" />
-                            </button>
-                          </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {order.payment ? (
+                          <span className="text-green-600 font-medium text-sm">Paid</span>
                         ) : (
-                          <span className="text-gray-400 text-xs italic ml-2">
-                            {!order.payment && order.status !== 'Cancelled' ? 'Awaiting Payment' : ''}
-                          </span>
+                          <span className="text-gray-400 text-sm">Unpaid</span>
                         )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end items-center gap-3">
+                          <button 
+                            onClick={() => setSelectedInvoiceOrder(order)}
+                            className="text-primary-600 hover:text-primary-800 p-1.5 rounded hover:bg-primary-50 transition-colors"
+                            title="View Bill"
+                          >
+                            <MdReceipt className="w-5 h-5" />
+                          </button>
+                          <button 
+                            onClick={() => sendWhatsAppBill(order)}
+                            className="text-green-600 hover:text-green-800 p-1.5 rounded hover:bg-green-50 transition-colors"
+                            title="Send Bill on WhatsApp to Farmer"
+                          >
+                            <FaWhatsapp className="w-5 h-5" />
+                          </button>
+                          {order.payment && order.status !== 'Completed' && order.status !== 'Cancelled' && (
+                            <div className="flex justify-end gap-2 border-l pl-3 border-gray-200">
+                              <button 
+                                onClick={() => updateStatus(order, 'Completed')}
+                                className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
+                                title="Approve Order & Send Bill"
+                              >
+                                <MdCheckCircle className="w-5 h-5" />
+                              </button>
+                              <button 
+                                onClick={() => updateStatus(order, 'Cancelled')}
+                                className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                title="Cancel Order"
+                              >
+                                <MdCancel className="w-5 h-5" />
+                              </button>
+                            </div>
+                          )}
+                          <button 
+                            onClick={() => setSelectedOrder(order)}
+                            className="text-gray-600 hover:text-gray-900 text-xs font-semibold px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 transition-colors"
+                          >
+                            Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -304,7 +407,10 @@ export default function Orders() {
                   <tbody className="divide-y divide-gray-100">
                     {selectedInvoiceOrder.items?.map((item, index) => (
                       <tr key={index}>
-                        <td className="px-4 py-3 text-gray-900">{item.name}</td>
+                        <td className="px-4 py-3 text-gray-900">
+                          <div>{item.name}</div>
+                          {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
+                        </td>
                         <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
                         <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
                         <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>

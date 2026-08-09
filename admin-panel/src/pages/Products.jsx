@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { MdAdd, MdEdit, MdDelete } from 'react-icons/md';
+import { API_BASE_URL } from '../services/api';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -12,7 +13,7 @@ export default function Products() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/product/list');
+      const response = await fetch(`${API_BASE_URL}/product/list`);
       const data = await response.json();
       if (data.success) {
         setProducts(data.products);
@@ -32,7 +33,7 @@ export default function Products() {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const response = await fetch('http://localhost:4000/api/product/remove', {
+      const response = await fetch(`${API_BASE_URL}/product/remove`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,74 +127,149 @@ export default function Products() {
           }
         />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-500">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Product</th>
-                  <th className="px-6 py-4 font-semibold">Category</th>
-                  <th className="px-6 py-4 font-semibold">Price</th>
-                  <th className="px-6 py-4 font-semibold">Stock</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredProducts.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover bg-gray-100 border border-gray-100"
-                        />
-                        <div>
-                          <div className="font-semibold text-gray-900">{product.name}</div>
-                          <div className="text-xs text-gray-400 truncate max-w-xs">{product.description}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md text-xs font-medium">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-semibold text-gray-900">
-                      ₹{product.price} <span className="text-xs font-normal text-gray-400">/ {product.unit || 'kg'}</span>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-700">
-                      {product.stock}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${product.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
+        <div className="space-y-4">
+          {/* Mobile Card View (< md) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-14 h-14 rounded-xl object-cover bg-gray-100 border border-gray-100 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="font-bold text-gray-900 text-base truncate">{product.name}</h4>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${product.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {product.status || 'active'}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Link
-                          to={`/products/edit/${product._id}`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Product"
-                        >
-                          <MdEdit className="w-5 h-5" />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(product._id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete Product"
-                        >
-                          <MdDelete className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
+                    </div>
+                    <p className="text-xs text-gray-400 truncate">{product.description}</p>
+                    <span className="inline-block mt-1 bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[11px] font-medium">
+                      {product.category}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-50 text-sm">
+                  <div>
+                    {product.packSizes && product.packSizes.length > 1 ? (
+                      <>
+                        <span className="font-bold text-gray-900">₹{Math.min(...product.packSizes.map(p => p.price))}</span> - <span className="font-bold text-gray-900">₹{Math.max(...product.packSizes.map(p => p.price))}</span>
+                        <span className="text-xs text-primary-600 block font-medium mt-0.5">Multiple Sizes</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-bold text-gray-900">₹{product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].price : product.price}</span>
+                        <span className="text-xs text-gray-400"> / {product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].size : (product.unit || 'kg')}</span>
+                      </>
+                    )}
+                    <span className="text-xs text-gray-500 block mt-1">Stock: {product.stock}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/products/edit/${product._id}`}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-100"
+                      title="Edit Product"
+                    >
+                      <MdEdit className="w-5 h-5" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-100"
+                      title="Delete Product"
+                    >
+                      <MdDelete className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left text-sm text-gray-500">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Product</th>
+                    <th className="px-6 py-4 font-semibold">Category</th>
+                    <th className="px-6 py-4 font-semibold">Price</th>
+                    <th className="px-6 py-4 font-semibold">Stock</th>
+                    <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-6 py-4 font-semibold text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredProducts.map((product) => (
+                    <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-12 h-12 rounded-lg object-cover bg-gray-100 border border-gray-100 shrink-0"
+                          />
+                          <div>
+                            <div className="font-semibold text-gray-900">{product.name}</div>
+                            <div className="text-xs text-gray-400 truncate max-w-xs">{product.description}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md text-xs font-medium">
+                          {product.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {product.packSizes && product.packSizes.length > 1 ? (
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-900">₹{Math.min(...product.packSizes.map(p => p.price))} - ₹{Math.max(...product.packSizes.map(p => p.price))}</span>
+                            <span className="text-[10px] uppercase font-bold text-primary-600 tracking-wider mt-1">Multiple Sizes</span>
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-gray-900">
+                            ₹{product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].price : product.price} <span className="text-xs font-normal text-gray-400">/ {product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].size : (product.unit || 'kg')}</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-700">
+                        {product.stock}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${product.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                          }`}>
+                          {product.status || 'active'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link
+                            to={`/products/edit/${product._id}`}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Product"
+                          >
+                            <MdEdit className="w-5 h-5" />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(product._id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete Product"
+                          >
+                            <MdDelete className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

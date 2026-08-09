@@ -41,7 +41,7 @@ export default function DashboardLayout() {
         console.error('Failed to fetch profile:', error);
       }
     };
-    
+
     fetchProfile();
   }, []);
 
@@ -58,22 +58,22 @@ export default function DashboardLayout() {
           <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xl">A</span>
           </div>
-          <span className="text-2xl font-bold text-gray-900 tracking-tight">AgriCRM</span>
+          <span className="text-2xl font-bold text-gray-900 tracking-tight">AgriIndia</span>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path || 
-                             (item.path !== '/' && location.pathname.startsWith(item.path));
+            const isActive = location.pathname === item.path ||
+              (item.path !== '/' && location.pathname.startsWith(item.path));
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={clsx(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
-                  isActive 
-                    ? "bg-primary-100 text-primary-800 font-semibold shadow-sm" 
+                  isActive
+                    ? "bg-primary-100 text-primary-800 font-semibold shadow-sm"
                     : "text-gray-600 hover:bg-surface-variant hover:text-gray-900"
                 )}
               >
@@ -83,7 +83,7 @@ export default function DashboardLayout() {
             );
           })}
         </nav>
-        
+
         <div className="p-4 border-t space-y-2">
           <NavLink to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-surface-variant transition-all duration-200">
             <MdSettings className="w-6 h-6" />
@@ -110,7 +110,7 @@ export default function DashboardLayout() {
             </div>
             <span className="text-xl font-bold text-gray-900">AgriCRM</span>
           </div>
-          
+
           <div className="hidden md:block">
           </div>
 
@@ -120,7 +120,7 @@ export default function DashboardLayout() {
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
             </button>
 
-            <button 
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-red-600 hover:bg-red-50 border border-red-100 text-sm font-medium transition-colors"
               title="Logout"
@@ -130,7 +130,7 @@ export default function DashboardLayout() {
             </button>
 
             <div className="relative" ref={profileRef}>
-              <div 
+              <div
                 className="flex items-center gap-3 cursor-pointer p-1 rounded-full hover:bg-surface-variant transition-colors"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
@@ -215,13 +215,13 @@ export default function DashboardLayout() {
           </div>
         </main>
       </div>
-      
+
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 w-full bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around p-2 pb-safe border-t z-50">
         {navItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path || 
-                           (item.path !== '/' && location.pathname.startsWith(item.path));
+          const isActive = location.pathname === item.path ||
+            (item.path !== '/' && location.pathname.startsWith(item.path));
           return (
             <NavLink
               key={item.path}

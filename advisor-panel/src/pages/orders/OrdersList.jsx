@@ -127,75 +127,157 @@ export default function OrdersList() {
             <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm">
-                  <th className="p-4 font-medium">Order ID</th>
-                  <th className="p-4 font-medium">Farmer</th>
-                  <th className="p-4 font-medium">Date</th>
-                  <th className="p-4 font-medium">Items</th>
-                  <th className="p-4 font-medium">Total</th>
-                  <th className="p-4 font-medium">Status</th>
-                  <th className="p-4 font-medium">Payment</th>
-                  <th className="p-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className="p-8 text-center text-gray-500">No orders found. Select products to create a new order.</td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((order) => (
-                    <tr key={order._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="p-4 font-medium text-gray-900 truncate max-w-[120px]" title={order._id}>
+          <div className="space-y-4 p-4 md:p-0">
+            {/* Mobile View (< md) */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+              {filteredOrders.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 bg-white rounded-2xl border border-gray-100">
+                  No orders found. Select products to create a new order.
+                </div>
+              ) : (
+                filteredOrders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
                         #{order._id.slice(-8).toUpperCase()}
-                      </td>
-                      <td className="p-4 text-gray-700 font-medium">{order.farmerName}</td>
-                      <td className="p-4 text-gray-600 text-xs font-medium">{formatDateTime(order.date)}</td>
-                      <td className="p-4 text-gray-600">{order.items?.length || 0}</td>
-                      <td className="p-4 font-bold text-gray-900">₹{order.totalAmount}</td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                          order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
-                          order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                          'bg-orange-100 text-orange-700'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="p-4">
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                        order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                        order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
+                        order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                        'bg-orange-100 text-orange-700'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                      <div>
+                        <span className="text-gray-400 block">Farmer</span>
+                        <span className="font-semibold text-gray-900">{order.farmerName}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Date</span>
+                        <span className="text-gray-700">{formatDateTime(order.date)}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Items Count</span>
+                        <span className="font-semibold text-gray-800">{order.items?.length || 0} items</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Payment</span>
                         {order.payment ? (
-                          <span className="text-green-600 font-medium text-xs bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+                          <span className="text-green-600 font-semibold">
                             Paid ({order.paymentMethod || 'Cash'})
                           </span>
-                        ) : order.status !== 'Cancelled' ? (
+                        ) : (
+                          <span className="text-gray-400 font-semibold">Unpaid</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+                      <div>
+                        <span className="text-xs text-gray-400 block">Total</span>
+                        <span className="text-base font-bold text-gray-900">₹{order.totalAmount}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {!order.payment && order.status !== 'Cancelled' && (
                           <button 
                             onClick={() => handlePayClick(order._id)}
-                            className="bg-primary-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-primary-700 transition-colors"
+                            className="bg-primary-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-700 transition-colors shadow-sm"
                           >
                             Pay Now
                           </button>
-                        ) : (
-                          <span className="text-gray-400 text-sm">Unpaid</span>
                         )}
-                      </td>
-                      <td className="p-4">
                         <button 
                           onClick={() => setSelectedInvoiceOrder(order)}
-                          className="text-primary-600 hover:text-primary-800 p-2 rounded-lg hover:bg-primary-50 transition-colors"
-                          title="View Bill"
+                          className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 px-3 py-1.5 rounded-lg bg-primary-50 font-medium transition-colors border border-primary-100"
                         >
-                          <MdReceipt className="w-5 h-5" />
+                          <MdReceipt className="w-4 h-4" />
+                          Bill
                         </button>
-                      </td>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table View (>= md) */}
+            <div className="hidden md:block overflow-x-auto no-scrollbar">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm">
+                    <th className="p-4 font-medium">Order ID</th>
+                    <th className="p-4 font-medium">Farmer</th>
+                    <th className="p-4 font-medium">Date</th>
+                    <th className="p-4 font-medium">Items</th>
+                    <th className="p-4 font-medium">Total</th>
+                    <th className="p-4 font-medium">Status</th>
+                    <th className="p-4 font-medium">Payment</th>
+                    <th className="p-4 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="p-8 text-center text-gray-500">No orders found. Select products to create a new order.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredOrders.map((order) => (
+                      <tr key={order._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                        <td className="p-4 font-medium text-gray-900 truncate max-w-[120px]" title={order._id}>
+                          #{order._id.slice(-8).toUpperCase()}
+                        </td>
+                        <td className="p-4 text-gray-700 font-medium">{order.farmerName}</td>
+                        <td className="p-4 text-gray-600 text-xs font-medium">{formatDateTime(order.date)}</td>
+                        <td className="p-4 text-gray-600">{order.items?.length || 0}</td>
+                        <td className="p-4 font-bold text-gray-900">₹{order.totalAmount}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                            order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
+                            order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                            'bg-orange-100 text-orange-700'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          {order.payment ? (
+                            <span className="text-green-600 font-medium text-xs bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+                              Paid ({order.paymentMethod || 'Cash'})
+                            </span>
+                          ) : order.status !== 'Cancelled' ? (
+                            <button 
+                              onClick={() => handlePayClick(order._id)}
+                              className="bg-primary-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-primary-700 transition-colors"
+                            >
+                              Pay Now
+                            </button>
+                          ) : (
+                            <span className="text-gray-400 text-sm">Unpaid</span>
+                          )}
+                        </td>
+                        <td className="p-4">
+                          <button 
+                            onClick={() => setSelectedInvoiceOrder(order)}
+                            className="text-primary-600 hover:text-primary-800 p-2 rounded-lg hover:bg-primary-50 transition-colors"
+                            title="View Bill"
+                          >
+                            <MdReceipt className="w-5 h-5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
@@ -242,7 +324,7 @@ export default function OrdersList() {
               )}
             </div>
 
-            <div className="border border-gray-100 rounded-xl overflow-hidden mb-6">
+            <div className="border border-gray-100 rounded-xl overflow-x-auto no-scrollbar mb-6">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-gray-500">
                   <tr>
@@ -255,7 +337,10 @@ export default function OrdersList() {
                 <tbody className="divide-y divide-gray-100">
                   {selectedInvoiceOrder.items?.map((item, index) => (
                     <tr key={index}>
-                      <td className="px-4 py-3 text-gray-900">{item.name}</td>
+                      <td className="px-4 py-3 text-gray-900">
+                        <div>{item.name}</div>
+                        {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
+                      </td>
                       <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
                       <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
                       <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>

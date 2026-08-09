@@ -100,21 +100,21 @@ export default function FarmerProfile() {
       </div>
 
       <div className="bg-surface rounded-3xl shadow-md3-2 overflow-hidden">
-        <div className="bg-primary-600 h-32 relative">
-          <div className="absolute -bottom-12 left-8 w-24 h-24 bg-white rounded-full border-4 border-white flex items-center justify-center text-3xl font-bold text-primary-600 shadow-md">
+        <div className="bg-primary-600 h-28 sm:h-36 relative">
+          <div className="absolute -bottom-10 left-4 sm:-bottom-12 sm:left-8 w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border-4 border-white flex items-center justify-center text-2xl sm:text-3xl font-bold text-primary-600 shadow-md">
             {farmerFullName ? farmerFullName.charAt(0).toUpperCase() : 'F'}
           </div>
         </div>
-        <div className="pt-16 pb-6 px-8">
-          <h2 className="text-2xl font-bold text-gray-900">{farmerFullName}</h2>
-          <div className="flex items-center gap-6 mt-2 text-gray-600">
+        <div className="pt-12 sm:pt-16 pb-5 sm:pb-6 px-4 sm:px-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{farmerFullName}</h2>
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-2 text-xs sm:text-sm text-gray-600">
             <div className="flex items-center gap-1">
-              <MdLocationOn className="w-5 h-5 text-gray-400" />
-              {farmer.village || 'N/A'}
+              <MdLocationOn className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              <span>{farmer.village ? `Village: ${farmer.village}` : 'Village: N/A'}</span>
             </div>
             <div className="flex items-center gap-1">
-              <MdPhone className="w-5 h-5 text-gray-400" />
-              {farmer.phone}
+              <MdPhone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              <span>{farmer.phone}</span>
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function FarmerProfile() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab.id 
                     ? 'border-primary-600 text-primary-600 font-semibold' 
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -138,18 +138,18 @@ export default function FarmerProfile() {
         </div>
       </div>
 
-      <div className="bg-surface rounded-3xl shadow-md3-1 p-6 md:p-8 min-h-[300px]">
+      <div className="bg-surface rounded-3xl shadow-md3-1 p-4 sm:p-6 md:p-8 min-h-[300px]">
         {activeTab === 'farm' && (
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Farm Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Farm Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Village</p>
-                <p className="font-semibold text-gray-900">{farmer.village || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Village</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.village || 'N/A'}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Contact Phone</p>
-                <p className="font-semibold text-gray-900">{farmer.phone}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Contact Phone</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.phone}</p>
               </div>
             </div>
           </div>
@@ -157,19 +157,19 @@ export default function FarmerProfile() {
         
         {activeTab === 'land' && (
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Land Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Land Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Total Land Area</p>
-                <p className="font-semibold text-gray-900">{farmer.totalLand || 'N/A'} Acres</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Total Land Area</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.totalLand || 'N/A'} Acres</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Temporary Land Area</p>
-                <p className="font-semibold text-gray-900">{farmer.temporaryLand || '0'} Acres</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Temporary Land Area</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.temporaryLand || '0'} Acres</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Land Type</p>
-                <p className="font-semibold text-gray-900 capitalize">{farmer.landType || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Land Type</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base capitalize">{farmer.landType || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -177,23 +177,23 @@ export default function FarmerProfile() {
 
         {activeTab === 'crop' && (
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Crop & Land Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Crop & Land Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Land Type</p>
-                <p className="font-semibold text-gray-900 capitalize">{farmer.landType || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Land Type</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base capitalize">{farmer.landType || 'N/A'}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Winter Crop</p>
-                <p className="font-semibold text-gray-900">{farmer.winterCrop || 'None'}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Winter Crop</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.winterCrop || 'None'}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Summer Crop</p>
-                <p className="font-semibold text-gray-900">{farmer.summerCrop || 'None'}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Summer Crop</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.summerCrop || 'None'}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Rain Crop (Monsoon)</p>
-                <p className="font-semibold text-gray-900">{farmer.rainCrop || 'None'}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Rain Crop (Monsoon)</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.rainCrop || 'None'}</p>
               </div>
             </div>
           </div>
@@ -201,11 +201,11 @@ export default function FarmerProfile() {
 
         {activeTab === 'orders' && (
           <div className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Order History for {farmerFullName}</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Order History for {farmerFullName}</h3>
               <button 
                 onClick={() => navigate('/products')}
-                className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 self-start sm:self-auto"
               >
                 <MdShoppingBag className="w-4 h-4" />
                 Place New Order
@@ -213,7 +213,7 @@ export default function FarmerProfile() {
             </div>
 
             {orders.length === 0 ? (
-              <div className="p-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-500">
+              <div className="p-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-500 text-sm">
                 No orders placed for this farmer yet.
               </div>
             ) : (
@@ -234,11 +234,11 @@ export default function FarmerProfile() {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${order.payment ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${order.payment ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                           {order.payment ? 'PAID' : 'PENDING'}
                         </span>
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           order.status === 'Completed' ? 'bg-green-100 text-green-700' :
                           order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
                           'bg-orange-100 text-orange-700'
@@ -247,17 +247,17 @@ export default function FarmerProfile() {
                         </span>
                         <button 
                           onClick={() => setSelectedInvoiceOrder({ ...order, farmerName: farmerFullName })}
-                          className="flex items-center gap-1 bg-white text-primary-600 border border-primary-200 hover:bg-primary-50 px-3 py-1 rounded-lg text-xs font-semibold transition-colors ml-2"
+                          className="flex items-center gap-1 bg-white text-primary-600 border border-primary-200 hover:bg-primary-50 px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
                         >
                           <MdReceipt className="w-4 h-4" />
-                          View Bill
+                          Bill
                         </button>
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       {order.items?.map((item, idx) => (
-                        <div key={idx} className="flex justify-between text-sm text-gray-700">
+                        <div key={idx} className="flex justify-between text-xs sm:text-sm text-gray-700">
                           <span>{item.name} x {item.quantity}</span>
                           <span className="font-medium">₹{item.price * item.quantity}</span>
                         </div>
@@ -265,8 +265,8 @@ export default function FarmerProfile() {
                     </div>
 
                     <div className="flex justify-between items-center pt-2 border-t border-gray-200 text-sm">
-                      <span className="font-medium text-gray-600">Total Amount</span>
-                      <span className="font-bold text-gray-900 text-base">₹{order.totalAmount}</span>
+                      <span className="font-medium text-gray-600 text-xs sm:text-sm">Total Amount</span>
+                      <span className="font-bold text-gray-900 text-sm sm:text-base">₹{order.totalAmount}</span>
                     </div>
                   </div>
                 ))}
@@ -318,7 +318,7 @@ export default function FarmerProfile() {
               )}
             </div>
 
-            <div className="border border-gray-100 rounded-xl overflow-hidden mb-6">
+            <div className="border border-gray-100 rounded-xl overflow-x-auto no-scrollbar mb-6">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-gray-500">
                   <tr>
@@ -331,7 +331,10 @@ export default function FarmerProfile() {
                 <tbody className="divide-y divide-gray-100">
                   {selectedInvoiceOrder.items?.map((item, index) => (
                     <tr key={index}>
-                      <td className="px-4 py-3 text-gray-900">{item.name}</td>
+                      <td className="px-4 py-3 text-gray-900">
+                        <div>{item.name}</div>
+                        {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
+                      </td>
                       <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
                       <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
                       <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>

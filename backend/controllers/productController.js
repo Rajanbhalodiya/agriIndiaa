@@ -4,23 +4,42 @@ import { v2 as cloudinary } from "cloudinary";
 // Add Product
 const addProduct = async (req, res) => {
     try {
-        const { name, description, price, category, stock, unit, status } = req.body;
+        const { name, description, price, category, stock, unit, status, packSizes } = req.body;
         const imageFile = req.file;
 
-        if (!name || !description || !price || !category || !imageFile) {
+        let parsedPackSizes = [];
+        if (packSizes) {
+            try {
+                parsedPackSizes = JSON.parse(packSizes);
+            } catch (error) {
+                console.log("Error parsing packSizes", error);
+            }
+        }
+
+        if (!name || !description || !category || !imageFile) {
             return res.json({ success: false, message: "Missing details" });
         }
 
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
         const imageUrl = imageUpload.secure_url;
 
+        let finalPrice = Number(price) || 0;
+        let finalUnit = unit || 'kg';
+        if (parsedPackSizes.length > 0) {
+            finalPrice = parsedPackSizes[0].price;
+            finalUnit = parsedPackSizes[0].size;
+        } else if (!finalPrice) {
+            return res.json({ success: false, message: "Missing price details" });
+        }
+
         const productData = {
             name,
             description,
-            price: Number(price),
+            price: finalPrice,
             category,
             stock: Number(stock) || 0,
-            unit: unit || 'kg',
+            unit: finalUnit,
+            packSizes: parsedPackSizes,
             image: imageUrl,
             status: status || 'active'
         };
@@ -75,10 +94,35 @@ const singleProduct = async (req, res) => {
 // Update Product
 const updateProduct = async (req, res) => {
     try {
-        const { id, name, description, price, category, stock, unit, status } = req.body;
+        const { id, name, description, price, category, stock, unit, status, packSizes } = req.body;
         const imageFile = req.file;
 
-        const updateData = { name, description, price: Number(price), category, stock: Number(stock), unit, status };
+        let parsedPackSizes = [];
+        if (packSizes) {
+            try {
+                parsedPackSizes = JSON.parse(packSizes);
+            } catch (error) {
+                console.log("Error parsing packSizes", error);
+            }
+        }
+
+        let finalPrice = Number(price) || 0;
+        let finalUnit = unit || 'kg';
+        if (parsedPackSizes.length > 0) {
+            finalPrice = parsedPackSizes[0].price;
+            finalUnit = parsedPackSizes[0].size;
+        }
+
+        const updateData = { 
+            name, 
+            description, 
+            price: finalPrice, 
+            category, 
+            stock: Number(stock), 
+            unit: finalUnit, 
+            status,
+            packSizes: parsedPackSizes
+        };
 
         if (imageFile) {
             const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });

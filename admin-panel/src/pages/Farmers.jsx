@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { MdClose, MdPerson } from 'react-icons/md';
+import { API_BASE_URL } from '../services/api';
 
 export default function Farmers() {
   const [farmers, setFarmers] = useState([]);
@@ -12,7 +13,7 @@ export default function Farmers() {
 
   const fetchFarmers = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/admin/all-farmers', {
+      const response = await fetch(`${API_BASE_URL}/admin/all-farmers`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
@@ -38,14 +39,14 @@ export default function Farmers() {
   const filteredFarmers = farmers.filter((farmer) => {
     const fullName = `${farmer.firstName || ''} ${farmer.lastName || ''}`.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       fullName.includes(searchLower) ||
       farmer.phone?.toLowerCase().includes(searchLower) ||
       farmer.village?.toLowerCase().includes(searchLower) ||
       farmer.advisorName?.toLowerCase().includes(searchLower);
 
-    const matchesLandType = 
-      landTypeFilter === 'All' || 
+    const matchesLandType =
+      landTypeFilter === 'All' ||
       farmer.landType?.toLowerCase() === landTypeFilter.toLowerCase();
 
     return matchesSearch && matchesLandType;
@@ -53,9 +54,9 @@ export default function Farmers() {
 
   return (
     <div className="max-w-7xl mx-auto pb-10 relative">
-      <PageHeader 
-        title="Farmers" 
-        description="View and manage farmers registered in the system" 
+      <PageHeader
+        title="Farmers"
+        description="View and manage farmers registered in the system"
       />
 
       {/* Search and Land Type Filter Controls */}
@@ -87,77 +88,133 @@ export default function Farmers() {
           </select>
         </div>
       </div>
-      
+
       {loading ? (
         <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>
       ) : filteredFarmers.length === 0 ? (
-        <EmptyState 
-          title="No Matching Farmers" 
-          description="Try adjusting your search query or land type filter." 
+        <EmptyState
+          title="No Matching Farmers"
+          description="Try adjusting your search query or land type filter."
         />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-500">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Farmer Name</th>
-                  <th className="px-6 py-4 font-semibold">Added By Advisor</th>
-                  <th className="px-6 py-4 font-semibold">Phone</th>
-                  <th className="px-6 py-4 font-semibold">Village</th>
-                  <th className="px-6 py-4 font-semibold">Total Land</th>
-                  <th className="px-6 py-4 font-semibold">Temp Land</th>
-                  <th className="px-6 py-4 font-semibold">Land Type</th>
-                  <th className="px-6 py-4 font-semibold">Crops</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredFarmers.map((farmer) => (
-                  <tr 
-                    key={farmer._id} 
-                    onClick={() => setSelectedFarmer(farmer)}
-                    className="hover:bg-gray-50/50 transition-colors cursor-pointer"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
-                          {farmer.profileImage && farmer.profileImage !== "default.jpg" ? (
-                            <img src={farmer.profileImage} alt={farmer.firstName} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
-                              {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : 'F'}
-                            </div>
-                          )}
+        <div className="space-y-4">
+          {/* Mobile Card View (< md) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {filteredFarmers.map((farmer) => (
+              <div
+                key={farmer._id}
+                onClick={() => setSelectedFarmer(farmer)}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3 cursor-pointer hover:border-primary-200 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                      {farmer.profileImage && farmer.profileImage !== "default.jpg" ? (
+                        <img src={farmer.profileImage} alt={farmer.firstName} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
+                          {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : 'F'}
                         </div>
-                        <div className="font-medium text-gray-900">{farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim()}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                        farmer.advisorName && farmer.advisorName !== 'Direct / Unassigned' 
-                          ? 'bg-blue-50 text-blue-700 border border-blue-100' 
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {farmer.advisorName || 'Direct / Unassigned'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">{farmer.phone || 'N/A'}</td>
-                    <td className="px-6 py-4">{farmer.village || 'N/A'}</td>
-                    <td className="px-6 py-4">{farmer.totalLand ? `${farmer.totalLand} Acres` : 'N/A'}</td>
-                    <td className="px-6 py-4">{farmer.temporaryLand ? `${farmer.temporaryLand} Acres` : '0 Acres'}</td>
-                    <td className="px-6 py-4 capitalize">{farmer.landType || 'N/A'}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-xs text-gray-500">
-                        {farmer.winterCrop && <div>Winter: {farmer.winterCrop}</div>}
-                        {farmer.summerCrop && <div>Summer: {farmer.summerCrop}</div>}
-                        {farmer.rainCrop && <div>Rain: {farmer.rainCrop}</div>}
-                        {!farmer.winterCrop && !farmer.summerCrop && !farmer.rainCrop && 'N/A'}
-                      </div>
-                    </td>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-base">{farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim()}</h4>
+                      <p className="text-xs text-gray-500">{farmer.village ? `Village: ${farmer.village}` : 'Village: N/A'}</p>
+                    </div>
+                  </div>
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${farmer.advisorName && farmer.advisorName !== 'Direct / Unassigned'
+                    ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                    : 'bg-gray-100 text-gray-600'
+                    }`}>
+                    {farmer.advisorName || 'Direct'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-50 text-xs text-gray-600">
+                  <div>
+                    <span className="text-gray-400 block">Phone</span>
+                    <span className="font-semibold text-gray-800">{farmer.phone || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Total Land</span>
+                    <span className="font-semibold text-gray-800">{farmer.totalLand ? `${farmer.totalLand} Acres` : 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Land Type</span>
+                    <span className="font-semibold text-gray-800 capitalize">{farmer.landType || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Temp Land</span>
+                    <span className="font-semibold text-gray-800">{farmer.temporaryLand ? `${farmer.temporaryLand} Acres` : '0 Acres'}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left text-sm text-gray-500">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Farmer Name</th>
+                    <th className="px-6 py-4 font-semibold">Added By Advisor</th>
+                    <th className="px-6 py-4 font-semibold">Phone</th>
+                    <th className="px-6 py-4 font-semibold">Village</th>
+                    <th className="px-6 py-4 font-semibold">Total Land</th>
+                    <th className="px-6 py-4 font-semibold">Temp Land</th>
+                    <th className="px-6 py-4 font-semibold">Land Type</th>
+                    <th className="px-6 py-4 font-semibold">Crops</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredFarmers.map((farmer) => (
+                    <tr
+                      key={farmer._id}
+                      onClick={() => setSelectedFarmer(farmer)}
+                      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                            {farmer.profileImage && farmer.profileImage !== "default.jpg" ? (
+                              <img src={farmer.profileImage} alt={farmer.firstName} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
+                                {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : 'F'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="font-medium text-gray-900">{farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim()}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${farmer.advisorName && farmer.advisorName !== 'Direct / Unassigned'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                          : 'bg-gray-100 text-gray-600'
+                          }`}>
+                          {farmer.advisorName || 'Direct / Unassigned'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-900">{farmer.phone || 'N/A'}</td>
+                      <td className="px-6 py-4">{farmer.village || 'N/A'}</td>
+                      <td className="px-6 py-4">{farmer.totalLand ? `${farmer.totalLand} Acres` : 'N/A'}</td>
+                      <td className="px-6 py-4">{farmer.temporaryLand ? `${farmer.temporaryLand} Acres` : '0 Acres'}</td>
+                      <td className="px-6 py-4 capitalize">{farmer.landType || 'N/A'}</td>
+                      <td className="px-6 py-4">
+                        <div className="text-xs text-gray-500">
+                          {farmer.winterCrop && <div>Winter: {farmer.winterCrop}</div>}
+                          {farmer.summerCrop && <div>Summer: {farmer.summerCrop}</div>}
+                          {farmer.rainCrop && <div>Rain: {farmer.rainCrop}</div>}
+                          {!farmer.winterCrop && !farmer.summerCrop && !farmer.rainCrop && 'N/A'}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -168,18 +225,18 @@ export default function Farmers() {
           <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
             <div className="sticky top-0 bg-white border-b border-gray-100 p-6 flex items-center justify-between z-10">
               <h2 className="text-xl font-bold text-gray-900">Farmer Details</h2>
-              <button 
+              <button
                 onClick={() => setSelectedFarmer(null)}
                 className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors"
               >
                 <MdClose className="w-5 h-5" />
               </button>
             </div>
-            
-            <div className="p-6 space-y-6">
+
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Profile Header */}
-              <div className="flex items-center gap-5">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-3xl shrink-0">
+              <div className="flex items-center gap-3 sm:gap-5">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-2xl sm:text-3xl shrink-0">
                   {selectedFarmer.profileImage && selectedFarmer.profileImage !== "default.jpg" ? (
                     <img src={selectedFarmer.profileImage} alt={selectedFarmer.firstName} className="w-full h-full object-cover" />
                   ) : (
@@ -187,40 +244,40 @@ export default function Farmers() {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">{selectedFarmer.farmerName || `${selectedFarmer.firstName || ''} ${selectedFarmer.lastName || ''}`.trim()}</h3>
-                  <p className="text-gray-500 mt-1">Village: {selectedFarmer.village || 'N/A'}</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedFarmer.farmerName || `${selectedFarmer.firstName || ''} ${selectedFarmer.lastName || ''}`.trim()}</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">Village: {selectedFarmer.village || 'N/A'}</p>
                 </div>
               </div>
 
               {/* Advisor Attribution Banner */}
               <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0">
                     <MdPerson className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="block text-xs text-blue-600 font-medium uppercase tracking-wider">Added / Assigned Advisor</span>
-                    <span className="text-base font-bold text-gray-900">{selectedFarmer.advisorName || 'Direct / Unassigned'}</span>
+                    <span className="text-sm sm:text-base font-bold text-gray-900">{selectedFarmer.advisorName || 'Direct / Unassigned'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {/* Contact Info */}
-                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                  <h4 className="font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">Contact Info</h4>
-                  <div className="space-y-3 text-sm">
+                <div className="bg-gray-50 rounded-2xl p-4 sm:p-5 border border-gray-100">
+                  <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 border-b border-gray-200 pb-2 text-sm sm:text-base">Contact Info</h4>
+                  <div className="space-y-3 text-xs sm:text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Phone:</span>
-                      <span className="font-medium text-gray-900">{selectedFarmer.phone}</span>
+                      <span className="font-medium text-gray-900">{selectedFarmer.phone || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Land Info */}
-                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                  <h4 className="font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">Land Details</h4>
-                  <div className="space-y-3 text-sm">
+                <div className="bg-gray-50 rounded-2xl p-4 sm:p-5 border border-gray-100">
+                  <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 border-b border-gray-200 pb-2 text-sm sm:text-base">Land Details</h4>
+                  <div className="space-y-3 text-xs sm:text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Total Land:</span>
                       <span className="font-medium text-gray-900">{selectedFarmer.totalLand || 'N/A'} Acres</span>
@@ -238,9 +295,9 @@ export default function Farmers() {
               </div>
 
               {/* Crop Info */}
-              <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                <h4 className="font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">Crop Details</h4>
-                <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-gray-50 rounded-2xl p-4 sm:p-5 border border-gray-100">
+                <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 border-b border-gray-200 pb-2 text-sm sm:text-base">Crop Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div>
                     <span className="block text-gray-500 mb-1">Winter</span>
                     <span className="font-medium text-gray-900">{selectedFarmer.winterCrop || 'None'}</span>

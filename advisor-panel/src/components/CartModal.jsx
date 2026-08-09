@@ -47,6 +47,7 @@ export default function CartModal({ isOpen, onClose }) {
       const formattedItems = cartItems.map(item => ({
         productId: item._id,
         name: item.name,
+        packSize: item.packSize,
         quantity: item.quantity,
         price: item.price,
         image: item.image
@@ -111,28 +112,29 @@ export default function CartModal({ isOpen, onClose }) {
                 </div>
               ) : (
                 cartItems.map((item) => (
-                  <div key={item._id} className="flex gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <div key={item.cartItemId} className="flex gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
                     <div className="w-16 h-16 rounded-lg bg-white overflow-hidden border border-gray-200">
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900 text-sm line-clamp-1">{item.name}</h4>
+                      {item.packSize && <div className="text-xs text-gray-500 mt-0.5">{item.packSize}</div>}
                       <div className="text-primary-600 font-bold text-sm mt-1">₹{item.price}</div>
                       
                       <div className="flex items-center gap-3 mt-2">
                         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden h-8 bg-white">
                           <button 
-                            onClick={() => dispatch(updateQuantity({ id: item._id, quantity: item.quantity - 1 }))}
+                            onClick={() => dispatch(updateQuantity({ id: item.cartItemId, quantity: item.quantity - 1 }))}
                             className="px-2 hover:bg-gray-50 text-gray-600"
                           >-</button>
                           <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                           <button 
-                            onClick={() => dispatch(updateQuantity({ id: item._id, quantity: item.quantity + 1 }))}
+                            onClick={() => dispatch(updateQuantity({ id: item.cartItemId, quantity: item.quantity + 1 }))}
                             className="px-2 hover:bg-gray-50 text-gray-600"
                           >+</button>
                         </div>
                         <button 
-                          onClick={() => dispatch(removeFromCart(item._id))}
+                          onClick={() => dispatch(removeFromCart(item.cartItemId))}
                           className="text-red-500 hover:text-red-700 p-1"
                         >
                           <MdDelete className="w-4 h-4" />

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { MdClose } from 'react-icons/md';
+import { API_BASE_URL } from '../services/api';
 
 export default function Advisors() {
   const [advisors, setAdvisors] = useState([]);
@@ -12,7 +13,7 @@ export default function Advisors() {
 
   const fetchAdvisors = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/admin/all-advisores', {
+      const response = await fetch(`${API_BASE_URL}/admin/all-advisores`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
@@ -108,50 +109,91 @@ export default function Advisors() {
           description="Try adjusting your search query or availability filter." 
         />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-500">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-700 font-semibold">
-                <tr>
-                  <th className="px-6 py-4">Advisor Name</th>
-                  <th className="px-6 py-4">Phone</th>
-                  <th className="px-6 py-4">Village</th>
-                  <th className="px-6 py-4">Detailed Address</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredAdvisors.map((advisor) => (
-                  <tr 
-                    key={advisor._id} 
-                    onClick={() => setSelectedAdvisor(advisor)}
-                    className="hover:bg-gray-50/50 transition-colors cursor-pointer"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
-                          {advisor.image && advisor.image !== 'default.jpg' ? (
-                            <img src={advisor.image} alt={advisor.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
-                              {advisor.name ? advisor.name.charAt(0).toUpperCase() : 'A'}
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">{advisor.name}</div>
-                          {advisor.email && <div className="text-xs text-gray-500">{advisor.email}</div>}
-                        </div>
+        <div className="space-y-4">
+          {/* Mobile Card View (< md) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {filteredAdvisors.map((advisor) => (
+              <div
+                key={advisor._id}
+                onClick={() => setSelectedAdvisor(advisor)}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3 cursor-pointer hover:border-primary-200 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                    {advisor.image && advisor.image !== 'default.jpg' ? (
+                      <img src={advisor.image} alt={advisor.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
+                        {advisor.name ? advisor.name.charAt(0).toUpperCase() : 'A'}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">{advisor.phone || 'N/A'}</td>
-                    <td className="px-6 py-4 text-gray-700">{advisor.village || 'N/A'}</td>
-                    <td className="px-6 py-4 text-gray-800 font-medium max-w-xs truncate">
-                      {formatAddress(advisor.address, advisor.village)}
-                    </td>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-base">{advisor.name}</h4>
+                    <p className="text-xs text-gray-500">{advisor.phone || 'No Phone'}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-50 text-xs text-gray-600">
+                  <div>
+                    <span className="text-gray-400 block">Village</span>
+                    <span className="font-semibold text-gray-800">{advisor.village || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Address</span>
+                    <span className="font-semibold text-gray-800 truncate block">{formatAddress(advisor.address, advisor.village)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left text-sm text-gray-500">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700 font-semibold">
+                  <tr>
+                    <th className="px-6 py-4">Advisor Name</th>
+                    <th className="px-6 py-4">Phone</th>
+                    <th className="px-6 py-4">Village</th>
+                    <th className="px-6 py-4">Detailed Address</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredAdvisors.map((advisor) => (
+                    <tr 
+                      key={advisor._id} 
+                      onClick={() => setSelectedAdvisor(advisor)}
+                      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                            {advisor.image && advisor.image !== 'default.jpg' ? (
+                              <img src={advisor.image} alt={advisor.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
+                                {advisor.name ? advisor.name.charAt(0).toUpperCase() : 'A'}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">{advisor.name}</div>
+                            {advisor.email && <div className="text-xs text-gray-500">{advisor.email}</div>}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-900">{advisor.phone || 'N/A'}</td>
+                      <td className="px-6 py-4 text-gray-700">{advisor.village || 'N/A'}</td>
+                      <td className="px-6 py-4 text-gray-800 font-medium max-w-xs truncate">
+                        {formatAddress(advisor.address, advisor.village)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

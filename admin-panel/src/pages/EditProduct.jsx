@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MdCloudUpload, MdArrowBack } from 'react-icons/md';
+import { MdCloudUpload, MdArrowBack, MdAdd, MdDelete } from 'react-icons/md';
+import { API_BASE_URL } from '../services/api';
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -12,18 +13,18 @@ export default function EditProduct() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
     category: '',
-    stock: '',
-    unit: 'kg'
+    stock: ''
   });
+
+  const [packSizes, setPackSizes] = useState([{ size: '', price: '' }]);
 
   const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/product/single', {
+        const response = await fetch(`${API_BASE_URL}/product/single`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -35,11 +36,16 @@ export default function EditProduct() {
           setFormData({
             name: data.data.name,
             description: data.data.description,
-            price: data.data.price,
             category: data.data.category,
-            stock: data.data.stock,
-            unit: data.data.unit
+            stock: data.data.stock
           });
+          
+          if (data.data.packSizes && data.data.packSizes.length > 0) {
+            setPackSizes(data.data.packSizes);
+          } else {
+            // Fallback for older products
+            setPackSizes([{ size: data.data.unit || 'kg', price: data.data.price || '' }]);
+          }
           setImagePreview(data.data.image);
         } else {
           alert('Failed to fetch product data');
@@ -57,6 +63,23 @@ export default function EditProduct() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePackSizeChange = (index, field, value) => {
+    const newPackSizes = [...packSizes];
+    newPackSizes[index][field] = value;
+    setPackSizes(newPackSizes);
+  };
+
+  const addPackSize = () => {
+    setPackSizes([...packSizes, { size: '', price: '' }]);
+  };
+
+  const removePackSize = (index) => {
+    if (packSizes.length > 1) {
+      const newPackSizes = packSizes.filter((_, i) => i !== index);
+      setPackSizes(newPackSizes);
+    }
   };
 
   const handleImageChange = (e) => {
@@ -78,11 +101,12 @@ export default function EditProduct() {
       Object.keys(formData).forEach(key => {
         form.append(key, formData[key]);
       });
+      form.append('packSizes', JSON.stringify(packSizes));
       if (imageFile) {
         form.append('image', imageFile);
       }
 
-      const response = await fetch('http://localhost:4000/api/product/update', {
+      const response = await fetch(`${API_BASE_URL}/product/update`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
@@ -170,14 +194,6 @@ export default function EditProduct() {
               </select>
             </div>
 
-            {/* Price */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} required min="0" step="0.01"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all" 
-                placeholder="0.00" />
-            </div>
-
             {/* Stock */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Available Stock *</label>
@@ -186,17 +202,50 @@ export default function EditProduct() {
                 placeholder="100" />
             </div>
 
-            {/* Unit */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Measurement Unit *</label>
-              <select name="unit" value={formData.unit} onChange={handleChange} required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all bg-white">
-                <option value="kg">Kilograms (kg)</option>
-                <option value="g">Grams (g)</option>
-                <option value="liter">Liters (L)</option>
-                <option value="ml">Milliliters (ml)</option>
-                <option value="piece">Piece / Unit</option>
-              </select>
+            {/* Packaging Options */}
+            <div className="md:col-span-2 mt-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
+              <div className="flex justify-between items-center mb-4">
+                <label className="block text-sm font-medium text-gray-700">Packaging Options & Prices *</label>
+                <button type="button" onClick={addPackSize} className="text-sm flex items-center gap-1 text-primary-600 font-medium hover:text-primary-700 bg-primary-50 px-3 py-1.5 rounded-lg transition-colors">
+                  <MdAdd className="w-4 h-4" /> Add Option
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                {packSizes.map((pack, index) => (
+                  <div key={index} className="flex gap-4 items-center bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                    <div className="flex-1">
+                      <input type="text" list="pack-sizes-list" placeholder="Size (e.g. 50 ml, 50 g, 1 Liter)" value={pack.size} onChange={(e) => handlePackSizeChange(index, 'size', e.target.value)} required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all" />
+                    </div>
+                    <div className="flex-1">
+                      <input type="number" placeholder="Price (₹)" value={pack.price} onChange={(e) => handlePackSizeChange(index, 'price', e.target.value)} required min="0" step="0.01"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all" />
+                    </div>
+                    <button type="button" onClick={() => removePackSize(index)} disabled={packSizes.length === 1} title="Remove Option"
+                      className={`p-2 rounded-lg transition-colors ${packSizes.length === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50'}`}>
+                      <MdDelete className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <datalist id="pack-sizes-list">
+                <option value="50 ml" />
+                <option value="100 ml" />
+                <option value="250 ml" />
+                <option value="500 ml" />
+                <option value="1 Liter" />
+                <option value="5 Liter" />
+                <option value="50 g" />
+                <option value="100 g" />
+                <option value="250 g" />
+                <option value="500 g" />
+                <option value="1 kg" />
+                <option value="5 kg" />
+                <option value="10 kg" />
+                <option value="25 kg" />
+                <option value="50 kg" />
+              </datalist>
             </div>
 
             {/* Description */}

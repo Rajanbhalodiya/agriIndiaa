@@ -135,73 +135,141 @@ export default function Payments() {
           No payment records found matching your filters.
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-500">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Transaction ID</th>
-                  <th className="px-6 py-4 font-semibold">Farmer</th>
-                  <th className="px-6 py-4 font-semibold">Order Date & Time</th>
-                  <th className="px-6 py-4 font-semibold">Payment Date & Time</th>
-                  <th className="px-6 py-4 font-semibold">Amount</th>
-                  <th className="px-6 py-4 font-semibold">Payment Status</th>
-                  <th className="px-6 py-4 font-semibold">Order Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Invoice</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-mono text-xs font-semibold text-gray-900">
-                      #{order._id.slice(-8).toUpperCase()}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      {order.farmerName}
-                    </td>
-                    <td className="px-6 py-4 text-gray-500 text-xs font-medium">
-                      {formatDateTime(order.date)}
-                    </td>
-                    <td className="px-6 py-4 text-gray-500 text-xs font-medium">
-                      {order.payment ? formatDateTime(order.paymentDate || order.updatedAt || order.date) : <span className="text-amber-600 font-normal">Pending</span>}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-gray-900">
-                      ₹{order.totalAmount}
-                    </td>
-                    <td className="px-6 py-4">
-                      {order.payment ? (
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                          PAID ({order.paymentMethod || 'Cash'})
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
-                          PENDING
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                        order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
-                        order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                        'bg-orange-100 text-orange-700'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={() => setSelectedInvoiceOrder(order)}
-                        className="text-primary-600 hover:text-primary-800 p-1.5 rounded hover:bg-primary-50 transition-colors"
-                        title="View Bill / Invoice"
-                      >
-                        <MdReceipt className="w-5 h-5" />
-                      </button>
-                    </td>
+        <div className="space-y-4">
+          {/* Mobile Card View (< md) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {filteredOrders.map((order) => (
+              <div
+                key={order._id}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
+                    #{order._id.slice(-8).toUpperCase()}
+                  </span>
+                  {order.payment ? (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                      PAID ({order.paymentMethod || 'Cash'})
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                      PENDING
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                  <div>
+                    <span className="text-gray-400 block">Farmer</span>
+                    <span className="font-semibold text-gray-900">{order.farmerName}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Order Status</span>
+                    <span className={`font-semibold ${
+                      order.status === 'Completed' ? 'text-green-700' :
+                      order.status === 'Processing' ? 'text-blue-700' :
+                      order.status === 'Cancelled' ? 'text-red-700' :
+                      'text-orange-700'
+                    }`}>{order.status}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Order Date</span>
+                    <span className="text-gray-700">{formatDateTime(order.date)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Payment Date</span>
+                    <span className="text-gray-700">
+                      {order.payment ? formatDateTime(order.paymentDate || order.updatedAt || order.date) : 'Pending'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-50 text-sm">
+                  <div>
+                    <span className="text-xs text-gray-400 block">Total Amount</span>
+                    <span className="text-base font-bold text-gray-900">₹{order.totalAmount}</span>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedInvoiceOrder(order)}
+                    className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 px-3 py-1.5 rounded-lg bg-primary-50 font-medium transition-colors border border-primary-100"
+                  >
+                    <MdReceipt className="w-4 h-4" />
+                    Bill
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left text-sm text-gray-500">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Transaction ID</th>
+                    <th className="px-6 py-4 font-semibold">Farmer</th>
+                    <th className="px-6 py-4 font-semibold">Order Date & Time</th>
+                    <th className="px-6 py-4 font-semibold">Payment Date & Time</th>
+                    <th className="px-6 py-4 font-semibold">Amount</th>
+                    <th className="px-6 py-4 font-semibold">Payment Status</th>
+                    <th className="px-6 py-4 font-semibold">Order Status</th>
+                    <th className="px-6 py-4 font-semibold text-right">Invoice</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredOrders.map((order) => (
+                    <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 font-mono text-xs font-semibold text-gray-900">
+                        #{order._id.slice(-8).toUpperCase()}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-900">
+                        {order.farmerName}
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 text-xs font-medium">
+                        {formatDateTime(order.date)}
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 text-xs font-medium">
+                        {order.payment ? formatDateTime(order.paymentDate || order.updatedAt || order.date) : <span className="text-amber-600 font-normal">Pending</span>}
+                      </td>
+                      <td className="px-6 py-4 font-bold text-gray-900">
+                        ₹{order.totalAmount}
+                      </td>
+                      <td className="px-6 py-4">
+                        {order.payment ? (
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            PAID ({order.paymentMethod || 'Cash'})
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                            PENDING
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                          order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                          order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
+                          order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                          'bg-orange-100 text-orange-700'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button 
+                          onClick={() => setSelectedInvoiceOrder(order)}
+                          className="text-primary-600 hover:text-primary-800 p-1.5 rounded hover:bg-primary-50 transition-colors"
+                          title="View Bill"
+                        >
+                          <MdReceipt className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -247,7 +315,7 @@ export default function Payments() {
                 )}
               </div>
 
-              <div className="border border-gray-100 rounded-xl overflow-hidden mb-6">
+              <div className="border border-gray-100 rounded-xl overflow-x-auto no-scrollbar mb-6">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-50 text-gray-500">
                     <tr>
@@ -260,7 +328,10 @@ export default function Payments() {
                   <tbody className="divide-y divide-gray-100">
                     {selectedInvoiceOrder.items?.map((item, index) => (
                       <tr key={index}>
-                        <td className="px-4 py-3 text-gray-900">{item.name}</td>
+                        <td className="px-4 py-3 text-gray-900">
+                          <div>{item.name}</div>
+                          {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
+                        </td>
                         <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
                         <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
                         <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>

@@ -11,7 +11,8 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const product = action.payload;
-      const existingItem = state.items.find(item => item._id === product._id);
+      const cartItemId = `${product._id}-${product.packSize || 'default'}`;
+      const existingItem = state.items.find(item => item.cartItemId === cartItemId);
       
       const quantityToAdd = product.quantity || 1;
 
@@ -22,15 +23,15 @@ const cartSlice = createSlice({
           existingItem.quantity = product.stock;
         }
       } else {
-        state.items.push({ ...product, quantity: quantityToAdd });
+        state.items.push({ ...product, cartItemId, quantity: quantityToAdd });
       }
     },
     removeFromCart: (state, action) => {
-      state.items = state.items.filter(item => item._id !== action.payload);
+      state.items = state.items.filter(item => item.cartItemId !== action.payload);
     },
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload;
-      const item = state.items.find(item => item._id === id);
+      const item = state.items.find(item => item.cartItemId === id);
       if (item) {
         item.quantity = Math.max(1, Math.min(quantity, item.stock));
       }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MdPeople, MdAgriculture, MdInventory, MdShoppingCart, MdReceipt, MdPayments } from 'react-icons/md';
+import { API_BASE_URL } from '../services/api';
 
 export default function Dashboard() {
   const [dashData, setDashData] = useState(null);
@@ -7,7 +8,7 @@ export default function Dashboard() {
 
   const fetchDashData = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/admin/dashboard', {
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
         }
@@ -65,41 +66,73 @@ export default function Dashboard() {
             </div>
             
             {dashData?.latestOrders?.length > 0 || dashData?.latestAppointments?.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-500">
-                  <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                    <tr>
-                      <th className="px-6 py-4 font-semibold">Farmer</th>
-                      <th className="px-6 py-4 font-semibold">Date</th>
-                      <th className="px-6 py-4 font-semibold">Advisor</th>
-                      <th className="px-6 py-4 font-semibold">Amount</th>
-                      <th className="px-6 py-4 font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {(dashData.latestOrders || dashData.latestAppointments).map((order) => (
-                      <tr key={order._id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-gray-900">{order.userData.name}</td>
-                        <td className="px-6 py-4">{order.slotDate}</td>
-                        <td className="px-6 py-4">{order.advisorData.name}</td>
-                        <td className="px-6 py-4 font-medium">₹{order.amount}</td>
-                        <td className="px-6 py-4">
-                          {order.status ? (
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                              order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                              'bg-blue-100 text-blue-700'
-                            }`}>{order.status}</span>
-                          ) : order.cancelled ? (
-                            <span className="px-2.5 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium">Cancelled</span>
-                          ) : (
-                            <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">Pending</span>
-                          )}
-                        </td>
+              <div className="space-y-4">
+                {/* Mobile View (< md) */}
+                <div className="divide-y divide-gray-100 md:hidden">
+                  {(dashData.latestOrders || dashData.latestAppointments).map((order) => (
+                    <div key={order._id} className="p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-gray-900 text-sm">{order.userData?.name || 'Farmer'}</h4>
+                        <span className="font-bold text-gray-900 text-sm">₹{order.amount}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>Advisor: {order.advisorData?.name || 'N/A'}</span>
+                        <span>{order.slotDate}</span>
+                      </div>
+                      <div>
+                        {order.status ? (
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                            order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                            order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>{order.status}</span>
+                        ) : order.cancelled ? (
+                          <span className="px-2.5 py-0.5 bg-red-50 text-red-700 rounded-full text-[10px] font-semibold">Cancelled</span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-semibold">Pending</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop View (>= md) */}
+                <div className="hidden md:block overflow-x-auto no-scrollbar">
+                  <table className="w-full text-left text-sm text-gray-500">
+                    <thead className="bg-gray-50 text-xs uppercase text-gray-700">
+                      <tr>
+                        <th className="px-6 py-4 font-semibold">Farmer</th>
+                        <th className="px-6 py-4 font-semibold">Date</th>
+                        <th className="px-6 py-4 font-semibold">Advisor</th>
+                        <th className="px-6 py-4 font-semibold">Amount</th>
+                        <th className="px-6 py-4 font-semibold">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {(dashData.latestOrders || dashData.latestAppointments).map((order) => (
+                        <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 font-medium text-gray-900">{order.userData?.name || 'Farmer'}</td>
+                          <td className="px-6 py-4">{order.slotDate}</td>
+                          <td className="px-6 py-4">{order.advisorData?.name || 'N/A'}</td>
+                          <td className="px-6 py-4 font-medium">₹{order.amount}</td>
+                          <td className="px-6 py-4">
+                            {order.status ? (
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                                order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                                'bg-blue-100 text-blue-700'
+                              }`}>{order.status}</span>
+                            ) : order.cancelled ? (
+                              <span className="px-2.5 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium">Cancelled</span>
+                            ) : (
+                              <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">Pending</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             ) : (
               <div className="p-8 text-center text-gray-500">
