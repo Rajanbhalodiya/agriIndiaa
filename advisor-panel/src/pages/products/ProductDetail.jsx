@@ -56,21 +56,24 @@ export default function ProductDetail() {
     );
   }
 
+  const selectedPack = product.packSizes && product.packSizes.length > 0 ? product.packSizes[selectedPackIndex] : null;
+  const currentPackStock = selectedPack ? (selectedPack.stock !== undefined ? selectedPack.stock : product.stock) : product.stock;
+
   const handleAddToCart = () => {
     let packSize = product.unit || 'kg';
     let price = product.price;
 
-    if (product.packSizes && product.packSizes.length > 0) {
-      packSize = product.packSizes[selectedPackIndex].size;
-      price = product.packSizes[selectedPackIndex].price;
+    if (selectedPack) {
+      packSize = selectedPack.size;
+      price = selectedPack.price;
     }
     
-    dispatch(addToCart({ ...product, quantity, packSize, price }));
+    dispatch(addToCart({ ...product, quantity, packSize, price, stock: currentPackStock }));
     setIsCartOpen(true);
   };
 
-  const displayPrice = product.packSizes && product.packSizes.length > 0 ? product.packSizes[selectedPackIndex].price : product.price;
-  const displayUnit = product.packSizes && product.packSizes.length > 0 ? product.packSizes[selectedPackIndex].size : (product.unit || 'kg');
+  const displayPrice = selectedPack ? selectedPack.price : product.price;
+  const displayUnit = selectedPack ? selectedPack.size : (product.unit || 'kg');
 
   return (
     <motion.div 
@@ -110,9 +113,9 @@ export default function ProductDetail() {
                 <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-xs font-medium">
                   {product.category}
                 </span>
-                <span className={`flex items-center gap-1 text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                <span className={`flex items-center gap-1 text-sm font-medium ${currentPackStock > 0 ? 'text-green-600' : 'text-red-500'}`}>
                   <MdInventory className="w-4 h-4" />
-                  {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
+                  {currentPackStock > 0 ? `${currentPackStock} In Stock` : 'Out of Stock'}
                 </span>
               </div>
               <h1 className="text-3xl font-bold text-gray-900 tracking-tight leading-tight mb-2">
@@ -135,21 +138,32 @@ export default function ProductDetail() {
             <div className="mt-auto space-y-4">
               {product.packSizes && product.packSizes.length > 1 && (
                 <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Select Size:</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Select Size & Stock:</h3>
                   <div className="flex flex-wrap gap-2">
-                    {product.packSizes.map((pack, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedPackIndex(index)}
-                        className={`px-4 py-2 rounded-xl border text-sm font-medium transition-colors ${
-                          selectedPackIndex === index
-                            ? 'bg-primary-50 border-primary-500 text-primary-700'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300'
-                        }`}
-                      >
-                        {pack.size}
-                      </button>
-                    ))}
+                    {product.packSizes.map((pack, index) => {
+                      const pStock = pack.stock !== undefined ? pack.stock : product.stock;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setSelectedPackIndex(index);
+                            setQuantity(1);
+                          }}
+                          className={`px-4 py-2 rounded-xl border text-sm font-medium transition-colors flex items-center gap-2 ${
+                            selectedPackIndex === index
+                              ? 'bg-primary-50 border-primary-500 text-primary-700'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300'
+                          }`}
+                        >
+                          <span>{pack.size}</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
+                            pStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                          }`}>
+                            {pStock > 0 ? `Qty: ${pStock}` : 'Out'}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -163,27 +177,27 @@ export default function ProductDetail() {
                   <input 
                     type="number" 
                     value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) => setQuantity(Math.max(1, Math.min(currentPackStock, parseInt(e.target.value) || 1)))}
                     className="w-16 text-center focus:outline-none bg-transparent"
                     min="1"
-                    max={product.stock}
+                    max={currentPackStock}
                   />
                   <button 
-                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    onClick={() => setQuantity(Math.min(currentPackStock, quantity + 1))}
                     className="px-4 py-2 hover:bg-gray-50 text-gray-600 transition-colors"
                   >+</button>
                 </div>
                 <button 
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0}
+                  disabled={currentPackStock === 0}
                   className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-colors ${
-                    product.stock > 0
+                    currentPackStock > 0
                       ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-500/20'
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
                 >
                   <MdShoppingCart className="w-5 h-5" />
-                  {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                  {currentPackStock > 0 ? 'Add to Cart' : 'Out of Stock'}
                 </button>
               </div>
             </div>

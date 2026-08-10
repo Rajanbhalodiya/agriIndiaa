@@ -160,9 +160,10 @@ export default function Products() {
                     {product.packSizes && product.packSizes.length > 0 ? (
                       <div className="space-y-1">
                         {product.packSizes.map((p, idx) => (
-                          <div key={idx} className="flex items-center gap-1.5 text-xs">
+                          <div key={idx} className="flex items-center gap-1.5 text-xs flex-wrap">
                             <span className="font-bold text-gray-900">₹{p.price}</span>
                             <span className="bg-primary-50 text-primary-700 border border-primary-100 px-1.5 py-0.5 rounded text-[10px] font-semibold">{p.size}</span>
+                            <span className="text-[10px] text-gray-500 font-medium">({p.stock !== undefined ? p.stock : product.stock} in stock)</span>
                           </div>
                         ))}
                       </div>
@@ -172,7 +173,7 @@ export default function Products() {
                         <span className="text-xs text-gray-400"> / {product.unit || 'kg'}</span>
                       </>
                     )}
-                    <span className="text-xs text-gray-500 block mt-1 font-medium">Stock: {product.stock}</span>
+                    <span className="text-xs text-gray-500 block mt-1 font-medium">Total Stock: {product.stock}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Link
@@ -203,8 +204,8 @@ export default function Products() {
                   <tr>
                     <th className="px-6 py-4 font-semibold">Product</th>
                     <th className="px-6 py-4 font-semibold">Category</th>
-                    <th className="px-6 py-4 font-semibold">Price & Packaging</th>
-                    <th className="px-6 py-4 font-semibold">Stock</th>
+                    <th className="px-6 py-4 font-semibold">Price & Packaging Options (Stock)</th>
+                    <th className="px-6 py-4 font-semibold">Total Stock</th>
                     <th className="px-6 py-4 font-semibold">Status</th>
                     <th className="px-6 py-4 font-semibold text-right">Actions</th>
                   </tr>
@@ -232,11 +233,14 @@ export default function Products() {
                       </td>
                       <td className="px-6 py-4">
                         {product.packSizes && product.packSizes.length > 0 ? (
-                          <div className="space-y-1 max-w-[200px]">
+                          <div className="space-y-1.5 max-w-[280px]">
                             {product.packSizes.map((p, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-xs">
-                                <span className="font-bold text-gray-900">₹{p.price}</span>
+                              <div key={idx} className="flex items-center justify-between gap-2 text-xs bg-gray-50 p-1.5 rounded-lg border border-gray-100">
                                 <span className="bg-primary-50 text-primary-700 border border-primary-100 px-1.5 py-0.5 rounded text-[11px] font-semibold">{p.size}</span>
+                                <span className="font-bold text-gray-900">₹{p.price}</span>
+                                <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${ (p.stock !== undefined ? p.stock : product.stock) > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600' }`}>
+                                  Qty: {p.stock !== undefined ? p.stock : product.stock}
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -246,7 +250,7 @@ export default function Products() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-700">
+                      <td className="px-6 py-4 font-bold text-gray-900">
                         {product.stock}
                       </td>
                       <td className="px-6 py-4">

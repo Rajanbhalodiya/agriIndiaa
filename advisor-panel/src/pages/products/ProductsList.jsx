@@ -135,11 +135,15 @@ export default function ProductsList() {
                       (() => {
                         const chosenSize = selectedPack[product._id] || product.packSizes[0].size;
                         const chosenPack = product.packSizes.find(p => p.size === chosenSize) || product.packSizes[0];
+                        const packStock = chosenPack.stock !== undefined ? chosenPack.stock : product.stock;
                         return (
                           <>
                             <div className="text-lg font-bold text-primary-700 flex items-baseline gap-1">
                               ₹{chosenPack.price}
                               <span className="text-xs font-normal text-gray-500">/ {chosenPack.size}</span>
+                            </div>
+                            <div className={`text-[11px] font-medium mt-0.5 ${packStock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                              {packStock > 0 ? `Stock: ${packStock}` : 'Out of Stock'}
                             </div>
                             {product.packSizes.length > 1 && (
                               <select
@@ -149,7 +153,7 @@ export default function ProductsList() {
                               >
                                 {product.packSizes.map(p => (
                                   <option key={p.size} value={p.size}>
-                                    {p.size} (₹{p.price})
+                                    {p.size} (₹{p.price} | Qty: {p.stock !== undefined ? p.stock : product.stock})
                                   </option>
                                 ))}
                               </select>
@@ -158,33 +162,42 @@ export default function ProductsList() {
                         );
                       })()
                     ) : (
-                      <div className="text-lg font-bold text-primary-700 flex items-baseline gap-1">
-                        ₹{product.price}
-                        <span className="text-xs font-normal text-gray-500">/ {product.unit || 'kg'}</span>
-                      </div>
+                      <>
+                        <div className="text-lg font-bold text-primary-700 flex items-baseline gap-1">
+                          ₹{product.price}
+                          <span className="text-xs font-normal text-gray-500">/ {product.unit || 'kg'}</span>
+                        </div>
+                        <div className={`text-[11px] font-medium mt-0.5 ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
+                        </div>
+                      </>
                     )}
                   </div>
-                  <button
-                    onClick={() => {
-                      if (product.packSizes && product.packSizes.length > 1) {
-                        // Use selected pack size if user chose one, otherwise default to first
-                        const chosenSize = selectedPack[product._id] || product.packSizes[0].size;
-                        const chosenPack = product.packSizes.find(p => p.size === chosenSize) || product.packSizes[0];
-                        dispatch(addToCart({ ...product, price: chosenPack.price, packSize: chosenPack.size }));
-                      } else {
-                        const packSize = product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].size : (product.unit || 'kg');
-                        const price = product.packSizes && product.packSizes.length > 0 ? product.packSizes[0].price : product.price;
-                        dispatch(addToCart({ ...product, price, packSize }));
-                      }
-                    }}
-                    disabled={product.stock === 0}
-                    className={`p-2 rounded-xl flex items-center justify-center transition-colors ${product.stock > 0
-                        ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      }`}
-                  >
-                    <MdAdd className="w-5 h-5" />
-                  </button>
+                  {(() => {
+                    const chosenSize = product.packSizes && product.packSizes.length > 0 ? (selectedPack[product._id] || product.packSizes[0].size) : null;
+                    const chosenPack = product.packSizes && product.packSizes.length > 0 ? (product.packSizes.find(p => p.size === chosenSize) || product.packSizes[0]) : null;
+                    const currentStock = chosenPack ? (chosenPack.stock !== undefined ? chosenPack.stock : product.stock) : product.stock;
+
+                    return (
+                      <button
+                        onClick={() => {
+                          if (chosenPack) {
+                            dispatch(addToCart({ ...product, price: chosenPack.price, packSize: chosenPack.size, stock: currentStock }));
+                          } else {
+                            const packSize = product.unit || 'kg';
+                            dispatch(addToCart({ ...product, price: product.price, packSize, stock: currentStock }));
+                          }
+                        }}
+                        disabled={currentStock === 0}
+                        className={`p-2 rounded-xl flex items-center justify-center transition-colors ${currentStock > 0
+                            ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          }`}
+                      >
+                        <MdAdd className="w-5 h-5" />
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             </motion.div>

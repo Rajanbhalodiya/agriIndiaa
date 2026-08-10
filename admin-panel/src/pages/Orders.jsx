@@ -218,7 +218,7 @@ export default function Orders() {
                   </div>
                   <div className="flex items-center gap-2">
                     {order.payment && order.status !== 'Completed' && order.status !== 'Cancelled' && (
-                      <>
+                      <div className="flex gap-2">
                         <button 
                           onClick={() => updateStatus(order, 'Completed')}
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg border border-green-200"
@@ -233,14 +233,8 @@ export default function Orders() {
                         >
                           <MdCancel className="w-5 h-5" />
                         </button>
-                      </>
+                      </div>
                     )}
-                    <button 
-                      onClick={() => setSelectedOrder(order)}
-                      className="text-xs text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg bg-gray-100 font-medium transition-colors"
-                    >
-                      Details
-                    </button>
                   </div>
                 </div>
               </div>
@@ -336,12 +330,6 @@ export default function Orders() {
                               </button>
                             </div>
                           )}
-                          <button 
-                            onClick={() => setSelectedOrder(order)}
-                            className="text-gray-600 hover:text-gray-900 text-xs font-semibold px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 transition-colors"
-                          >
-                            Details
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -442,22 +430,14 @@ export default function Orders() {
 
             <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
               <button 
-                onClick={() => sendWhatsAppBill(selectedInvoiceOrder)}
-                className="px-5 py-2 rounded-xl font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
-                title="Send Bill on WhatsApp to Farmer"
-              >
-                <FaWhatsapp className="w-5 h-5" />
-                Send WhatsApp Bill
-              </button>
-              <button 
                 onClick={() => window.print()}
-                className="px-5 py-2 rounded-xl font-medium text-primary-600 border border-primary-200 hover:bg-primary-50 transition-colors"
+                className="px-5 py-2 rounded-xl font-medium text-primary-600 border border-primary-200 hover:bg-primary-50 transition-colors cursor-pointer"
               >
                 Print Bill
               </button>
               <button 
                 onClick={() => setSelectedInvoiceOrder(null)}
-                className="px-5 py-2 rounded-xl font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm"
+                className="px-5 py-2 rounded-xl font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm cursor-pointer"
               >
                 Close
               </button>

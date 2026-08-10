@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
   unit: { type: String, default: 'kg' }, // Base unit, kept for backward compatibility
   packSizes: [{
     size: { type: String, required: true },
-    price: { type: Number, required: true }
+    price: { type: Number, required: true },
+    stock: { type: Number, required: true, default: 0 }
   }],
   image: { type: String, required: true }, // Cloudinary URL
   status: { type: String, enum: ['active', 'inactive'], default: 'active' }

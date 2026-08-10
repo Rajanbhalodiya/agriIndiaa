@@ -23,11 +23,20 @@ const addProduct = async (req, res) => {
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
         const imageUrl = imageUpload.secure_url;
 
+        parsedPackSizes = parsedPackSizes.map(p => ({
+            size: p.size,
+            price: Number(p.price) || 0,
+            stock: Number(p.stock) || 0
+        }));
+
         let finalPrice = Number(price) || 0;
         let finalUnit = unit || 'kg';
+        let calculatedStock = Number(stock) || 0;
+
         if (parsedPackSizes.length > 0) {
             finalPrice = parsedPackSizes[0].price;
             finalUnit = parsedPackSizes[0].size;
+            calculatedStock = parsedPackSizes.reduce((sum, p) => sum + (p.stock || 0), 0);
         } else if (!finalPrice) {
             return res.json({ success: false, message: "Missing price details" });
         }
@@ -37,7 +46,7 @@ const addProduct = async (req, res) => {
             description,
             price: finalPrice,
             category,
-            stock: Number(stock) || 0,
+            stock: calculatedStock,
             unit: finalUnit,
             packSizes: parsedPackSizes,
             image: imageUrl,
@@ -106,11 +115,20 @@ const updateProduct = async (req, res) => {
             }
         }
 
+        parsedPackSizes = parsedPackSizes.map(p => ({
+            size: p.size,
+            price: Number(p.price) || 0,
+            stock: Number(p.stock) || 0
+        }));
+
         let finalPrice = Number(price) || 0;
         let finalUnit = unit || 'kg';
+        let calculatedStock = Number(stock) || 0;
+
         if (parsedPackSizes.length > 0) {
             finalPrice = parsedPackSizes[0].price;
             finalUnit = parsedPackSizes[0].size;
+            calculatedStock = parsedPackSizes.reduce((sum, p) => sum + (p.stock || 0), 0);
         }
 
         const updateData = { 
@@ -118,7 +136,7 @@ const updateProduct = async (req, res) => {
             description, 
             price: finalPrice, 
             category, 
-            stock: Number(stock), 
+            stock: calculatedStock, 
             unit: finalUnit, 
             status,
             packSizes: parsedPackSizes

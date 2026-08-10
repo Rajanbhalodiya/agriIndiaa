@@ -21,10 +21,28 @@ export const placeProductOrder = async (req, res, next) => {
     for (const item of items) {
       const product = await productModel.findById(item.productId);
       if (product) {
-        if (product.stock < item.quantity) {
-          return res.json({ success: false, message: `Insufficient stock for ${product.name}` });
+        if (product.packSizes && product.packSizes.length > 0 && item.packSize) {
+          const pack = product.packSizes.find(p => p.size === item.packSize);
+          if (pack) {
+            if ((pack.stock !== undefined ? pack.stock : product.stock) < item.quantity) {
+              return res.json({ success: false, message: `Insufficient stock for ${product.name} (${item.packSize})` });
+            }
+            if (pack.stock !== undefined) {
+              pack.stock -= item.quantity;
+            }
+            product.stock = product.packSizes.reduce((acc, p) => acc + (p.stock || 0), 0);
+          } else {
+            if (product.stock < item.quantity) {
+              return res.json({ success: false, message: `Insufficient stock for ${product.name}` });
+            }
+            product.stock -= item.quantity;
+          }
+        } else {
+          if (product.stock < item.quantity) {
+            return res.json({ success: false, message: `Insufficient stock for ${product.name}` });
+          }
+          product.stock -= item.quantity;
         }
-        product.stock -= item.quantity;
         await product.save();
       }
     }
