@@ -12,6 +12,7 @@ import {
   addFarmer,
   advisorFarmers,
   getFarmer,
+  updateFarmer,
   forgotPasswordAdvisor,
   resetPasswordAdvisor
 } from '../controllers/advisorController.js';
@@ -37,5 +38,6 @@ advisorRouter.post('/update-profile', updateAdvisorProfile);
 advisorRouter.post("/add-farmer", authAdvisor, addFarmer)
 advisorRouter.get("/farmers", authAdvisor, advisorFarmers)
 advisorRouter.post("/farmer", authAdvisor, getFarmer)
+advisorRouter.post("/update-farmer", authAdvisor, updateFarmer)
 
 export default advisorRouter;

@@ -1,5 +1,5 @@
 import express from 'express'
-import { addadvisor, alladvisores, loginAdmin, ordersAdmin, orderCancel, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus } from '../controllers/adminController.js'
+import { addadvisor, alladvisores, loginAdmin, ordersAdmin, orderCancel, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus, updateFarmerAdmin } from '../controllers/adminController.js'
 import upload from '../middlewares/multer.js'
 import authAdmin from '../middlewares/authAdmin.js'
 import { changeAvailability } from '../controllers/advisorController.js'
@@ -16,5 +16,6 @@ adminRouter.post('/cancel-order', authAdmin, orderCancel)
 adminRouter.get('/dashboard', authAdmin, adminDashboard)
 adminRouter.get('/product-orders', authAdmin, productOrdersAdmin)
 adminRouter.post('/update-product-order-status', authAdmin, updateProductOrderStatus)
+adminRouter.post('/update-farmer', authAdmin, updateFarmerAdmin)
 
 export default adminRouter

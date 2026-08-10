@@ -315,6 +315,53 @@ const getFarmer = async (req, res) => {
     }
 }
 
+// API to update a farmer's details by Advisor
+const updateFarmer = async (req, res) => {
+    try {
+        const { advisorId, farmerId, name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body
+
+        if (!farmerId) {
+            return res.json({ success: false, message: 'Farmer ID is required' })
+        }
+
+        // Verify farmer exists and belongs to this advisor
+        const farmer = await userModel.findOne({ _id: farmerId, assignedAdvisor: advisorId, role: 'farmer' })
+        if (!farmer) {
+            return res.json({ success: false, message: 'Farmer not found or unauthorized' })
+        }
+
+        // If phone is changed, check if new phone number is taken by another user
+        if (phone && phone !== farmer.phone) {
+            const existingUser = await userModel.findOne({ phone, _id: { $ne: farmerId } })
+            if (existingUser) {
+                return res.json({ success: false, message: 'Another user already exists with this phone number' })
+            }
+        }
+
+        const normalizedLandType = (landType || '').toLowerCase() === 'open' ? 'open' : 'farm';
+
+        const updateData = {
+            farmerName: name || farmer.farmerName,
+            firstName: name || farmer.firstName,
+            phone: phone || farmer.phone,
+            village: village !== undefined ? village : farmer.village,
+            totalLand: totalLand !== undefined ? totalLand : farmer.totalLand,
+            temporaryLand: temporaryLand !== undefined ? temporaryLand : farmer.temporaryLand,
+            landType: normalizedLandType,
+            winterCrop: winterCrop !== undefined ? winterCrop : farmer.winterCrop,
+            summerCrop: summerCrop !== undefined ? summerCrop : farmer.summerCrop,
+            rainCrop: rainCrop !== undefined ? rainCrop : farmer.rainCrop,
+        }
+
+        const updatedFarmer = await userModel.findByIdAndUpdate(farmerId, updateData, { new: true }).select('-password');
+
+        res.json({ success: true, message: 'Farmer details updated successfully', farmer: updatedFarmer })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
 // API to send OTP for Advisor Forgot Password
 const forgotPasswordAdvisor = async (req, res) => {
     try {
@@ -401,6 +448,7 @@ export {
     registerAdvisor,
     advisorFarmers,
     getFarmer,
+    updateFarmer,
     forgotPasswordAdvisor,
     resetPasswordAdvisor
 }

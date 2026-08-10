@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MdArrowBack, MdLocationOn, MdPhone, MdShoppingBag, MdReceipt } from 'react-icons/md';
+import { MdArrowBack, MdLocationOn, MdPhone, MdShoppingBag, MdReceipt, MdEdit, MdClose, MdSave } from 'react-icons/md';
 import { apiFetch } from '../../services/api';
 
 export default function FarmerProfile() {
@@ -13,6 +13,21 @@ export default function FarmerProfile() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    phone: '',
+    village: '',
+    totalLand: '',
+    temporaryLand: '',
+    landType: 'farm',
+    winterCrop: '',
+    summerCrop: '',
+    rainCrop: ''
+  });
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState('');
 
   const formatDateTime = (timestamp) => {
     if (!timestamp) return 'N/A';
@@ -78,7 +93,60 @@ export default function FarmerProfile() {
     return <div className="text-center p-12 text-gray-500">Farmer not found.</div>;
   }
 
-  const farmerFullName = farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim();
+  const handleOpenEditModal = () => {
+    if (!farmer) return;
+    const nameVal = farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim();
+    setEditFormData({
+      name: nameVal,
+      phone: farmer.phone || '',
+      village: farmer.village || '',
+      totalLand: farmer.totalLand || '',
+      temporaryLand: farmer.temporaryLand || '',
+      landType: farmer.landType || 'farm',
+      winterCrop: farmer.winterCrop || '',
+      summerCrop: farmer.summerCrop || '',
+      rainCrop: farmer.rainCrop || ''
+    });
+    setEditError('');
+    setIsEditing(true);
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setEditError('');
+    try {
+      const data = await apiFetch('/advisor/update-farmer', {
+        method: 'POST',
+        body: JSON.stringify({
+          farmerId: id,
+          ...editFormData
+        })
+      });
+
+      if (data.success) {
+        setIsEditing(false);
+        if (data.farmer) {
+          setFarmer(prev => ({ ...prev, ...data.farmer }));
+        }
+        fetchFarmer();
+      } else {
+        setEditError(data.message || 'Failed to update farmer details.');
+      }
+    } catch (err) {
+      console.error('Error updating farmer:', err);
+      setEditError('Network error while updating farmer.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const farmerFullName = farmer?.farmerName || `${farmer?.firstName || ''} ${farmer?.lastName || ''}`.trim();
 
   return (
     <>
@@ -97,6 +165,13 @@ export default function FarmerProfile() {
           </button>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Farmer Profile</h1>
         </div>
+        <button 
+          onClick={handleOpenEditModal}
+          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm"
+        >
+          <MdEdit className="w-4 h-4" />
+          Edit Profile
+        </button>
       </div>
 
       <div className="bg-surface rounded-3xl shadow-md3-2 overflow-hidden">
@@ -105,18 +180,27 @@ export default function FarmerProfile() {
             {farmerFullName ? farmerFullName.charAt(0).toUpperCase() : 'F'}
           </div>
         </div>
-        <div className="pt-12 sm:pt-16 pb-5 sm:pb-6 px-4 sm:px-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{farmerFullName}</h2>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-2 text-xs sm:text-sm text-gray-600">
-            <div className="flex items-center gap-1">
-              <MdLocationOn className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-              <span>{farmer.village ? `Village: ${farmer.village}` : 'Village: N/A'}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MdPhone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-              <span>{farmer.phone}</span>
+        <div className="pt-12 sm:pt-16 pb-5 sm:pb-6 px-4 sm:px-8 flex justify-between items-end">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{farmerFullName}</h2>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-2 text-xs sm:text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <MdLocationOn className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                <span>{farmer.village ? `Village: ${farmer.village}` : 'Village: N/A'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <MdPhone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                <span>{farmer.phone}</span>
+              </div>
             </div>
           </div>
+          <button 
+            onClick={handleOpenEditModal}
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-xl transition-colors"
+          >
+            <MdEdit className="w-4 h-4" />
+            Edit Info
+          </button>
         </div>
 
         <div className="border-t border-gray-100">
@@ -141,7 +225,16 @@ export default function FarmerProfile() {
       <div className="bg-surface rounded-3xl shadow-md3-1 p-4 sm:p-6 md:p-8 min-h-[300px]">
         {activeTab === 'farm' && (
           <div className="space-y-4">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Farm Information</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Farm Information</h3>
+              <button 
+                onClick={handleOpenEditModal}
+                className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-xl transition-colors"
+              >
+                <MdEdit className="w-3.5 h-3.5" />
+                Edit Farm Info
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <p className="text-xs sm:text-sm text-gray-500 mb-1">Village</p>
@@ -157,7 +250,16 @@ export default function FarmerProfile() {
         
         {activeTab === 'land' && (
           <div className="space-y-4">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Land Details</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Land Details</h3>
+              <button 
+                onClick={handleOpenEditModal}
+                className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-xl transition-colors"
+              >
+                <MdEdit className="w-3.5 h-3.5" />
+                Edit Land Details
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <p className="text-xs sm:text-sm text-gray-500 mb-1">Total Land Area</p>
@@ -177,7 +279,16 @@ export default function FarmerProfile() {
 
         {activeTab === 'crop' && (
           <div className="space-y-4">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Crop & Land Details</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Crop & Land Details</h3>
+              <button 
+                onClick={handleOpenEditModal}
+                className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-xl transition-colors"
+              >
+                <MdEdit className="w-3.5 h-3.5" />
+                Edit Crop Details
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <p className="text-xs sm:text-sm text-gray-500 mb-1">Land Type</p>
@@ -378,6 +489,164 @@ export default function FarmerProfile() {
               Close
             </button>
           </div>
+        </div>
+      </div>
+    )}
+
+    {/* Edit Farmer Modal */}
+    {isEditing && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0">
+            <h2 className="text-xl font-bold text-gray-900">Edit Farmer Profile</h2>
+            <button 
+              onClick={() => setIsEditing(false)}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <MdClose className="w-6 h-6" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSaveEdit} className="p-6 overflow-y-auto space-y-4">
+            {editError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">
+                {editError}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editFormData.name}
+                  onChange={handleEditInputChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="Enter full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={editFormData.phone}
+                  onChange={handleEditInputChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="e.g. 9876543210"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Village</label>
+                <input
+                  type="text"
+                  name="village"
+                  value={editFormData.village}
+                  onChange={handleEditInputChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="Enter village"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Total Own Land (Acres)</label>
+                <input
+                  type="text"
+                  name="totalLand"
+                  value={editFormData.totalLand}
+                  onChange={handleEditInputChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="e.g. 15"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Temporary Land (Acres)</label>
+                <input
+                  type="text"
+                  name="temporaryLand"
+                  value={editFormData.temporaryLand}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="e.g. 5"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Land Type</label>
+                <select
+                  name="landType"
+                  value={editFormData.landType}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                >
+                  <option value="farm">Farm</option>
+                  <option value="open">Open</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Winter Crop Details</label>
+                <input
+                  type="text"
+                  name="winterCrop"
+                  value={editFormData.winterCrop}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="e.g. Wheat, Gram"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Summer Crop Details</label>
+                <input
+                  type="text"
+                  name="summerCrop"
+                  value={editFormData.summerCrop}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="e.g. Bajra, Moong"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Rain Crop Details (Monsoon)</label>
+                <input
+                  type="text"
+                  name="rainCrop"
+                  value={editFormData.rainCrop}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="e.g. Rice, Cotton"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-70"
+              >
+                <MdSave className="w-4 h-4" />
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     )}
