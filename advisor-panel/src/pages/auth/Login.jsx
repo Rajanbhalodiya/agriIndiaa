@@ -358,10 +358,7 @@ export default function Login() {
       </AnimatePresence>
       
       <div className="mt-8 text-center text-sm text-gray-600">
-        Don't have an account?{' '}
-        <Link to="/auth/register" className="font-medium text-primary-600 hover:text-primary-500">
-          Sign up as Advisor
-        </Link>
+        Contact administrator to create an account.
       </div>
 
       {/* Forgot Password Modal */}

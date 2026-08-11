@@ -40,3 +40,5 @@
 2026-08-09 10:31:08 error: 404 - Can't find /api/admin/all-advisors on this server!
 2026-08-09 10:31:08 error: 404 - Can't find /api/admin/all-farmers on this server!
 2026-08-09 10:31:08 error: 404 - Can't find /api/admin/all-farmers on this server!
+2026-08-11 11:51:55 error: UNHANDLED REJECTION! Shutting down...
+2026-08-11 11:51:55 error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017

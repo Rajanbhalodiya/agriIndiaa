@@ -8,50 +8,37 @@ import userModel from "../models/userModel.js"
 import productModel from "../models/productModel.js"
 import { sendOrderCancellationEmail } from "../config/nodemailer.js"
 
-// API for adding advisor variety
+// API for adding advisor
 const addadvisor = async (req,res) => {
 
     try {
-
-        const { name, category, grade, weight, about, price } = req.body
-        const imageFile = req.file
+        const { name, phone, area, village, pincode, aadhar, password } = req.body
 
         // checking for all data to add advisor
-        if (!name || !category || !grade || !weight || !about || !price || !imageFile) {
+        if (!name || !phone || !area || !village || !pincode || !aadhar || !password) {
             return res.json({success:false,message:"Missing Details"})
         }
-
-        // Default values for fields no longer required in form
-        const email = req.body.email || `advisor-${Date.now()}@rajanfarm.com`
-        const password = req.body.password || "rajanfarm12345"
-        const address = req.body.address || JSON.stringify({line1: "Talala Gir Foothills", line2: "Gujarat, India"})
 
         // hashing password
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
-
-        // upload image to cloudinary
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path, {resource_type:"image"})
-        const imageUrl = imageUpload.secure_url
         
         const advisorData = {
             name,
-            email,
-            image:imageUrl,
-            password:hashedPassword,
-            category,
-            grade,
-            weight,
-            about,
-            price: Number(price),
-            address:JSON.parse(address),
-            date:Date.now()
+            phone,
+            area,
+            village,
+            pincode,
+            aadhar,
+            password: hashedPassword,
+            plainPassword: password,
+            date: Date.now()
         }
 
         const newadvisor = new advisorModel(advisorData)
         await newadvisor.save()
 
-        res.json({success:true,message:"advisor Product Added"})
+        res.json({success:true,message:"Advisor Added Successfully"})
 
     } catch (error) {
         console.log(error)
@@ -314,4 +301,68 @@ const updateFarmerAdmin = async (req, res) => {
     }
 };
 
-export {addadvisor,loginAdmin,alladvisores, ordersAdmin, orderCancel, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus, updateFarmerAdmin}
+// API to update advisor details (admin)
+const updateAdvisorAdmin = async (req, res) => {
+    try {
+        const { advisorId, name, phone, area, village, pincode, aadhar, password, available } = req.body;
+
+        if (!advisorId) {
+            return res.json({ success: false, message: 'Advisor ID is required' });
+        }
+
+        const advisor = await advisorModel.findById(advisorId);
+        if (!advisor) {
+            return res.json({ success: false, message: 'Advisor not found' });
+        }
+
+        if (phone && phone !== advisor.phone) {
+            const existingAdvisor = await advisorModel.findOne({ phone, _id: { $ne: advisorId } });
+            if (existingAdvisor) {
+                return res.json({ success: false, message: 'Another advisor already exists with this phone number' });
+            }
+        }
+
+        if (aadhar && aadhar.length !== 12) {
+            return res.json({ success: false, message: 'Aadhar number must be exactly 12 digits' });
+        }
+
+        const updateData = {
+            name: name || advisor.name,
+            phone: phone || advisor.phone,
+            area: area !== undefined ? area : advisor.area,
+            village: village !== undefined ? village : advisor.village,
+            pincode: pincode !== undefined ? pincode : advisor.pincode,
+            aadhar: aadhar !== undefined ? aadhar : advisor.aadhar,
+        };
+
+        if (available !== undefined) {
+            updateData.available = Boolean(available);
+        }
+
+        if (password && password.trim() !== '') {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(password, salt);
+            updateData.plainPassword = password;
+        }
+
+        const updatedAdvisor = await advisorModel.findByIdAndUpdate(advisorId, updateData, { new: true }).select('-password');
+
+        res.json({ success: true, message: 'Advisor details updated successfully', advisor: updatedAdvisor });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// API to get all advisor locations for GPS map
+const getAdvisorLocationsAdmin = async (req, res) => {
+    try {
+        const advisors = await advisorModel.find({}).select('name phone area village pincode image available location locationHistory');
+        res.json({ success: true, advisors });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export {addadvisor,loginAdmin,alladvisores, ordersAdmin, orderCancel, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus, updateFarmerAdmin, updateAdvisorAdmin, getAdvisorLocationsAdmin}

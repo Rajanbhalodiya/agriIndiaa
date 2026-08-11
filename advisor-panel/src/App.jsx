@@ -5,8 +5,6 @@ import DashboardLayout from './layouts/DashboardLayout';
 
 // Auth Pages
 import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-
 // Dashboard Pages
 import Dashboard from './pages/dashboard/Dashboard';
 import FarmersList from './pages/farmers/FarmersList';
@@ -32,7 +30,6 @@ function App() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route index element={<Navigate to="/auth/login" replace />} />
         <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
       </Route>
 
       {/* Protected Routes */}

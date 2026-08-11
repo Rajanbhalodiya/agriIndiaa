@@ -45,6 +45,42 @@ export default function DashboardLayout() {
     fetchProfile();
   }, []);
 
+  // Background Live GPS Location Pinger
+  useEffect(() => {
+    let watchId;
+    const sendLocation = (lat, lng, speed = 0) => {
+      apiFetch('/advisor/update-location', {
+        method: 'POST',
+        body: JSON.stringify({
+          lat,
+          lng,
+          speed,
+          isMoving: speed > 2
+        })
+      }).catch(() => {});
+    };
+
+    if (navigator && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => sendLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.speed || 0),
+        () => {},
+        { enableHighAccuracy: true }
+      );
+
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => sendLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.speed || 0),
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+      );
+    }
+
+    return () => {
+      if (watchId !== undefined && navigator && 'geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/auth/login';

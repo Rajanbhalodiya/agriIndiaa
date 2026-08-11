@@ -52,7 +52,6 @@ export default function Settings() {
         body: JSON.stringify({
           price: Number(profile.price),
           address: profile.address || profile.village,
-          available: profile.available,
         }),
       });
 
@@ -169,18 +168,14 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <input
-                id="availability"
-                type="checkbox"
-                checked={profile.available}
-                onChange={(e) => setProfile({ ...profile, available: e.target.checked })}
-                className="w-5 h-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
-              />
-              <label htmlFor="availability" className="text-sm font-medium text-gray-900 cursor-pointer">
-                Available for New Farmer Consultations
-              </label>
+          <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account Status:</span>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                profile.available ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
+              }`}>
+                {profile.available ? '🟢 Available (Active)' : '🔴 Unavailable (Managed by Admin)'}
+              </span>
             </div>
 
             <button

@@ -219,8 +219,8 @@ const advisorProfile = async (req, res) => {
 // API to update Advisor profile data from Advisor panel
 const updateAdvisorProfile = async (req, res) => {
     try {
-        const { advisorId, price, address, available } = req.body
-        await advisorModel.findByIdAndUpdate(advisorId, { price, address, available })
+        const { advisorId, price, address } = req.body
+        await advisorModel.findByIdAndUpdate(advisorId, { price, address })
         res.json({ success: true, message: 'Profile Updated' })
         
     } catch (error) {
@@ -423,6 +423,7 @@ const resetPasswordAdvisor = async (req, res) => {
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
         advisor.password = hashedPassword;
+        advisor.plainPassword = newPassword;
         advisor.resetOtp = '';
         advisor.resetOtpExpire = undefined;
         await advisor.save();
@@ -430,6 +431,43 @@ const resetPasswordAdvisor = async (req, res) => {
         res.json({ success: true, message: 'Password reset successfully! Please login with your new password.' });
     } catch (error) {
         console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// API for Advisor to update live location
+const updateLocationAdvisor = async (req, res) => {
+    try {
+        const { advisorId, lat, lng, speed, address, isMoving } = req.body;
+        if (!advisorId || lat === undefined || lng === undefined) {
+            return res.json({ success: false, message: 'Invalid location parameters' });
+        }
+
+        const advisor = await advisorModel.findById(advisorId);
+        if (!advisor) {
+            return res.json({ success: false, message: 'Advisor not found' });
+        }
+
+        const locationObj = {
+            lat: Number(lat),
+            lng: Number(lng),
+            speed: speed ? Number(speed) : 0,
+            address: address || `${advisor.village || 'Area'}, ${advisor.area || ''}`,
+            lastUpdated: new Date(),
+            isMoving: Boolean(isMoving)
+        };
+
+        const newPoint = { lat: Number(lat), lng: Number(lng), timestamp: new Date() };
+        const history = [...(advisor.locationHistory || []), newPoint].slice(-50);
+
+        await advisorModel.findByIdAndUpdate(advisorId, {
+            location: locationObj,
+            locationHistory: history
+        });
+
+        res.json({ success: true, message: 'Location updated successfully' });
+    } catch (error) {
+        console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -450,5 +488,6 @@ export {
     getFarmer,
     updateFarmer,
     forgotPasswordAdvisor,
-    resetPasswordAdvisor
+    resetPasswordAdvisor,
+    updateLocationAdvisor
 }

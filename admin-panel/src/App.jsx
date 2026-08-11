@@ -13,6 +13,7 @@ import Payments from './pages/Payments';
 import Reports from './pages/Reports';
 import Tracking from './pages/Tracking';
 import Profile from './pages/Profile';
+import AddAdvisor from './pages/AddAdvisor';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/advisors" element={<Advisors />} />
+          <Route path="/advisors/add" element={<AddAdvisor />} />
           <Route path="/farmers" element={<Farmers />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/add" element={<AddProduct />} />

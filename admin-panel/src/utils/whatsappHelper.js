@@ -22,6 +22,7 @@ export const generateWhatsAppBillText = (order) => {
 `🌾 *AGRIINDIA - OFFICIAL ORDER INVOICE* 🌾
 ━━━━━━━━━━━━━━━━━━━━━
 👤 *Farmer Name:* ${order.farmerName || 'Valued Farmer'}
+📱 *Farmer Phone:* ${order.farmerPhone || order.phone || 'N/A'}
 🆔 *Invoice ID:* ${orderId}
 📅 *Date & Time:* ${dateStr}
 👨‍🌾 *Advisor:* ${order.advisorName || 'Direct'}

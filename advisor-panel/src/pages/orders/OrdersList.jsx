@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MdSearch, MdFilterList, MdAdd, MdReceipt } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../../services/api';
+import { apiFetch, API_BASE_URL } from '../../services/api';
+import { downloadInvoice } from '../../utils/invoiceHelper';
 
 export default function OrdersList() {
   const navigate = useNavigate();
@@ -325,6 +326,11 @@ export default function OrdersList() {
               <div>
                 <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Billed To</p>
                 <p className="text-gray-900 font-medium mt-1">{selectedInvoiceOrder.farmerName}</p>
+                {selectedInvoiceOrder.farmerPhone && (
+                  <p className="text-gray-500 text-xs font-medium mt-0.5 flex items-center gap-1">
+                    <span>📞</span> {selectedInvoiceOrder.farmerPhone}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Order Date & Time</p>
@@ -390,16 +396,16 @@ export default function OrdersList() {
             </div>
           </div>
 
-          <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+          <div className="p-4 border-t border-gray-100 bg-gray-50 flex flex-wrap justify-end gap-3">
             <button 
-              onClick={() => window.print()}
-              className="px-5 py-2 rounded-xl font-medium text-primary-600 border border-primary-200 hover:bg-primary-50 transition-colors"
+              onClick={() => downloadInvoice(selectedInvoiceOrder)}
+              className="px-5 py-2 rounded-xl font-medium bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm cursor-pointer flex items-center gap-2"
             >
-              Print Bill
+              <span>📥</span> Download / Print Invoice
             </button>
             <button 
               onClick={() => setSelectedInvoiceOrder(null)}
-              className="px-5 py-2 rounded-xl font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm"
+              className="px-5 py-2 rounded-xl font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors cursor-pointer"
             >
               Close
             </button>

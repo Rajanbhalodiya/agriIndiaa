@@ -37,7 +37,7 @@ export default function Farmers() {
   }, []);
 
   const filteredFarmers = farmers.filter((farmer) => {
-    const fullName = `${farmer.firstName || ''} ${farmer.lastName || ''}`.toLowerCase();
+    const fullName = `${farmer.firstName || ''} ${farmer.lastName || ''} ${farmer.farmerName || ''}`.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
       fullName.includes(searchLower) ||
@@ -47,7 +47,7 @@ export default function Farmers() {
 
     const matchesLandType =
       landTypeFilter === 'All' ||
-      farmer.landType?.toLowerCase() === landTypeFilter.toLowerCase();
+      (farmer.landType || '').toLowerCase() === landTypeFilter.toLowerCase();
 
     return matchesSearch && matchesLandType;
   });
@@ -75,16 +75,15 @@ export default function Farmers() {
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-          <label className="text-sm font-medium text-gray-600">Land Type:</label>
+          <label className="text-sm font-semibold text-gray-600">Land Type:</label>
           <select
             value={landTypeFilter}
             onChange={(e) => setLandTypeFilter(e.target.value)}
-            className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
+            className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm cursor-pointer"
           >
             <option value="All">All Land Types</option>
-            <option value="own">Own / Farm</option>
-            <option value="lease">Lease</option>
-            <option value="shared">Shared / Open</option>
+            <option value="farm">Farm</option>
+            <option value="open">Open</option>
           </select>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import productOrderModel from '../models/productOrderModel.js';
 import productModel from '../models/productModel.js';
 import userModel from '../models/userModel.js';
+import advisorModel from '../models/advisorModel.js';
 
 // Place a new product order
 export const placeProductOrder = async (req, res, next) => {
@@ -9,6 +10,18 @@ export const placeProductOrder = async (req, res, next) => {
 
     if (!advisorId || !farmerId || !items || items.length === 0 || !totalAmount) {
       return res.json({ success: false, message: 'Missing Order Details' });
+    }
+
+    // Verify advisor exists and is available
+    const advisor = await advisorModel.findById(advisorId);
+    if (!advisor) {
+      return res.json({ success: false, message: 'Advisor account not found' });
+    }
+    if (advisor.available === false) {
+      return res.json({ 
+        success: false, 
+        message: 'Your advisor account is currently set to Unavailable by Admin. You cannot place orders.' 
+      });
     }
 
     // Verify farmer exists and belongs to this advisor
@@ -92,7 +105,8 @@ export const getAdvisorProductOrders = async (req, res, next) => {
       const farmer = await userModel.findById(order.farmerId).select('farmerName firstName lastName phone village');
       return {
         ...order.toObject(),
-        farmerName: farmer ? (farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim()) : 'Unknown Farmer'
+        farmerName: farmer ? (farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim()) : 'Unknown Farmer',
+        farmerPhone: farmer ? farmer.phone : ''
       };
     }));
 
