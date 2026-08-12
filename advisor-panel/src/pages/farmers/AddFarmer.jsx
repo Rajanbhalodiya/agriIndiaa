@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MdArrowBack, MdSave } from 'react-icons/md';
 import { apiFetch } from '../../services/api';
+import { ButtonSpinner, OverlayLoader } from '../../components/Loader';
 
 const farmerSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -49,6 +50,7 @@ export default function AddFarmer() {
       animate={{ opacity: 1, x: 0 }}
       className="max-w-3xl mx-auto space-y-6"
     >
+      {isSubmitting && <OverlayLoader message="Saving Farmer Profile..." />}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <button 
@@ -173,12 +175,17 @@ export default function AddFarmer() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-md text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none transition-colors disabled:opacity-70"
+              className="flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-md text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none transition-colors disabled:opacity-70 gap-2"
             >
-              {isSubmitting ? 'Saving...' : (
+              {isSubmitting ? (
                 <>
-                  <MdSave className="w-5 h-5 mr-2" />
-                  Save Farmer
+                  <ButtonSpinner />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <MdSave className="w-5 h-5 mr-1" />
+                  <span>Save Farmer Profile</span>
                 </>
               )}
             </button>

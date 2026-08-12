@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MdCloudUpload, MdArrowBack, MdAdd, MdDelete } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
 import { PRODUCT_CATEGORIES } from '../constants/categories';
+import { ButtonSpinner, OverlayLoader } from '../components/Loader';
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -98,6 +99,7 @@ export default function AddProduct() {
 
   return (
     <div className="max-w-4xl mx-auto pb-10">
+      {loading && <OverlayLoader message="Adding Product..." />}
       <div className="flex items-center gap-4 mb-6">
         <button 
           onClick={() => navigate(-1)}
@@ -238,8 +240,15 @@ export default function AddProduct() {
             Cancel
           </button>
           <button type="submit" disabled={loading}
-            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-70 flex items-center gap-2">
-            {loading ? 'Adding Product...' : 'Add Product'}
+            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-70 flex items-center gap-2">
+            {loading ? (
+              <>
+                <ButtonSpinner />
+                <span>Adding Product...</span>
+              </>
+            ) : (
+              'Add Product'
+            )}
           </button>
         </div>
       </form>

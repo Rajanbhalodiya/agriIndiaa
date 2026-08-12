@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MdArrowBack, MdLocationOn, MdPhone, MdShoppingBag, MdReceipt, MdEdit, MdClose, MdSave } from 'react-icons/md';
 import { apiFetch } from '../../services/api';
 import { downloadInvoice, printInvoice } from '../../utils/invoiceHelper';
+import { PageLoader, ButtonSpinner, OverlayLoader } from '../../components/Loader';
 
 export default function FarmerProfile() {
   const { id } = useParams();
@@ -78,7 +79,7 @@ export default function FarmerProfile() {
   ];
 
   if (loading) {
-    return <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>;
+    return <PageLoader text="Loading Farmer Profile..." size="lg" />;
   }
 
   if (errorMsg) {

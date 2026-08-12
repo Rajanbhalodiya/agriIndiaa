@@ -4,6 +4,7 @@ import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { MdClose, MdVisibility, MdVisibilityOff, MdEdit } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
+import { PageLoader, TableSkeleton } from '../components/Loader';
 
 export default function Advisors() {
   const [advisors, setAdvisors] = useState([]);
@@ -162,7 +163,7 @@ export default function Advisors() {
       </div>
       
       {loading ? (
-        <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>
+        <TableSkeleton rows={6} cols={5} />
       ) : filteredAdvisors.length === 0 ? (
         <EmptyState 
           title="No Matching Advisors" 

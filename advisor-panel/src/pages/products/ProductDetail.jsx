@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, selectCartItems } from '../../store/slices/cartSlice';
 import { apiFetch } from '../../services/api';
 import CartModal from '../../components/CartModal';
+import { PageLoader } from '../../components/Loader';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -42,7 +43,7 @@ export default function ProductDetail() {
   }, [id]);
 
   if (loading) {
-    return <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>;
+    return <PageLoader text="Loading product details..." size="lg" />;
   }
 
   if (!product) {

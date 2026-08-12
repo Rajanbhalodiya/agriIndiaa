@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { API_BASE_URL } from '../services/api';
+import { PageLoader } from '../components/Loader';
 import { 
   MdBarChart, 
   MdTrendingUp, 
@@ -445,9 +446,7 @@ export default function Reports() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-16">
-          <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <PageLoader text="Generating Sales & Analytics Reports..." size="lg" />
       ) : orders.length === 0 ? (
         <EmptyState 
           title="No Orders Available" 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PageHeader from '../components/PageHeader';
+import { PageLoader } from '../components/Loader';
 import { 
   MdSearch, 
   MdRefresh, 
@@ -476,7 +477,7 @@ export default function Tracking() {
           </div>
 
           {loading ? (
-            <div className="text-center py-10 text-xs text-gray-400">Loading advisor positions...</div>
+            <PageLoader text="Loading live advisor positions..." size="sm" />
           ) : filteredAdvisors.length === 0 ? (
             <div className="text-center py-10 text-xs text-gray-400">No advisors found.</div>
           ) : (

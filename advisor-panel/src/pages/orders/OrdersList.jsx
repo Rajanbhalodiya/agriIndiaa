@@ -4,6 +4,7 @@ import { MdSearch, MdAdd, MdReceipt } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
 import { downloadInvoice, printInvoice } from '../../utils/invoiceHelper';
+import { TableSkeleton } from '../../components/Loader';
 
 export default function OrdersList() {
   const navigate = useNavigate();
@@ -120,9 +121,7 @@ export default function OrdersList() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center p-12">
-            <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
+          <TableSkeleton rows={5} cols={4} />
         ) : filteredOrders.length === 0 ? (
           <div className="p-10 text-center bg-surface rounded-2xl border border-dashed border-gray-200 text-gray-500">
             <MdReceipt className="w-10 h-10 text-gray-300 mx-auto mb-2" />

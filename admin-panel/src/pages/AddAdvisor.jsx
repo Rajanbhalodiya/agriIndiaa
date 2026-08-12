@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdArrowBack, MdVisibility, MdVisibilityOff } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
+import { ButtonSpinner, OverlayLoader } from '../components/Loader';
 
 export default function AddAdvisor() {
   const navigate = useNavigate();
@@ -60,7 +61,8 @@ export default function AddAdvisor() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto pb-10">
+    <div className="max-w-4xl mx-auto pb-10">
+      {loading && <OverlayLoader message="Adding Advisor..." />}
       <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={() => navigate(-1)}
@@ -199,9 +201,16 @@ export default function AddAdvisor() {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-2.5 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 shadow-sm shadow-primary-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-8 py-2.5 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 shadow-sm shadow-primary-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {loading ? 'Adding...' : 'Add Advisor'}
+              {loading ? (
+                <>
+                  <ButtonSpinner />
+                  <span>Adding Advisor...</span>
+                </>
+              ) : (
+                'Add Advisor'
+              )}
             </button>
           </div>
         </form>

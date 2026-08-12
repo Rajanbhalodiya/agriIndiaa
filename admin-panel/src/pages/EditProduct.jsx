@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { MdCloudUpload, MdArrowBack, MdAdd, MdDelete } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
 import { PRODUCT_CATEGORIES } from '../constants/categories';
+import { PageLoader, ButtonSpinner, OverlayLoader } from '../components/Loader';
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -138,7 +139,7 @@ export default function EditProduct() {
   };
 
   if (fetching) {
-    return <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>;
+    return <PageLoader text="Fetching product details..." size="lg" />;
   }
 
   return (
@@ -285,7 +286,14 @@ export default function EditProduct() {
           </button>
           <button type="submit" disabled={loading}
             className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-70 flex items-center gap-2">
-            {loading ? 'Saving Changes...' : 'Save Changes'}
+            {loading ? (
+              <>
+                <ButtonSpinner />
+                <span>Saving Changes...</span>
+              </>
+            ) : (
+              'Save Changes'
+            )}
           </button>
         </div>
       </form>

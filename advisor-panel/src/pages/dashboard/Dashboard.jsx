@@ -6,6 +6,7 @@ import {
 } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
+import { PageLoader, CardSkeleton } from '../../components/Loader';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -149,9 +150,7 @@ export default function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="flex justify-center p-8">
-              <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-            </div>
+            <PageLoader text="Loading recent orders..." size="sm" />
           ) : dashData.recentOrders.length === 0 ? (
             <div className="p-6 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200 text-gray-500 text-sm">
               No orders placed yet. Select products from the catalog to place an order.

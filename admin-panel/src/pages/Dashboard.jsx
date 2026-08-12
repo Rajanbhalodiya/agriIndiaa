@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { MdPeople, MdAgriculture, MdInventory, MdShoppingCart, MdReceipt, MdPayments } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
 
+import { PageLoader } from '../components/Loader';
+
 export default function Dashboard() {
   const [dashData, setDashData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function Dashboard() {
       </div>
       
       {loading ? (
-        <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>
+        <PageLoader text="Loading Dashboard Overview..." size="lg" />
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

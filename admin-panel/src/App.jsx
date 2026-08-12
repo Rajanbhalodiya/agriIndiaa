@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthLayout from './layouts/AuthLayout';
 import DashboardLayout from './layouts/DashboardLayout';
+import { PageLoader } from './components/Loader';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddProduct from './pages/AddProduct';
@@ -18,32 +20,35 @@ import AddAdvisor from './pages/AddAdvisor';
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-        </Route>
+      <Suspense fallback={<PageLoader fullScreen text="Loading AgriIndia Admin..." />}>
+        <Routes>
+          {/* Public Routes */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+          </Route>
 
-        {/* Protected Routes (Dashboard) */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Protected Routes (Dashboard) */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
-          <Route path="/advisors" element={<Advisors />} />
-          <Route path="/advisors/add" element={<AddAdvisor />} />
-          <Route path="/farmers" element={<Farmers />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/products/add" element={<AddProduct />} />
-          <Route path="/products/edit/:id" element={<EditProduct />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/tracking" element={<Tracking />} />
-          <Route path="/profile" element={<Profile />} />
-        </Route>
-      </Routes>
+            <Route path="/advisors" element={<Advisors />} />
+            <Route path="/advisors/add" element={<AddAdvisor />} />
+            <Route path="/farmers" element={<Farmers />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/add" element={<AddProduct />} />
+            <Route path="/products/edit/:id" element={<EditProduct />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/tracking" element={<Tracking />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
 
 export default App;
+

@@ -3,6 +3,7 @@ import { MdReceipt, MdSearch, MdAccountBalanceWallet, MdCheckCircleOutline, MdPe
 import { motion } from 'framer-motion';
 import { apiFetch } from '../../services/api';
 import { downloadInvoice, printInvoice } from '../../utils/invoiceHelper';
+import { TableSkeleton } from '../../components/Loader';
 
 export default function Payments() {
   const [orders, setOrders] = useState([]);
@@ -115,9 +116,7 @@ export default function Payments() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-12">
-          <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <TableSkeleton rows={5} cols={5} />
       ) : filteredOrders.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center text-gray-500 text-sm">
           No payment records found matching your filters.

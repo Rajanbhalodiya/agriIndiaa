@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, selectCartItems, setSelectedFarmerId, selectSelectedFarmerId } from '../../store/slices/cartSlice';
 import CartModal from '../../components/CartModal';
 import { apiFetch } from '../../services/api';
+import { CardSkeleton } from '../../components/Loader';
 
 export default function ProductsList() {
   const navigate = useNavigate();
@@ -136,9 +137,7 @@ export default function ProductsList() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-12">
-          <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <CardSkeleton count={6} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" />
       ) : (
         /* Grid: 2 cols mobile, 3 cols tablet, 4 cols desktop */
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">

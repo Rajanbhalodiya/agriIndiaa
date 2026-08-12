@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { MdSearch, MdAdd, MdLocationOn, MdPhone, MdChevronRight } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
+import { CardSkeleton } from '../../components/Loader';
 
 export default function FarmersList() {
   const navigate = useNavigate();
@@ -64,9 +65,7 @@ export default function FarmersList() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-12">
-          <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <CardSkeleton count={6} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" />
       ) : (
         <>
           {filteredFarmers.length > 0 && (
