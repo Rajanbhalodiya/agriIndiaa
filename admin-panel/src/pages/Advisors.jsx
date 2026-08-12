@@ -18,7 +18,7 @@ export default function Advisors() {
 
   const fetchAdvisors = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/all-advisores`, {
+      const response = await fetch(`${API_BASE_URL}/admin/all-advisors`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
@@ -26,7 +26,7 @@ export default function Advisors() {
       });
       const data = await response.json();
       if (data.success) {
-        setAdvisors(data.advisores || data.doctors); // Fallback for legacy key
+        setAdvisors(data.advisors || data.advisores || []);
       } else {
         console.error('Failed to fetch advisors:', data.message);
       }

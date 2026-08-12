@@ -50,12 +50,12 @@ export default function Reports() {
 
       const [ordersRes, advisorsRes, farmersRes] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/product-orders`, { headers }).then(r => r.json()).catch(() => ({ success: false })),
-        fetch(`${API_BASE_URL}/admin/all-advisores`, { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`${API_BASE_URL}/admin/all-advisors`, { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false })),
         fetch(`${API_BASE_URL}/admin/all-farmers`, { method: 'POST', headers }).then(r => r.json()).catch(() => ({ success: false }))
       ]);
 
       if (ordersRes.success) setOrders(ordersRes.orders || []);
-      if (advisorsRes.success) setAdvisors(advisorsRes.advisores || advisorsRes.doctors || []);
+      if (advisorsRes.success) setAdvisors(advisorsRes.advisors || advisorsRes.advisores || []);
       if (farmersRes.success) setFarmers(farmersRes.farmers || []);
     } catch (error) {
       console.error('Error loading reports data:', error);

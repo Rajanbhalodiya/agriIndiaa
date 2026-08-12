@@ -1,16 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PageHeader from '../components/PageHeader';
 import { 
-  MdMap, 
   MdSearch, 
   MdRefresh, 
   MdDirectionsRun, 
-  MdLocationOn, 
-  MdPhone, 
-  MdHome, 
-  MdLayers,
   MdPlayArrow,
-  MdPause
+  MdPause,
+  MdMyLocation
 } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
 
@@ -26,46 +22,68 @@ export default function Tracking() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
+  const myLocationMarkerRef = useRef(null);
   const polylineRef = useRef(null);
   const tileLayerRef = useRef(null);
+  const [leafletReady, setLeafletReady] = useState(false);
 
-  // Load Leaflet Assets dynamically
+  // 1. Dynamically load Leaflet assets safely
   useEffect(() => {
-    const loadLeaflet = async () => {
-      if (!document.getElementById('leaflet-css')) {
+    let isMounted = true;
+
+    const loadLeafletAssets = () => {
+      // Inject CSS if missing
+      if (!document.getElementById('leaflet-css-cdn')) {
         const link = document.createElement('link');
-        link.id = 'leaflet-css';
+        link.id = 'leaflet-css-cdn';
         link.rel = 'stylesheet';
         link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
         document.head.appendChild(link);
       }
 
-      if (!window.L) {
-        const script = document.createElement('script');
+      // Check if window.L is already loaded
+      if (window.L) {
+        if (isMounted) setLeafletReady(true);
+        return;
+      }
+
+      // Inject JS if missing
+      let script = document.getElementById('leaflet-js-cdn');
+      if (!script) {
+        script = document.createElement('script');
+        script.id = 'leaflet-js-cdn';
         script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
         script.async = true;
-        script.onload = () => initMap();
         document.head.appendChild(script);
-      } else {
-        initMap();
       }
+
+      script.onload = () => {
+        if (isMounted) setLeafletReady(true);
+      };
     };
 
-    loadLeaflet();
+    loadLeafletAssets();
 
     return () => {
+      isMounted = false;
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+        try {
+          mapInstanceRef.current.remove();
+        } catch (e) {
+          console.warn('Map cleanup warning:', e);
+        }
         mapInstanceRef.current = null;
       }
     };
   }, []);
 
+  // 2. Fetch live advisor locations from backend
   const fetchLocations = async () => {
     try {
+      const token = localStorage.getItem('token') || localStorage.getItem('aToken') || '';
       const response = await fetch(`${API_BASE_URL}/admin/advisor-locations`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`
         }
       });
       const data = await response.json();
@@ -85,30 +103,12 @@ export default function Tracking() {
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize Map
-  const initMap = () => {
-    if (!mapRef.current || mapInstanceRef.current || !window.L) return;
-
-    // Default center: Gujarat (22.3072, 73.1812)
-    const map = window.L.map(mapRef.current, {
-      center: [22.3072, 73.1812],
-      zoom: 9,
-      zoomControl: false
-    });
-
-    window.L.control.zoom({ position: 'topright' }).addTo(map);
-
-    mapInstanceRef.current = map;
-    updateTileLayer('google-roadmap');
-  };
-
-  // Switch Map Tile Layer
-  const updateTileLayer = (type) => {
-    if (!mapInstanceRef.current || !window.L) return;
-    const map = mapInstanceRef.current;
+  // 3. Tile Layer Switcher
+  const applyTileLayer = useCallback((type, targetMap = mapInstanceRef.current) => {
+    if (!targetMap || !window.L) return;
 
     if (tileLayerRef.current) {
-      map.removeLayer(tileLayerRef.current);
+      targetMap.removeLayer(tileLayerRef.current);
     }
 
     let layer;
@@ -131,12 +131,44 @@ export default function Tracking() {
       });
     }
 
-    layer.addTo(map);
+    layer.addTo(targetMap);
     tileLayerRef.current = layer;
     setMapType(type);
-  };
+  }, []);
 
-  // Live simulation effect
+  // 4. Initialize Leaflet Map instance
+  useEffect(() => {
+    if (!leafletReady || !mapRef.current || mapInstanceRef.current) return;
+
+    try {
+      if (mapRef.current._leaflet_id) {
+        mapRef.current._leaflet_id = null;
+      }
+
+      const map = window.L.map(mapRef.current, {
+        center: [22.3072, 73.1812], // Center on Gujarat
+        zoom: 9,
+        zoomControl: false
+      });
+
+      window.L.control.zoom({ position: 'topright' }).addTo(map);
+      mapInstanceRef.current = map;
+
+      // Set initial tile layer
+      applyTileLayer(mapType, map);
+
+      // Force resize computation for proper map tile rendering
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 200);
+    } catch (err) {
+      console.error('Leaflet Map Initialization Error:', err);
+    }
+  }, [leafletReady, mapType, applyTileLayer]);
+
+  // 5. Live Simulation Interval Effect
   useEffect(() => {
     let simInterval;
     if (isSimulating) {
@@ -144,12 +176,11 @@ export default function Tracking() {
         setSimLocations(prev => {
           const next = { ...prev };
           advisors.forEach((adv, idx) => {
-            const baseLat = adv.location?.lat || (22.3072 + idx * 0.15);
-            const baseLng = adv.location?.lng || (73.1812 + idx * 0.12);
+            const baseLat = adv.location?.lat || (22.3072 + idx * 0.08);
+            const baseLng = adv.location?.lng || (73.1812 + idx * 0.07);
 
             const curr = next[adv._id] || { lat: baseLat, lng: baseLng, speed: 25 + Math.floor(Math.random() * 20) };
             
-            // Generate small random movement step
             const deltaLat = (Math.random() - 0.48) * 0.003;
             const deltaLng = (Math.random() - 0.48) * 0.003;
 
@@ -167,7 +198,24 @@ export default function Tracking() {
     return () => clearInterval(simInterval);
   }, [isSimulating, advisors]);
 
-  // Update Markers on Map
+  // Helper to ensure valid coordinate numbers
+  const getSanitizedCoords = useCallback((advisor, index) => {
+    const sim = simLocations[advisor._id];
+    const defaultLat = 22.3072 + (index * 0.08) - 0.04;
+    const defaultLng = 73.1812 + (index * 0.07) - 0.04;
+
+    let lat = sim ? sim.lat : advisor.location?.lat;
+    let lng = sim ? sim.lng : advisor.location?.lng;
+
+    if (typeof lat !== 'number' || isNaN(lat) || lat === 0) lat = defaultLat;
+    if (typeof lng !== 'number' || isNaN(lng) || lng === 0) lng = defaultLng;
+
+    const speed = sim ? sim.speed : (advisor.location?.speed || 0);
+
+    return { lat, lng, speed };
+  }, [simLocations]);
+
+  // 6. Synchronize Markers & Polyline on Map
   useEffect(() => {
     if (!mapInstanceRef.current || !window.L || advisors.length === 0) return;
 
@@ -176,28 +224,17 @@ export default function Tracking() {
     const bounds = window.L.latLngBounds();
 
     advisors.forEach((advisor, index) => {
-      // Get live coordinates (simulated or real)
-      const sim = simLocations[advisor._id];
-      const defaultLat = 22.3072 + (index * 0.18) - 0.1;
-      const defaultLng = 73.1812 + (index * 0.15) - 0.1;
-
-      const lat = sim ? sim.lat : (advisor.location?.lat || defaultLat);
-      const lng = sim ? sim.lng : (advisor.location?.lng || defaultLng);
-      const speed = sim ? sim.speed : (advisor.location?.speed || 0);
-
-      const isLive = isSimulating || (advisor.location?.lastUpdated && (new Date() - new Date(advisor.location.lastUpdated)) < 100000);
-      const isMoving = speed > 5;
-
-      bounds.extend([lat, lng]);
-
-      // Marker Icon HTML
+      const { lat, lng, speed } = getSanitizedCoords(advisor, index);
+      const isMoving = speed > 5 || isSimulating;
       const statusColor = !advisor.available ? '#ef4444' : isMoving ? '#16a34a' : '#f59e0b';
       const statusRing = isMoving ? 'animate-ping' : '';
 
+      bounds.extend([lat, lng]);
+
       const customIcon = window.L.divIcon({
-        className: 'custom-gps-marker',
+        className: 'custom-gps-marker border-0 bg-transparent',
         html: `
-          <div style="position: relative; width: 44px; height: 44px; display: flex; items-center; justify-content: center;">
+          <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
             <div style="position: absolute; inset: 0; border-radius: 50%; background-color: ${statusColor}; opacity: 0.35;" class="${statusRing}"></div>
             <div style="position: relative; width: 36px; height: 36px; border-radius: 50%; background: white; border: 3px solid ${statusColor}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.25); overflow: hidden; font-weight: bold; font-size: 13px; color: #1e293b;">
               ${advisor.name ? advisor.name.charAt(0).toUpperCase() : 'A'}
@@ -223,14 +260,14 @@ export default function Tracking() {
         currentMarkers[advisor._id] = marker;
       }
 
-      // Popup Content
+      // Update Popup Content
       const popupContent = `
-        <div style="padding: 4px; font-family: sans-serif;">
+        <div style="padding: 6px; font-family: system-ui, sans-serif; min-width: 160px;">
           <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: bold; color: #0f172a;">${advisor.name}</h4>
           <p style="margin: 0 0 4px 0; font-size: 12px; color: #64748b;">📍 ${advisor.village || 'N/A'}, ${advisor.area || ''}</p>
           <p style="margin: 0 0 6px 0; font-size: 12px; color: #64748b;">📞 ${advisor.phone || 'N/A'}</p>
           <div style="display: flex; gap: 6px; font-size: 11px; font-weight: bold;">
-            <span style="background: #f1f5f9; padding: 2px 6px; border-radius: 6px; color: ${statusColor};">
+            <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 6px; color: ${statusColor};">
               ${!advisor.available ? '🔴 Unavailable' : isMoving ? '⚡ Moving (' + speed + ' km/h)' : '🟡 Stationed'}
             </span>
           </div>
@@ -239,15 +276,19 @@ export default function Tracking() {
       currentMarkers[advisor._id].bindPopup(popupContent);
     });
 
-    // Draw route line if advisor selected
+    // Handle Selected Advisor Route Line
     if (selectedAdvisor && window.L) {
-      const sim = simLocations[selectedAdvisor._id];
-      const sLat = sim ? sim.lat : selectedAdvisor.location?.lat || 22.3072;
-      const sLng = sim ? sim.lng : selectedAdvisor.location?.lng || 73.1812;
+      const targetAdvisorIndex = advisors.findIndex(a => a._id === selectedAdvisor._id);
+      const targetAdv = targetAdvisorIndex !== -1 ? advisors[targetAdvisorIndex] : selectedAdvisor;
+      const { lat: sLat, lng: sLng } = getSanitizedCoords(targetAdv, targetAdvisorIndex !== -1 ? targetAdvisorIndex : 0);
 
-      const historyPoints = (selectedAdvisor.locationHistory || []).map(p => [p.lat, p.lng]);
+      let historyPoints = (targetAdv.locationHistory || []).map(p => [p.lat, p.lng]);
       if (historyPoints.length === 0) {
-        historyPoints.push([sLat - 0.015, sLng - 0.012], [sLat - 0.008, sLng - 0.005], [sLat, sLng]);
+        historyPoints = [
+          [sLat - 0.015, sLng - 0.012],
+          [sLat - 0.008, sLng - 0.005],
+          [sLat, sLng]
+        ];
       } else {
         historyPoints.push([sLat, sLng]);
       }
@@ -259,27 +300,73 @@ export default function Tracking() {
       const polyline = window.L.polyline(historyPoints, {
         color: '#16a34a',
         weight: 4,
-        opacity: 0.8,
+        opacity: 0.85,
         dashArray: '8, 8'
       }).addTo(map);
 
       polylineRef.current = polyline;
     }
 
-  }, [advisors, simLocations, isSimulating, selectedAdvisor]);
+  }, [advisors, simLocations, isSimulating, selectedAdvisor, getSanitizedCoords]);
 
-  // Handle focus advisor
+  // Focus single advisor on list click
   const handleFocusAdvisor = (advisor) => {
     setSelectedAdvisor(advisor);
     if (mapInstanceRef.current && window.L) {
-      const sim = simLocations[advisor._id];
-      const lat = sim ? sim.lat : advisor.location?.lat || 22.3072;
-      const lng = sim ? sim.lng : advisor.location?.lng || 73.1812;
+      const idx = advisors.findIndex(a => a._id === advisor._id);
+      const { lat, lng } = getSanitizedCoords(advisor, idx !== -1 ? idx : 0);
       mapInstanceRef.current.flyTo([lat, lng], 14, { duration: 1.2 });
       if (markersRef.current[advisor._id]) {
         markersRef.current[advisor._id].openPopup();
       }
     }
+  };
+
+  // 7. Locate Admin position
+  const handleLocateAdmin = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+
+        if (mapInstanceRef.current && window.L) {
+          const map = mapInstanceRef.current;
+          map.flyTo([latitude, longitude], 13, { duration: 1.2 });
+
+          const adminIcon = window.L.divIcon({
+            className: 'admin-gps-marker border-0 bg-transparent',
+            html: `
+              <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                <div style="position: absolute; inset: 0; border-radius: 50%; background-color: #3b82f6; opacity: 0.35;" class="animate-ping"></div>
+                <div style="position: relative; width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px; color: white;">
+                  👑
+                </div>
+              </div>
+            `,
+            iconSize: [44, 44],
+            iconAnchor: [22, 22]
+          });
+
+          if (myLocationMarkerRef.current) {
+            myLocationMarkerRef.current.setLatLng([latitude, longitude]);
+          } else {
+            myLocationMarkerRef.current = window.L.marker([latitude, longitude], { icon: adminIcon })
+              .addTo(map)
+              .bindPopup('<div style="font-weight:bold; font-size:12px;">📍 Admin Current Location</div>')
+              .openPopup();
+          }
+        }
+      },
+      (err) => {
+        console.error('Error fetching admin location:', err);
+        alert('Could not access current location. Please check location permissions in browser.');
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   const filteredAdvisors = advisors.filter(a => 
@@ -315,7 +402,7 @@ export default function Tracking() {
           {/* Map Layer Toggle */}
           <div className="flex items-center bg-gray-100 p-1 rounded-xl text-xs font-semibold">
             <button
-              onClick={() => updateTileLayer('google-roadmap')}
+              onClick={() => applyTileLayer('google-roadmap')}
               className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                 mapType === 'google-roadmap' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-gray-600'
               }`}
@@ -323,7 +410,7 @@ export default function Tracking() {
               🗺️ Roadmap
             </button>
             <button
-              onClick={() => updateTileLayer('google-satellite')}
+              onClick={() => applyTileLayer('google-satellite')}
               className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                 mapType === 'google-satellite' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-gray-600'
               }`}
@@ -331,7 +418,7 @@ export default function Tracking() {
               🛰️ Satellite
             </button>
             <button
-              onClick={() => updateTileLayer('osm')}
+              onClick={() => applyTileLayer('osm')}
               className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                 mapType === 'osm' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-gray-600'
               }`}
@@ -339,6 +426,16 @@ export default function Tracking() {
               🌍 OpenStreet
             </button>
           </div>
+
+          {/* Locate Admin Position Button */}
+          <button
+            onClick={handleLocateAdmin}
+            className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Show Admin Location on Map"
+          >
+            <MdMyLocation className="w-4 h-4 text-blue-600" />
+            Locate Me
+          </button>
 
           {/* Live Simulator Toggle */}
           <button
@@ -384,9 +481,8 @@ export default function Tracking() {
             <div className="text-center py-10 text-xs text-gray-400">No advisors found.</div>
           ) : (
             <div className="space-y-2.5">
-              {filteredAdvisors.map((advisor) => {
-                const sim = simLocations[advisor._id];
-                const speed = sim ? sim.speed : (advisor.location?.speed || 0);
+              {filteredAdvisors.map((advisor, idx) => {
+                const { speed } = getSanitizedCoords(advisor, idx);
                 const isSelected = selectedAdvisor?._id === advisor._id;
                 const isMoving = speed > 5 || isSimulating;
 
@@ -437,7 +533,7 @@ export default function Tracking() {
             <div className="w-3 h-3 rounded-full bg-green-500 animate-ping" />
             <div>
               <p className="text-xs font-bold text-gray-900">Live GPS Tracking Active</p>
-              <p className="text-[10px] text-gray-500">Updating positions every 5s • Google Maps</p>
+              <p className="text-[10px] text-gray-500">Updating positions every 6s • Interactive Map</p>
             </div>
           </div>
 
@@ -447,11 +543,11 @@ export default function Tracking() {
               <div className="flex justify-between items-start">
                 <div>
                   <h4 className="font-bold text-gray-900 text-sm">{selectedAdvisor.name}</h4>
-                  <p className="text-xs text-gray-500">📍 {selectedAdvisor.village}, Area: {selectedAdvisor.area}</p>
+                  <p className="text-xs text-gray-500">📍 {selectedAdvisor.village || 'N/A'}, Area: {selectedAdvisor.area || 'N/A'}</p>
                 </div>
                 <button
                   onClick={() => setSelectedAdvisor(null)}
-                  className="text-xs text-gray-400 hover:text-gray-600 font-bold"
+                  className="text-xs text-gray-400 hover:text-gray-600 font-bold p-1 cursor-pointer"
                 >
                   ✕
                 </button>
@@ -460,7 +556,7 @@ export default function Tracking() {
               <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-gray-100 font-medium text-gray-700">
                 <div>
                   <span className="text-gray-400 block text-[10px]">Phone</span>
-                  <span>{selectedAdvisor.phone}</span>
+                  <span>{selectedAdvisor.phone || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-gray-400 block text-[10px]">Movement</span>

@@ -4,9 +4,7 @@ import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
 import { v2 as cloudinary } from 'cloudinary'
 import advisorModel from '../models/advisorModel.js'
-import orderModel from '../models/orderModel.js'
-import razorpay from 'razorpay'
-import { sendOTPEmail, sendOrderConfirmationEmail } from '../config/nodemailer.js'
+import { sendOTPEmail } from '../config/nodemailer.js'
 
 // API to register user 
 const registerUser = async (req , res) => {
@@ -133,182 +131,6 @@ const updateProfile = async (req, res) => {
 }
 
 
-// API to Book Order
-const bookOrder = async (req, res) => {
-
-    try {
-
-        const  { userId, advisorId, slotDate, slotTime, paymentMethod } = req.body // advisorId represents advisorId
-
-        const advisorData = await advisorModel.findById(advisorId).select('-password')
-
-        if (!advisorData.available) {
-            return res.json({success:false,message:'Product is out of stock'})
-        }
-
-        let slots_booked = advisorData.slots_booked
-
-        // checking for slot availability
-        if (slots_booked[slotDate]) {
-            slots_booked[slotDate].push(slotTime)
-        } else {
-            slots_booked[slotDate] = []
-            slots_booked[slotDate].push(slotTime)
-        }
-        
-        const userData = await userModel.findById(userId).select('-password')
-
-        // check if user has set a valid address
-        if (!userData.address || !userData.address.line1 || userData.address.line1.trim() === '') {
-            return res.json({ success: false, message: "Please update your delivery address in your profile before booking an order" })
-        }
-
-        delete advisorData.slots_booked
-
-        const orderData = {
-            userId,
-            advisorId: advisorId,
-            userData,
-            advisorData,
-            amount: advisorData.price,
-            slotTime,
-            slotDate,
-            paymentMethod: paymentMethod || 'Online',
-            date: Date.now()
-        }
-
-        const newOrder = new orderModel(orderData)
-        await newOrder.save()
-
-        // save new slot data in advisorData
-        await advisorModel.findByIdAndUpdate(advisorId,{slots_booked})
-
-        // Send order confirmation email asynchronously
-        sendOrderConfirmationEmail(userData.email, {
-            userName: userData.name,
-            orderId: newOrder._id,
-            productName: advisorData.name,
-            amount: newOrder.amount,
-            slotDate: newOrder.slotDate,
-            slotTime: newOrder.slotTime,
-            paymentMethod: newOrder.paymentMethod
-        }).catch(err => console.log('Error sending order confirmation email:', err.message));
-
-        res.json({success:true,message:'Order Booked Successfully'})
-
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
-    }
-}
-
-
-// API to get user orders for frontend my-appointments page
-const listOrders = async (req, res) => {
-    try {
-        
-        const {userId} = req.body
-        const orders = await orderModel.find({userId})
-
-        res.json({success:true, orders, appointments: orders})
-
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
-    }
-}
-
-// API to cancel order
-const cancelOrder = async (req,res) => {
-    try {
-
-        const {userId,appointmentId} = req.body
-
-        const orderData = await orderModel.findById(appointmentId)
-
-        // verifying order ownership
-        if (orderData.userId !== userId) {
-            return res.json({success:false,message:'Unauthorized Action'})
-        }
-
-        await orderModel.findByIdAndUpdate(appointmentId,{cancelled:true})
-
-        // releasing advisor delivery slot
-        const {advisorId, slotDate, slotTime} = orderData
-
-        const advisorData = await advisorModel.findById(advisorId)
-
-        let slots_booked = advisorData.slots_booked
-
-        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
-
-        await advisorModel.findByIdAndUpdate(advisorId,{slots_booked})
-
-        res.json({success:true,message:'Order Cancelled'})
-        
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });   
-    }
-}
-
-const razorpayInstance = new razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-})
-
-// Api to make payment of order using Razorpay
-
-const paymentRazorpay = async (req,res) => {
-
-    try {
-
-        const { appointmentId } = req.body
-        const orderData = await orderModel.findById(appointmentId)
-    
-        if (!orderData || orderData.cancelled) {
-            return res.json({success:false,message:"Order Cancelled or not found"})
-        }
-    
-        // creating options for razorpay payment 
-        const options = {
-            amount: orderData.amount * 100,
-            currency: process.env.CURRENCY,
-            receipt: appointmentId,
-        }
-    
-        // creating of an order
-        const order = await razorpayInstance.orders.create(options)
-    
-        res.json({success:true,order})
-        
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });     
-    }
-
-}
-
-// API to verify payment of razorpay
-const verifyRazorpay = async (req,res) => {
-    try {
-
-        const {razorpay_order_id} = req.body
-        const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
-
-        if(orderInfo.status === 'paid') {
-            await orderModel.findByIdAndUpdate(orderInfo.receipt,{payment:true, paymentDate: Date.now()})
-            res.json({success:true,message:"Payment Successful"})
-        } else {
-            res.json({success:false,message:"Payment Failed"})
-        }
-        
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });   
-    }
-}
-
 // API for Forgot Password email validation & OTP generation
 const forgotPasswordVerify = async (req, res) => {
     try {
@@ -417,5 +239,5 @@ const resetPassword = async (req, res) => {
     }
 }
 
-export {registerUser, loginUser , getProfile , updateProfile, bookOrder as bookAppointment, listOrders as listAppointment, cancelOrder as cancelAppointment, paymentRazorpay, verifyRazorpay, forgotPasswordVerify, verifyOtp, resetPassword}
+export { registerUser, loginUser, getProfile, updateProfile, forgotPasswordVerify, verifyOtp, resetPassword }
 

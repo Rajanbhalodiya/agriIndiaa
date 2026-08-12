@@ -1,7 +1,6 @@
 import advisorModel from "../models/advisorModel.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
 import productOrderModel from "../models/productOrderModel.js"
 
@@ -30,8 +29,8 @@ const changeAvailability = async (req , res) => {
 
 const advisorList = async (req, res) => {
     try {
-        const advisores = await advisorModel.find({}).select(['-password', '-email'])
-        res.json({ success: true, advisores })
+        const advisors = await advisorModel.find({}).select(['-password', '-email'])
+        res.json({ success: true, advisors, advisores: advisors })
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
@@ -42,19 +41,19 @@ const advisorList = async (req, res) => {
 const loginAdvisor = async (req, res) => {
     try {
         const { phone, password } = req.body
-        const Advisor = await advisorModel.findOne({ phone })
+        const advisor = await advisorModel.findOne({ phone })
 
-        if (!Advisor) {
-            return res.json({ success: false, message: 'wrong mobil number' })
+        if (!advisor) {
+            return res.json({ success: false, message: 'Invalid mobile number' })
         }
 
-        const isMatch = await bcrypt.compare(password, Advisor.password)
+        const isMatch = await bcrypt.compare(password, advisor.password)
 
         if (isMatch) {
-            const token = jwt.sign({ id: Advisor._id }, process.env.JWT_SECRET)
+            const token = jwt.sign({ id: advisor._id }, process.env.JWT_SECRET)
             res.json({ success: true, token })
         } else {
-            res.json({ success: false, message: 'wrong passwor' }) 
+            res.json({ success: false, message: 'Invalid password' }) 
         }
         
     } catch (error) {
@@ -100,64 +99,10 @@ const registerAdvisor = async (req, res) => {
     }
 }
 
-// API to get Advisor Orders for Advisor panel
-const ordersAdvisor = async (req, res) => {
-    try {
-        const { advisorId } = req.body
-        const orders = await orderModel.find({ advisorId })
-        res.json({ success: true, appointments: orders }) // keep key as 'appointments' to match frontend, or return as 'orders' and 'appointments'
-        
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })        
-    }
-}
-
-// API to mark order as completed by Advisor panel
-const orderCompleted = async (req, res) => {
-    try {
-        const { advisorId, appointmentId } = req.body // backend middleware passes authenticated Advisor ID as advisorId
-
-        const orderData = await orderModel.findById(appointmentId)
-
-        if (orderData && orderData.advisorId === advisorId) {
-            await orderModel.findByIdAndUpdate(appointmentId, { isCompleted: true })
-            return res.json({ success: true, message: 'Order Completed' })
-        } else {
-            return res.json({ success: false, message: 'Mark Failed' })
-        }
-        
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })            
-    }
-}
-
-// API to cancel order for Advisor panel
-const orderCancel = async (req, res) => {
-    try {
-        const { advisorId, appointmentId } = req.body
-
-        const orderData = await orderModel.findById(appointmentId)
-
-        if (orderData && orderData.advisorId === advisorId) {
-            await orderModel.findByIdAndUpdate(appointmentId, { cancelled: true })
-            return res.json({ success: true, message: 'Order Cancelled' })
-        } else {
-            return res.json({ success: false, message: 'Cancellation Failed' })
-        }
-        
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })            
-    }
-}
-
 // API to get dashboard data for Advisor panel
 const advisorDashboard = async (req, res) => {
     try {
         const { advisorId } = req.body
-        const appointments = await orderModel.find({ advisorId })
         const productOrders = await productOrderModel.find({ advisorId }).sort({ createdAt: -1 })
         const farmers = await userModel.find({ assignedAdvisor: advisorId, role: 'farmer' })
 
@@ -174,7 +119,6 @@ const advisorDashboard = async (req, res) => {
             }
         })
 
-        // Format farmers and product orders with farmer names
         const recentOrdersWithFarmer = await Promise.all(productOrders.slice(0, 5).map(async (order) => {
             const farmer = await userModel.findById(order.farmerId).select('firstName lastName phone village')
             return {
@@ -189,8 +133,6 @@ const advisorDashboard = async (req, res) => {
             totalRevenue,
             pendingPaymentsAmount,
             pendingPaymentsCount,
-            totalAppointments: appointments.length,
-            appointments,
             recentOrders: recentOrdersWithFarmer,
             recentFarmers: farmers.slice(0, 5)
         }
@@ -439,7 +381,10 @@ const resetPasswordAdvisor = async (req, res) => {
 const updateLocationAdvisor = async (req, res) => {
     try {
         const { advisorId, lat, lng, speed, address, isMoving } = req.body;
-        if (!advisorId || lat === undefined || lng === undefined) {
+        const numLat = Number(lat);
+        const numLng = Number(lng);
+        
+        if (!advisorId || lat === undefined || lng === undefined || isNaN(numLat) || isNaN(numLng)) {
             return res.json({ success: false, message: 'Invalid location parameters' });
         }
 
@@ -449,15 +394,15 @@ const updateLocationAdvisor = async (req, res) => {
         }
 
         const locationObj = {
-            lat: Number(lat),
-            lng: Number(lng),
+            lat: numLat,
+            lng: numLng,
             speed: speed ? Number(speed) : 0,
             address: address || `${advisor.village || 'Area'}, ${advisor.area || ''}`,
             lastUpdated: new Date(),
             isMoving: Boolean(isMoving)
         };
 
-        const newPoint = { lat: Number(lat), lng: Number(lng), timestamp: new Date() };
+        const newPoint = { lat: numLat, lng: numLng, timestamp: new Date() };
         const history = [...(advisor.locationHistory || []), newPoint].slice(-50);
 
         await advisorModel.findByIdAndUpdate(advisorId, {
@@ -476,9 +421,6 @@ export {
     changeAvailability, 
     advisorList, 
     loginAdvisor, 
-    ordersAdvisor, 
-    orderCompleted, 
-    orderCancel, 
     advisorDashboard, 
     advisorProfile, 
     updateAdvisorProfile,

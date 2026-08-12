@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MdSearch, MdFilterList, MdShoppingCart, MdAdd } from 'react-icons/md';
+import { MdSearch, MdFilterList, MdShoppingCart, MdAdd, MdPerson } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, selectCartItems } from '../../store/slices/cartSlice';
+import { addToCart, selectCartItems, setSelectedFarmerId, selectSelectedFarmerId } from '../../store/slices/cartSlice';
 import CartModal from '../../components/CartModal';
 import { apiFetch } from '../../services/api';
 
@@ -11,6 +11,8 @@ export default function ProductsList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
+  const selectedFarmerId = useSelector(selectSelectedFarmerId);
+  
   // Map productId -> selected pack size (size string)
   const [selectedPack, setSelectedPack] = useState({});
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -18,13 +20,26 @@ export default function ProductsList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [products, setProducts] = useState([]);
+  const [farmers, setFarmers] = useState([]);
   const [categories, setCategories] = useState(['All']);
   const [loading, setLoading] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     fetchProducts();
+    fetchFarmers();
   }, []);
+
+  const fetchFarmers = async () => {
+    try {
+      const data = await apiFetch('/advisor/farmers');
+      if (data.success) {
+        setFarmers(data.farmers || []);
+      }
+    } catch (error) {
+      console.error('Error fetching farmers:', error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -62,15 +77,34 @@ export default function ProductsList() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Products Catalog</h1>
-          <p className="text-gray-500">Browse products and create orders for farmers.</p>
+          <p className="text-gray-500">Browse products and create orders for assigned farmers.</p>
         </div>
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="w-full md:w-auto flex items-center justify-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl shadow-md hover:bg-primary-700 transition-colors font-medium relative"
-        >
-          <MdShoppingCart className="w-5 h-5" />
-          View Cart ({cartItemCount})
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          {/* Farmer Selector */}
+          <div className="flex items-center gap-2 bg-surface px-3 py-2 border border-gray-200 rounded-xl shadow-sm">
+            <MdPerson className="w-5 h-5 text-primary-600 flex-shrink-0" />
+            <select
+              value={selectedFarmerId || ''}
+              onChange={(e) => dispatch(setSelectedFarmerId(e.target.value))}
+              className="bg-transparent text-sm font-medium text-gray-800 outline-none w-full sm:w-48 cursor-pointer"
+            >
+              <option value="" disabled>-- Select Farmer --</option>
+              {farmers.map(farmer => (
+                <option key={farmer._id} value={farmer._id}>
+                  {farmer.firstName} {farmer.lastName || ''} ({farmer.village || farmer.phone})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary-600 text-white px-5 py-2 rounded-xl shadow-md hover:bg-primary-700 transition-colors font-medium relative"
+          >
+            <MdShoppingCart className="w-5 h-5" />
+            View Cart ({cartItemCount})
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-4 items-center">

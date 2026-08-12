@@ -13,7 +13,6 @@ export default function Dashboard() {
     totalRevenue: 0,
     pendingPaymentsAmount: 0,
     pendingPaymentsCount: 0,
-    totalAppointments: 0,
     recentOrders: [],
     recentFarmers: []
   });

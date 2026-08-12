@@ -3,23 +3,19 @@ import bcrypt from 'bcrypt'
 import { v2 as cloudinary } from "cloudinary"
 import advisorModel from "../models/advisorModel.js"
 import jwt from 'jsonwebtoken'
-import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
 import productModel from "../models/productModel.js"
-import { sendOrderCancellationEmail } from "../config/nodemailer.js"
+import productOrderModel from "../models/productOrderModel.js"
 
 // API for adding advisor
-const addadvisor = async (req,res) => {
-
+const addAdvisor = async (req, res) => {
     try {
         const { name, phone, area, village, pincode, aadhar, password } = req.body
 
-        // checking for all data to add advisor
         if (!name || !phone || !area || !village || !pincode || !aadhar || !password) {
-            return res.json({success:false,message:"Missing Details"})
+            return res.json({ success: false, message: "Missing Details" })
         }
 
-        // hashing password
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
         
@@ -35,155 +31,81 @@ const addadvisor = async (req,res) => {
             date: Date.now()
         }
 
-        const newadvisor = new advisorModel(advisorData)
-        await newadvisor.save()
+        const newAdvisor = new advisorModel(advisorData)
+        await newAdvisor.save()
 
-        res.json({success:true,message:"Advisor Added Successfully"})
+        res.json({ success: true, message: "Advisor Added Successfully" })
 
     } catch (error) {
         console.log(error)
-        res.json({success:false,message:error.message})
+        res.json({ success: false, message: error.message })
     }
-
 }
 
 // API for admin Login
-const loginAdmin = async (req,res) => {
+const loginAdmin = async (req, res) => {
     try {
-        
-        const {email,password} = req.body
+        const { email, password } = req.body
 
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-
-            const token = jwt.sign(email+password,process.env.JWT_SECRET)
-            res.json({success:true,token})
-
+            const token = jwt.sign(email + password, process.env.JWT_SECRET)
+            res.json({ success: true, token })
         } else {
-            res.json({success:false,message:"Invalid credentials"})
+            res.json({ success: false, message: "Invalid credentials" })
         }
     } catch (error) {
         console.log(error)
-        res.json({success:false,message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
-
-// API to get all advisores list for admin panel
-const alladvisores = async (req, res) => {
-  try {
-    const advisores = await advisorModel.find({}).select('-password')
-    res.json({ success: true, advisores, doctors: advisores }) 
-  } catch (error) {
-    console.log(error)
-    res.json({ success: false, message: error.message })
-  }
-}
-
-
-// API to get all orders list for admin panel
-const ordersAdmin = async (req,res) => {
-
+// API to get all advisors list for admin panel
+const allAdvisors = async (req, res) => {
     try {
-
-        const orders = await orderModel.find({})
-        res.json({success:true, orders, appointments: orders})
-        
+        const advisors = await advisorModel.find({}).select('-password')
+        res.json({ success: true, advisors, advisores: advisors }) 
     } catch (error) {
         console.log(error)
-        res.json({ success: false, message: error.message }) 
+        res.json({ success: false, message: error.message })
     }
 }
 
-// API for orders cancellation
-const orderCancel = async (req,res) => {
+// API to get dashboard data for admin panel
+const adminDashboard = async (req, res) => {
     try {
-
-        const { appointmentId } = req.body // appointmentId maps to order ID
-
-        const orderData = await orderModel.findById(appointmentId)
-
-        await orderModel.findByIdAndUpdate(appointmentId,{cancelled:true})
-
-        // releasing delivery slot
-        const {advisorId, slotDate, slotTime} = orderData
-
-        const advisorData = await advisorModel.findById(advisorId)
-
-        let slots_booked = advisorData.slots_booked
-
-        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
-
-        await advisorModel.findByIdAndUpdate(advisorId,{slots_booked})
-
-        // Send order cancellation email asynchronously
-        const isOnlinePayment = orderData.payment === true || orderData.paymentMethod === 'Online';
-        let refundDate = '';
-        if (isOnlinePayment) {
-            // Mentioning refund date 7 days from cancellation
-            refundDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-        }
-
-        sendOrderCancellationEmail(orderData.userData.email, {
-            userName: orderData.userData.name,
-            orderId: orderData._id,
-            productName: orderData.advisorData.name,
-            amount: orderData.amount,
-            isRefundable: isOnlinePayment,
-            refundDate: refundDate
-        }).catch(err => console.log('Error sending cancellation email:', err.message));
-
-        res.json({success:true,message:'Order Cancelled'})
-        
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });   
-    }
-}
-
-//API to get dashboard data for admin panel
-const adminDashboard = async (req,res) => {
-    try {
-        const advisores = await advisorModel.find({})
-        const users = await userModel.find({})
-        const orders = await orderModel.find({})
+        const advisors = await advisorModel.find({})
+        const farmers = await userModel.find({ role: 'farmer' })
         const productOrders = await productOrderModel.find({}).sort({ createdAt: -1 })
         const products = await productModel.find({})
 
-        const totalOrdersCount = orders.length + productOrders.length;
+        const totalRevenue = productOrders.reduce((acc, curr) => curr.payment ? acc + (curr.totalAmount || 0) : acc, 0);
 
-        // Fetch latest product orders formatted for dashboard
         const recentProductOrders = await Promise.all(productOrders.slice(0, 5).map(async (order) => {
             const advisor = await advisorModel.findById(order.advisorId).select('name');
             const farmer = await userModel.findById(order.farmerId).select('firstName lastName');
             return {
                 _id: order._id,
-                userData: { name: farmer ? `${farmer.firstName} ${farmer.lastName || ''}`.trim() : 'Farmer' },
-                slotDate: new Date(order.date).toLocaleDateString(),
-                advisorData: { name: advisor ? advisor.name : 'Advisor' },
-                amount: order.totalAmount,
+                farmerName: farmer ? `${farmer.firstName} ${farmer.lastName || ''}`.trim() : 'Farmer',
+                advisorName: advisor ? advisor.name : 'Advisor',
+                date: new Date(order.date).toLocaleDateString('en-IN'),
+                totalAmount: order.totalAmount,
                 status: order.status,
                 cancelled: order.status === 'Cancelled'
             };
         }));
 
         const dashData = {
-            advisores: advisores.length,
-            doctors: advisores.length, // legacy compat
-            orders: totalOrdersCount,
+            advisors: advisors.length,
+            advisores: advisors.length,
+            farmers: farmers.length,
             productOrdersCount: productOrders.length,
-            appointments: totalOrdersCount, // legacy compat
-            customers: users.length,
-            patients: users.length, // legacy compat
+            totalOrders: productOrders.length,
             products: products.length,
-            latestOrders: recentProductOrders.length > 0 ? recentProductOrders : orders.reverse().slice(0,5),
-            latestAppointments: recentProductOrders.length > 0 ? recentProductOrders : orders.slice(0,5) // legacy compat
+            totalRevenue,
+            latestOrders: recentProductOrders
         }
 
-        res.json({success:true,dashData})
+        res.json({ success: true, dashData })
         
     } catch (error) {
         console.log(error);
@@ -191,7 +113,7 @@ const adminDashboard = async (req,res) => {
     }
 }
 
-// API to get all farmers (users) for admin panel
+// API to get all farmers for admin panel
 const allFarmers = async (req, res) => {
     try {
         const farmers = await userModel.find({ role: 'farmer' }).select('-password').sort({ createdAt: -1 });
@@ -217,14 +139,11 @@ const allFarmers = async (req, res) => {
     }
 }
 
-import productOrderModel from "../models/productOrderModel.js"
-
 // API to get all product orders for admin panel
 const productOrdersAdmin = async (req, res) => {
     try {
         const orders = await productOrderModel.find({}).sort({ createdAt: -1 });
 
-        // Populate advisor and farmer data manually or using mongoose
         const populatedOrders = await Promise.all(orders.map(async (order) => {
             const advisor = await advisorModel.findById(order.advisorId).select('name image');
             const farmer = await userModel.findById(order.farmerId).select('firstName lastName phone');
@@ -358,11 +277,42 @@ const updateAdvisorAdmin = async (req, res) => {
 const getAdvisorLocationsAdmin = async (req, res) => {
     try {
         const advisors = await advisorModel.find({}).select('name phone area village pincode image available location locationHistory');
-        res.json({ success: true, advisors });
+        const formattedAdvisors = advisors.map((adv, index) => {
+            const advObj = adv.toObject();
+            const defaultLat = 22.3072 + (index * 0.08) - 0.04;
+            const defaultLng = 73.1812 + (index * 0.07) - 0.04;
+            
+            if (!advObj.location || typeof advObj.location.lat !== 'number' || typeof advObj.location.lng !== 'number' || isNaN(advObj.location.lat) || isNaN(advObj.location.lng) || advObj.location.lat === 0) {
+                advObj.location = {
+                    lat: defaultLat,
+                    lng: defaultLng,
+                    address: `${advObj.village || 'Area'}, ${advObj.area || 'Gujarat'}`,
+                    speed: 0,
+                    lastUpdated: advObj.date || new Date(),
+                    isMoving: false
+                };
+            }
+            return advObj;
+        });
+        res.json({ success: true, advisors: formattedAdvisors });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
 
-export {addadvisor,loginAdmin,alladvisores, ordersAdmin, orderCancel, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus, updateFarmerAdmin, updateAdvisorAdmin, getAdvisorLocationsAdmin}
+export {
+    addAdvisor,
+    addAdvisor as addadvisor,
+    loginAdmin,
+    allAdvisors,
+    allAdvisors as alladvisores,
+    adminDashboard,
+    allFarmers,
+    productOrdersAdmin,
+    updateProductOrderStatus,
+    updateFarmerAdmin,
+    updateAdvisorAdmin,
+    getAdvisorLocationsAdmin
+}
+

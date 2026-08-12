@@ -3,9 +3,6 @@ import {
   advisorList, 
   loginAdvisor, 
   registerAdvisor,
-  ordersAdvisor, 
-  orderCompleted, 
-  orderCancel, 
   advisorDashboard, 
   advisorProfile, 
   updateAdvisorProfile,
@@ -29,9 +26,6 @@ advisorRouter.post('/reset-password', resetPasswordAdvisor);
 // Protected Advisor routes
 advisorRouter.use(authAdvisor);
 
-advisorRouter.get('/appointments', ordersAdvisor);
-advisorRouter.post('/complete-appointment', orderCompleted);
-advisorRouter.post('/cancel-appointment', orderCancel);
 advisorRouter.get('/dashboard', advisorDashboard);
 advisorRouter.get('/profile', advisorProfile);
 advisorRouter.post('/update-profile', updateAdvisorProfile);
@@ -42,3 +36,4 @@ advisorRouter.post("/farmer", authAdvisor, getFarmer)
 advisorRouter.post("/update-farmer", authAdvisor, updateFarmer)
 
 export default advisorRouter;
+
