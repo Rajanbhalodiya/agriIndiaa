@@ -7069,3 +7069,10 @@
 2026-08-12 19:20:23 info: GET /api/admin/advisor-locations
 2026-08-12 19:21:23 info: GET /api/admin/advisor-locations
 2026-08-12 19:22:23 info: GET /api/admin/advisor-locations
+2026-08-12 22:30:18 info: Server Started on port 4000
+2026-08-12 22:30:23 info: POST /api/admin/login
+2026-08-12 22:30:23 info: GET /api/admin/dashboard
+2026-08-12 22:30:24 info: GET /api/admin/dashboard
+2026-08-12 22:30:35 info: POST /api/admin/all-advisors
+2026-08-12 22:30:35 info: POST /api/admin/all-advisors
+2026-08-12 22:36:17 info: Server Started on port 4000
