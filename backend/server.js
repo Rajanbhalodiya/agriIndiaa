@@ -76,31 +76,8 @@ app.use('/api', limiter);
 
 // Middlewares
 app.use(express.json({ limit: '10kb' }));
-
-// CORS configuration supporting production & localhost origins
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:3000',
-  'http://localhost:4000',
-  process.env.FRONTEND_URL,
-  process.env.ADVISOR_PANEL_URL,
-  process.env.ADMIN_PANEL_URL,
-  process.env.ALLOWED_ORIGINS
-].filter(Boolean);
-
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or Postman)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin matches allowed list or matches vercel app subdomains
-    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-      return callback(null, true);
-    }
-    
-    return callback(null, true); // Fallback to allow origin dynamically
-  },
+  origin: '*',
   credentials: true,
 }));
 
@@ -108,14 +85,6 @@ app.use(cors({
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
-});
-
-// API Health Endpoint (unauthenticated)
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Agri India API is running'
-  });
 });
 
 // API Endpoints
