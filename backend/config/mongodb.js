@@ -9,10 +9,10 @@ const connectDB = async () => {
   }
 
   const isVercel = Boolean(process.env.VERCEL || process.env.NOW_BUILDER);
-  const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
   if (!uri) {
-    console.error("MONGODB_URI environment variable is missing!");
+    console.error("MONGODB_URI or MONGO_URI environment variable is missing!");
     if (!isVercel) {
       // Local development fallback
       try {
@@ -27,8 +27,10 @@ const connectDB = async () => {
   }
 
   try {
-    const dbName = uri.includes("/agriindia") ? "" : "/agriindia";
-    await mongoose.connect(`${uri}${dbName}`);
+    // Connect to MongoDB with explicit database name option to avoid malforming query params
+    await mongoose.connect(uri, {
+      dbName: 'agriindia',
+    });
     isConnected = true;
     console.log("Database Connected Successfully");
 
@@ -50,6 +52,8 @@ const connectDB = async () => {
       } catch (localErr) {
         console.error("Local MongoDB Fallback Failed:", localErr.message);
       }
+    } else {
+      throw error;
     }
   }
 };

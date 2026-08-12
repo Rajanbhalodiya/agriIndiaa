@@ -15,6 +15,7 @@ const loginSchema = z.object({
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
   
   const navigate = useNavigate();
 
@@ -32,21 +33,33 @@ export default function Login() {
   const phoneValue = watch('phone');
 
   const onPasswordLogin = async (data) => {
+    setLoginError('');
     try {
       const result = await apiFetch('/advisor/login', {
         method: 'POST',
         body: JSON.stringify(data),
       });
 
-      if (result.success) {
+      if (result && result.success) {
         localStorage.setItem('token', result.token);
         window.location.href = '/'; 
       } else {
-        alert(result.message || 'Login failed');
+        const errorMsg = result?.message || 'Login failed. Please check your credentials.';
+        setLoginError(errorMsg);
+        alert(errorMsg);
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('An error occurred during login.');
+      console.error("LOGIN ERROR:", error);
+      console.error("STATUS:", error?.status || error?.response?.status);
+      console.error("DATA:", error?.data || error?.response?.data);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Unable to connect to server. Please check your internet or try again later.";
+
+      setLoginError(errorMessage);
+      alert(`Login Error: ${errorMessage}`);
     }
   };
 
@@ -138,6 +151,11 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit(onPasswordLogin)} className="space-y-6">
+          {loginError && (
+            <div className="p-3.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl font-medium">
+              {loginError}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <div className="relative">
