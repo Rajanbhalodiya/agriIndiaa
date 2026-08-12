@@ -1,14 +1,10 @@
-export const downloadInvoice = (order) => {
-  if (!order) return;
-
+const buildInvoiceHtml = (order, autoPrint = false) => {
   const orderId = order._id ? `#ORD-${order._id.slice(-6).toUpperCase()}` : '#ORD';
+  const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAM1BMVEVHcEwAfjwAfTsAfTwAfDsAejoAeToAejoAejoAezsAezsAfDsAezsAezoAfDsAfz0Aezsop6StAAAAEXRSTlMAHD4tdOT/8NSnx0+CtpUOZs6ZJnkAAAClSURBVHgB7c9FFgQhDATQwgoJkvufdl7G3db9dxDH5h0HD49XQogxMZeK51yMlabJ83gfLdOMCbMAG6fDSyFTDxAaZmbFIQglGQdvBMRMmFgbK9Xxhm24BAYhBnUovOHX/W1WNWejTc9kaQzX4UqmUMjhZ8+ssTDVgotMa8nkz4fBtRIu7RUAlIILabUtGHRGGLjrDFWk5GCGP38O3NCJW03xp80O2XoGEx3EemAAAAAASUVORK5CYII=';
+
   const dateStr = new Date(order.date || Date.now()).toLocaleString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true
   });
 
   const itemsHtml = (order.items || []).map((item, idx) => `
@@ -23,7 +19,7 @@ export const downloadInvoice = (order) => {
     </tr>
   `).join('');
 
-  const htmlContent = `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -31,11 +27,13 @@ export const downloadInvoice = (order) => {
       <title>Invoice ${orderId}</title>
       <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 0; padding: 20px; background: #fff; }
-        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); font-size: 14px; line-height: 24px; border-radius: 12px; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0,0,0,0.05); font-size: 14px; line-height: 24px; border-radius: 12px; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #16a34a; padding-bottom: 15px; margin-bottom: 20px; }
-        .logo { font-size: 26px; font-weight: bold; color: #16a34a; }
+        .logo-wrap { display: flex; align-items: center; gap: 12px; }
+        .logo-img { width: 40px; height: 40px; object-fit: contain; }
+        .logo { font-size: 24px; font-weight: bold; color: #16a34a; }
         .title { font-size: 20px; font-weight: bold; color: #333; text-align: right; }
-        .details-grid { display: flex; justify-content: space-between; margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px; }
+        .details-grid { display: flex; justify-content: space-between; margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px; gap: 12px; }
         .details-col { flex: 1; }
         .details-col h4 { margin: 0 0 8px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         .details-col p { margin: 0; font-size: 14px; font-weight: 500; }
@@ -43,7 +41,7 @@ export const downloadInvoice = (order) => {
         th { background: #f3f4f6; color: #4b5563; font-weight: 600; padding: 10px; font-size: 12px; text-transform: uppercase; }
         .total-box { display: flex; justify-content: flex-end; margin-top: 15px; }
         .total-table { width: 300px; }
-        .total-row { display: flex; justify-content: space-between; padding: 6px 0; }
+        .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
         .total-row.grand { font-size: 18px; font-weight: bold; color: #16a34a; border-top: 2px solid #e5e7eb; padding-top: 10px; margin-top: 5px; }
         .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; }
         .badge-paid { background: #dcfce7; color: #15803d; }
@@ -52,15 +50,19 @@ export const downloadInvoice = (order) => {
         @media print {
           body { padding: 0; }
           .invoice-box { border: none; box-shadow: none; }
+          .no-print { display: none !important; }
         }
       </style>
     </head>
     <body>
       <div class="invoice-box">
         <div class="header">
-          <div>
-            <div class="logo">🌾 AgriIndiaa</div>
-            <div style="font-size: 12px; color: #666;">Official Agriculture Order Invoice</div>
+          <div class="logo-wrap">
+            <img src="${logoBase64}" alt="AgriIndia Logo" class="logo-img" />
+            <div>
+              <div class="logo">AgriIndiaa</div>
+              <div style="font-size: 12px; color: #666;">Official Agriculture Order Invoice</div>
+            </div>
           </div>
           <div class="title">
             INVOICE
@@ -123,18 +125,39 @@ export const downloadInvoice = (order) => {
           <p>Thank you for choosing AgriIndiaa! For support, contact your agricultural advisor or administrator.</p>
         </div>
       </div>
-      <script>
-        window.onload = function() {
-          window.print();
-        };
-      </script>
+      ${autoPrint ? `<script>window.onload = function() { window.print(); };</script>` : ''}
     </body>
     </html>
   `;
+};
 
+/**
+ * Download invoice as a printable HTML file (saves to disk via <a> tag)
+ */
+export const downloadInvoice = (order) => {
+  if (!order) return;
+  const orderId = order._id ? `ORD-${order._id.slice(-6).toUpperCase()}` : 'ORD';
+  const html = buildInvoiceHtml(order, false);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Invoice-${orderId}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * Print invoice — opens a new browser window and triggers the print dialog
+ */
+export const printInvoice = (order) => {
+  if (!order) return;
+  const html = buildInvoiceHtml(order, true);
   const printWindow = window.open('', '_blank');
   if (printWindow) {
-    printWindow.document.write(htmlContent);
+    printWindow.document.write(html);
     printWindow.document.close();
   }
 };

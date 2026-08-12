@@ -4,7 +4,7 @@ import EmptyState from '../components/EmptyState';
 import { MdCheckCircle, MdCancel, MdReceipt } from 'react-icons/md';
 import { FaWhatsapp } from 'react-icons/fa';
 import { sendWhatsAppBill } from '../utils/whatsappHelper';
-import { downloadInvoice } from '../utils/invoiceHelper';
+import { downloadInvoice, printInvoice } from '../utils/invoiceHelper';
 import { API_BASE_URL } from '../services/api';
 
 export default function Orders() {
@@ -347,9 +347,14 @@ export default function Orders() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-start">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Invoice</h2>
-                <p className="text-sm text-gray-500 mt-1">Order #{selectedInvoiceOrder._id.slice(-8).toUpperCase()}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary-50 rounded-xl p-1.5 border border-primary-100 flex items-center justify-center flex-shrink-0">
+                  <img src="/favicon.png" alt="AgriIndia Logo" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Invoice</h2>
+                  <p className="text-sm text-gray-500 mt-1">Order #{selectedInvoiceOrder._id.slice(-8).toUpperCase()}</p>
+                </div>
               </div>
               <button 
                 onClick={() => setSelectedInvoiceOrder(null)}
@@ -435,15 +440,21 @@ export default function Orders() {
             </div>
 
             <div className="p-4 border-t border-gray-100 bg-gray-50 flex flex-wrap justify-end gap-3">
-              <button 
+              <button
                 onClick={() => downloadInvoice(selectedInvoiceOrder)}
-                className="px-5 py-2 rounded-xl font-medium bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm cursor-pointer flex items-center gap-2"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl font-medium bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm cursor-pointer text-sm"
               >
-                <span>📥</span> Download / Print Invoice
+                📥 Download Invoice
               </button>
-              <button 
+              <button
+                onClick={() => printInvoice(selectedInvoiceOrder)}
+                className="flex items-center gap-2 px-5 py-2 rounded-xl font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm cursor-pointer text-sm"
+              >
+                🖨️ Print Invoice
+              </button>
+              <button
                 onClick={() => setSelectedInvoiceOrder(null)}
-                className="px-5 py-2 rounded-xl font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors cursor-pointer"
+                className="px-5 py-2 rounded-xl font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors cursor-pointer text-sm"
               >
                 Close
               </button>

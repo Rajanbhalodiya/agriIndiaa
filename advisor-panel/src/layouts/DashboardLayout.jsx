@@ -1,9 +1,8 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { MdDashboard, MdPeople, MdInventory, MdPointOfSale, MdReceipt, MdSettings, MdNotifications, MdLogout, MdPhone, MdLocationOn } from 'react-icons/md';
+import { MdDashboard, MdPeople, MdInventory, MdPointOfSale, MdReceipt, MdSettings, MdNotifications, MdLogout, MdPhone, MdLocationOn, MdMenu, MdClose } from 'react-icons/md';
 import clsx from 'clsx';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
 import { apiFetch } from '../services/api';
 
 const navItems = [
@@ -18,7 +17,13 @@ export default function DashboardLayout() {
   const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const profileRef = useRef(null);
+
+  // Close sidebar when route changes
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -34,14 +39,11 @@ export default function DashboardLayout() {
     const fetchProfile = async () => {
       try {
         const result = await apiFetch('/advisor/profile');
-        if (result.success) {
-          setProfile(result.profileData);
-        }
+        if (result.success) setProfile(result.profileData);
       } catch (error) {
         console.error('Failed to fetch profile:', error);
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -51,29 +53,22 @@ export default function DashboardLayout() {
     const sendLocation = (lat, lng, speed = 0) => {
       apiFetch('/advisor/update-location', {
         method: 'POST',
-        body: JSON.stringify({
-          lat,
-          lng,
-          speed,
-          isMoving: speed > 2
-        })
-      }).catch(() => {});
+        body: JSON.stringify({ lat, lng, speed, isMoving: speed > 2 })
+      }).catch(() => { });
     };
 
     if (navigator && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => sendLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.speed || 0),
-        () => {},
+        () => { },
         { enableHighAccuracy: true }
       );
-
       watchId = navigator.geolocation.watchPosition(
         (pos) => sendLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.speed || 0),
-        () => {},
+        () => { },
         { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
       );
     }
-
     return () => {
       if (watchId !== undefined && navigator && 'geolocation' in navigator) {
         navigator.geolocation.clearWatch(watchId);
@@ -86,143 +81,195 @@ export default function DashboardLayout() {
     window.location.href = '/auth/login';
   };
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
-      {/* Sidebar (Desktop) */}
-      <aside className="w-64 bg-surface shadow-md3-1 hidden md:flex flex-col z-10">
-        <div className="p-6 border-b flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">A</span>
+  const SidebarContent = () => (
+    <>
+      <div className="p-5 border-b flex items-center gap-3">
+        <img src="/favicon.png" alt="AgriIndia Logo" className="w-9 h-9 object-contain rounded-xl shadow-sm" />
+        <span className="text-xl font-bold text-gray-900 tracking-tight">AgriIndia</span>
+      </div>
+
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path ||
+            (item.path !== '/' && location.pathname.startsWith(item.path));
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={clsx(
+                'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium',
+                isActive
+                  ? 'bg-primary-100 text-primary-800 font-semibold shadow-sm'
+                  : 'text-gray-600 hover:bg-surface-variant hover:text-gray-900'
+              )}
+            >
+              <Icon className={clsx('w-5 h-5 flex-shrink-0', isActive ? 'text-primary-600' : '')} />
+              <span>{item.label}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      <div className="p-3 border-t space-y-1">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) => clsx(
+            'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium',
+            isActive ? 'bg-primary-100 text-primary-800 font-semibold' : 'text-gray-600 hover:bg-surface-variant hover:text-gray-900'
+          )}
+        >
+          <MdSettings className="w-5 h-5 flex-shrink-0" />
+          <span>Settings</span>
+        </NavLink>
+
+        {profile && (
+          <div className="mx-1 p-3 bg-primary-50 rounded-xl border border-primary-100">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary-200 flex items-center justify-center text-primary-800 font-bold text-sm flex-shrink-0">
+                {profile.name ? profile.name.charAt(0).toUpperCase() : 'A'}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-gray-900 truncate">{profile.name}</p>
+                <p className="text-xs text-primary-600">Advisor</p>
+              </div>
+            </div>
           </div>
-          <span className="text-2xl font-bold text-gray-900 tracking-tight">AgriIndia</span>
-        </div>
+        )}
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path ||
-              (item.path !== '/' && location.pathname.startsWith(item.path));
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={clsx(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
-                  isActive
-                    ? "bg-primary-100 text-primary-800 font-semibold shadow-sm"
-                    : "text-gray-600 hover:bg-surface-variant hover:text-gray-900"
-                )}
-              >
-                <Icon className={clsx("w-6 h-6", isActive ? "text-primary-600" : "")} />
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 font-medium text-sm"
+        >
+          <MdLogout className="w-5 h-5 flex-shrink-0" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </>
+  );
 
-        <div className="p-4 border-t space-y-2">
-          <NavLink to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-surface-variant transition-all duration-200">
-            <MdSettings className="w-6 h-6" />
-            <span>Settings</span>
-          </NavLink>
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 font-medium"
-          >
-            <MdLogout className="w-6 h-6" />
-            <span>Logout</span>
-          </button>
-        </div>
+  return (
+    <div className="min-h-screen bg-background flex overflow-x-hidden w-full">
+      {/* Desktop Sidebar (lg+) */}
+      <aside className="w-60 bg-surface shadow-md3-1 hidden lg:flex flex-col z-20 flex-shrink-0">
+        <SidebarContent />
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen max-w-full overflow-hidden">
-        {/* Topbar (Mobile & Desktop) */}
-        <header className="h-16 bg-surface shadow-sm flex items-center justify-between px-4 md:px-8 z-10">
-          <div className="md:hidden flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">A</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">AgriCRM</span>
-          </div>
-
-          <div className="hidden md:block">
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button className="p-2 rounded-full text-gray-500 hover:bg-surface-variant relative">
-              <MdNotifications className="w-6 h-6" />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-red-600 hover:bg-red-50 border border-red-100 text-sm font-medium transition-colors"
-              title="Logout"
+      {/* Tablet Sidebar Overlay (md-lg) */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+            />
+            <motion.aside
+              initial={{ x: -240 }}
+              animate={{ x: 0 }}
+              exit={{ x: -240 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 bottom-0 w-60 bg-surface shadow-md3-3 z-40 flex flex-col lg:hidden"
             >
-              <MdLogout className="w-5 h-5" />
-              <span className="hidden sm:inline">Logout</span>
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-hidden" style={{ minWidth: 0 }}>
+        {/* Header */}
+        <header className="h-16 bg-surface shadow-sm flex items-center justify-between px-4 md:px-6 z-10 flex-shrink-0 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            {/* Hamburger for mobile & tablet */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-surface-variant transition-colors"
+              aria-label="Open menu"
+            >
+              <MdMenu className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-2 lg:hidden">
+              <img src="/favicon.png" alt="AgriIndia Logo" className="w-7 h-7 object-contain rounded-lg" />
+              <span className="text-lg font-bold text-gray-900">AgriIndia</span>
+            </div>
+            {/* Page breadcrumb on desktop */}
+            <div className="hidden lg:block">
+              <span className="text-sm text-gray-500">
+                {navItems.find(n => n.path !== '/' && location.pathname.startsWith(n.path))?.label
+                  || (location.pathname === '/' ? 'Dashboard' : '')}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button className="p-2 rounded-xl text-gray-500 hover:bg-surface-variant relative transition-colors">
+              <MdNotifications className="w-6 h-6" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
             </button>
 
+            {/* Profile dropdown */}
             <div className="relative" ref={profileRef}>
-              <div
-                className="flex items-center gap-3 cursor-pointer p-1 rounded-full hover:bg-surface-variant transition-colors"
+              <button
+                className="flex items-center gap-2 cursor-pointer p-1.5 pr-2 rounded-xl hover:bg-surface-variant transition-colors"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
                 {profile && (
-                  <span className="hidden md:block text-sm font-medium text-gray-700">
+                  <span className="hidden md:block text-sm font-medium text-gray-700 max-w-[120px] truncate">
                     {profile.name}
                   </span>
                 )}
-                <div className="w-10 h-10 rounded-full bg-primary-100 border-2 border-primary-200 flex items-center justify-center overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-primary-100 border-2 border-primary-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {profile?.image ? (
                     <img src={profile.image} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-primary-700 font-bold text-lg">
+                    <span className="text-primary-700 font-bold text-sm">
                       {profile?.name ? profile.name.charAt(0).toUpperCase() : 'A'}
                     </span>
                   )}
                 </div>
-              </div>
+              </button>
 
               <AnimatePresence>
                 {isProfileOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-md3-2 border border-gray-100 overflow-hidden z-50"
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-60 bg-white rounded-2xl shadow-md3-2 border border-gray-100 overflow-hidden z-50"
                   >
-                    <div className="p-4 border-b border-gray-100 bg-surface">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-12 h-12 rounded-full bg-primary-100 border-2 border-primary-200 flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="p-4 border-b border-gray-100 bg-primary-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary-100 border-2 border-primary-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                           {profile?.image ? (
                             <img src={profile.image} alt="Profile" className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-primary-700 font-bold text-xl">
+                            <span className="text-primary-700 font-bold">
                               {profile?.name ? profile.name.charAt(0).toUpperCase() : 'A'}
                             </span>
                           )}
                         </div>
-                        <div>
-                          <h3 className="font-bold text-gray-900">{profile?.name || 'Advisor'}</h3>
-                          <p className="text-xs text-primary-600 font-medium">Advisor</p>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-gray-900 text-sm truncate">{profile?.name || 'Advisor'}</h3>
+                          <p className="text-xs text-primary-600 font-medium">Agricultural Advisor</p>
                         </div>
                       </div>
                     </div>
                     {profile && (
                       <div className="p-2">
                         {profile.phone && (
-                          <div className="px-4 py-2 flex items-center gap-3 text-sm text-gray-600">
-                            <MdPhone className="w-5 h-5 text-gray-400" />
+                          <div className="px-3 py-2 flex items-center gap-3 text-sm text-gray-600">
+                            <MdPhone className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             <span>{profile.phone}</span>
                           </div>
                         )}
                         {profile.village && (
-                          <div className="px-4 py-2 flex items-center gap-3 text-sm text-gray-600">
-                            <MdLocationOn className="w-5 h-5 text-gray-400" />
+                          <div className="px-3 py-2 flex items-center gap-3 text-sm text-gray-600">
+                            <MdLocationOn className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             <span>{profile.village}</span>
                           </div>
                         )}
@@ -231,9 +278,9 @@ export default function DashboardLayout() {
                     <div className="p-2 border-t border-gray-100">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-error hover:bg-error/10 rounded-xl transition-colors font-medium"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium"
                       >
-                        <MdLogout className="w-5 h-5" />
+                        <MdLogout className="w-4 h-4" />
                         <span>Logout</span>
                       </button>
                     </div>
@@ -245,39 +292,39 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 bg-background">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-20 md:pb-24 lg:pb-6 bg-background">
+          <div className="max-w-7xl mx-auto w-full">
             <Outlet />
           </div>
         </main>
-      </div>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around p-2 pb-safe border-t z-50">
-        {navItems.slice(0, 5).map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path ||
-            (item.path !== '/' && location.pathname.startsWith(item.path));
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={clsx(
-                "flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all duration-200",
-                isActive ? "text-primary-700" : "text-gray-500"
-              )}
-            >
-              <div className={clsx(
-                "flex items-center justify-center w-12 h-8 rounded-full mb-1 transition-all duration-200",
-                isActive ? "bg-primary-100" : "bg-transparent"
-              )}>
-                <Icon className="w-6 h-6" />
-              </div>
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
+        {/* Bottom Navigation — Mobile & Tablet only (hidden on lg+) */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] flex justify-around items-center z-20 safe-bottom">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path ||
+              (item.path !== '/' && location.pathname.startsWith(item.path));
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className="flex flex-col items-center justify-center py-2 px-3 min-w-[56px] transition-all duration-200"
+              >
+                <div className={clsx(
+                  'flex items-center justify-center w-10 h-7 rounded-full mb-0.5 transition-all duration-200',
+                  isActive ? 'bg-primary-100' : 'bg-transparent'
+                )}>
+                  <Icon className={clsx('w-5 h-5', isActive ? 'text-primary-700' : 'text-gray-500')} />
+                </div>
+                <span className={clsx(
+                  'text-[10px] font-medium leading-tight',
+                  isActive ? 'text-primary-700' : 'text-gray-500'
+                )}>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
     </div>
   );
 }

@@ -3,8 +3,18 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-gray-900 antialiased font-sans overflow-x-hidden;
+    max-width: 100vw;
+  }
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
 }
 
@@ -15,5 +25,25 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Bottom nav safe area for iPhones */
+  .safe-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    padding-top: 0.5rem;
+  }
+
+  /* Line clamping */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Touch-friendly tap area */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

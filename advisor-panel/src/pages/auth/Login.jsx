@@ -127,8 +127,8 @@ export default function Login() {
       className="w-full"
     >
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-primary-100 rounded-2xl mx-auto flex items-center justify-center mb-4">
-          <span className="text-3xl font-bold text-primary-600">A</span>
+        <div className="w-16 h-16 bg-primary-50 rounded-2xl mx-auto flex items-center justify-center mb-4 p-2.5 border border-primary-100 shadow-sm">
+          <img src="/favicon.png" alt="AgriIndia Logo" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome Back</h1>
         <p className="text-gray-500 mt-2">Sign in to your Advisor Panel</p>
