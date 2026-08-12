@@ -86,14 +86,14 @@ export default function CartModal({ isOpen, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-[55]"
           />
           <motion.div 
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 right-0 w-full md:w-[400px] bg-white shadow-2xl z-50 flex flex-col"
+            className="fixed inset-y-0 right-0 w-full md:w-[400px] bg-white shadow-2xl z-[60] flex flex-col"
           >
             <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white">
               <h2 className="text-lg font-bold text-gray-900">Your Cart</h2>
@@ -147,7 +147,7 @@ export default function CartModal({ isOpen, onClose }) {
             </div>
 
             {cartItems.length > 0 && (
-              <div className="p-4 bg-white border-t border-gray-100 space-y-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+              <div className="p-4 pb-6 bg-white border-t border-gray-100 space-y-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                     <MdPerson className="w-4 h-4 text-primary-500" />

@@ -121,7 +121,7 @@ export default function ProductsList() {
       </div>
 
       {/* Categories */}
-      <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+      <div className="flex flex-wrap gap-2 pb-2">
         {categories.map(cat => (
           <button
             key={cat}
