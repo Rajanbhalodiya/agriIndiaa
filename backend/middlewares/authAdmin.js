@@ -14,13 +14,19 @@ const authAdmin = async (req,res,next) => {
         if (!atoken) {
             return res.json({success:false,message:"NOt Authorized Login Again"})
         }
-        const token_decode = jwt.verify(atoken,process.env.JWT_SECRET)
+        const token_decode = jwt.verify(atoken, process.env.JWT_SECRET);
 
-        if(token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
-            return res.json({success:false,message:"NOt Authorized Login Again"})
+        const isLegacyToken =
+            token_decode === (process.env.ADMIN_PHONE || '9510459100') + process.env.ADMIN_PASSWORD;
+
+        const isObjectToken = typeof token_decode === 'object' && token_decode !== null && token_decode.role === 'admin';
+
+        if (!isLegacyToken && !isObjectToken) {
+            return res.json({ success: false, message: "Not Authorized Login Again" });
         }
 
-        next()
+        req.admin = typeof token_decode === 'object' ? token_decode : { phone: process.env.ADMIN_PHONE || '9510459100' };
+        next();
         
     } catch (error) {
         console.log(error)

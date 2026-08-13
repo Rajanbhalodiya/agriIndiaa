@@ -115,13 +115,36 @@ export default function FarmerProfile() {
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    setEditFormData(prev => ({ ...prev, [name]: value }));
+    let finalValue = value;
+
+    // Crop details cannot contain numbers
+    if (['winterCrop', 'summerCrop', 'rainCrop'].includes(name)) {
+      finalValue = value.replace(/[0-9]/g, '');
+    }
+
+    setEditFormData(prev => ({ ...prev, [name]: finalValue }));
   };
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
-    setSaving(true);
     setEditError('');
+
+    // Check all fields are required
+    const requiredFields = ['name', 'phone', 'village', 'totalLand', 'temporaryLand', 'landType', 'winterCrop', 'summerCrop', 'rainCrop'];
+    for (const field of requiredFields) {
+      if (!editFormData[field] || String(editFormData[field]).trim() === '') {
+        setEditError('All fields are required. Please complete the form.');
+        return;
+      }
+    }
+
+    // Check no numbers in crop details
+    if (/\d/.test(editFormData.winterCrop) || /\d/.test(editFormData.summerCrop) || /\d/.test(editFormData.rainCrop)) {
+      setEditError('Crop details cannot contain numbers.');
+      return;
+    }
+
+    setSaving(true);
     try {
       const data = await apiFetch('/advisor/update-farmer', {
         method: 'POST',
@@ -527,7 +550,9 @@ export default function FarmerProfile() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -540,7 +565,9 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="tel"
                     name="phone"
@@ -553,7 +580,9 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Village</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Village <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="village"
@@ -566,7 +595,9 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Total Own Land (Acres)</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Total Own Land (Acres) <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="totalLand"
@@ -579,23 +610,29 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Temporary Land (Acres)</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Temporary Land (Acres) <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="temporaryLand"
                     value={editFormData.temporaryLand}
                     onChange={handleEditInputChange}
+                    required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="e.g. 5"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Land Type</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Land Type <span className="text-red-500">*</span>
+                  </label>
                   <select
                     name="landType"
                     value={editFormData.landType}
                     onChange={handleEditInputChange}
+                    required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                   >
                     <option value="farm">Farm</option>
@@ -604,38 +641,47 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Winter Crop Details</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Winter Crop Details <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="winterCrop"
                     value={editFormData.winterCrop}
                     onChange={handleEditInputChange}
+                    required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="e.g. Wheat, Gram"
+                    placeholder="e.g. Wheat, Gram (No numbers)"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Summer Crop Details</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Summer Crop Details <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="summerCrop"
                     value={editFormData.summerCrop}
                     onChange={handleEditInputChange}
+                    required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="e.g. Bajra, Moong"
+                    placeholder="e.g. Bajra, Moong (No numbers)"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Rain Crop Details (Monsoon)</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Rain Crop Details (Monsoon) <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="rainCrop"
                     value={editFormData.rainCrop}
                     onChange={handleEditInputChange}
+                    required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="e.g. Rice, Cotton"
+                    placeholder="e.g. Rice, Cotton (No numbers)"
                   />
                 </div>
               </div>

@@ -7076,3 +7076,56 @@
 2026-08-12 22:30:35 info: POST /api/admin/all-advisors
 2026-08-12 22:30:35 info: POST /api/admin/all-advisors
 2026-08-12 22:36:17 info: Server Started on port 4000
+2026-08-12 22:44:55 info: Server Started on port 4000
+2026-08-13 09:18:18 info: Server Started on port 4000
+2026-08-13 09:18:48 info: POST /api/admin/login
+2026-08-13 09:18:49 info: GET /api/admin/dashboard
+2026-08-13 09:18:50 info: GET /api/admin/dashboard
+2026-08-13 09:19:16 info: Server Started on port 4000
+2026-08-13 09:21:41 info: Server Started on port 4000
+2026-08-13 09:21:50 info: Server Started on port 4000
+2026-08-13 09:22:01 info: Server Started on port 4000
+2026-08-13 09:22:38 error: 400 - Bad escaped character in JSON at position 9 (line 1 column 10)
+2026-08-13 09:22:56 error: 400 - Bad escaped character in JSON at position 9 (line 1 column 10)
+2026-08-13 09:23:12 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-08-13 09:23:23 info: POST /api/admin/send-reset-otp
+2026-08-13 09:23:38 info: POST /api/admin/reset-password
+2026-08-13 09:23:51 info: POST /api/admin/login
+2026-08-13 09:24:01 info: POST /api/admin/send-reset-otp
+2026-08-13 09:24:02 info: POST /api/admin/reset-password
+2026-08-13 09:24:17 info: POST /api/admin/login
+2026-08-13 09:24:41 info: POST /api/admin/send-reset-otp
+2026-08-13 09:25:32 info: POST /api/admin/reset-password
+2026-08-13 09:25:42 info: POST /api/admin/login
+2026-08-13 09:25:44 info: POST /api/admin/login
+2026-08-13 09:25:45 info: POST /api/admin/login
+2026-08-13 09:25:45 info: POST /api/admin/login
+2026-08-13 09:25:45 info: POST /api/admin/login
+2026-08-13 09:25:45 info: POST /api/admin/login
+2026-08-13 09:25:45 info: POST /api/admin/login
+2026-08-13 09:25:46 info: POST /api/admin/login
+2026-08-13 09:25:46 info: POST /api/admin/login
+2026-08-13 09:25:46 info: POST /api/admin/login
+2026-08-13 09:25:46 info: POST /api/admin/login
+2026-08-13 09:25:46 info: POST /api/admin/login
+2026-08-13 09:25:47 info: POST /api/admin/login
+2026-08-13 09:25:47 info: POST /api/admin/login
+2026-08-13 09:25:47 info: POST /api/admin/login
+2026-08-13 09:25:47 info: POST /api/admin/login
+2026-08-13 09:25:47 info: POST /api/admin/login
+2026-08-13 09:25:48 info: POST /api/admin/login
+2026-08-13 09:26:12 info: POST /api/admin/send-reset-otp
+2026-08-13 09:28:02 info: Server Started on port 4000
+2026-08-13 09:29:41 info: Server Started on port 4000
+2026-08-13 09:29:52 info: Server Started on port 4000
+2026-08-13 09:29:59 info: Server Started on port 4000
+2026-08-13 09:30:09 info: Server Started on port 4000
+2026-08-13 09:30:19 info: Server Started on port 4000
+2026-08-13 09:31:29 info: POST /api/admin/send-reset-otp
+2026-08-13 09:31:45 info: POST /api/admin/send-reset-otp
+2026-08-13 09:31:56 info: POST /api/admin/verify-otp
+2026-08-13 09:35:42 info: Server Started on port 4000
+2026-08-13 09:35:52 info: Server Started on port 4000
+2026-08-13 09:44:08 info: Server Started on port 4000
+2026-08-13 09:44:14 info: Server Started on port 4000
+2026-08-13 09:44:22 info: Server Started on port 4000

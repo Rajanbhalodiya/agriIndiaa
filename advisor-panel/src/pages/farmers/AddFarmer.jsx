@@ -7,23 +7,37 @@ import { MdArrowBack, MdSave } from 'react-icons/md';
 import { apiFetch } from '../../services/api';
 import { ButtonSpinner, OverlayLoader } from '../../components/Loader';
 
+const noNumbersRegex = /^[^0-9]+$/;
+
 const farmerSchema = z.object({
-  name: z.string().min(2, 'Name is required'),
+  name: z.string().min(2, 'Full name is required'),
   phone: z.string().min(10, 'Valid phone number is required'),
   village: z.string().min(2, 'Village is required'),
   totalLand: z.string().min(1, 'Total land area is required'),
-  temporaryLand: z.string().optional(),
+  temporaryLand: z.string().min(1, 'Temporary land area is required'),
   landType: z.string().min(1, 'Land type is required'),
-  winterCrop: z.string().optional(),
-  summerCrop: z.string().optional(),
-  rainCrop: z.string().optional(),
+  winterCrop: z.string()
+    .min(1, 'Winter crop detail is required')
+    .regex(noNumbersRegex, 'Crop details cannot contain numbers'),
+  summerCrop: z.string()
+    .min(1, 'Summer crop detail is required')
+    .regex(noNumbersRegex, 'Crop details cannot contain numbers'),
+  rainCrop: z.string()
+    .min(1, 'Rain crop detail is required')
+    .regex(noNumbersRegex, 'Crop details cannot contain numbers'),
 });
 
 export default function AddFarmer() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(farmerSchema),
   });
+
+  const handleCropInputChange = (fieldName, value) => {
+    // Strip numbers automatically as user types
+    const cleanedValue = value.replace(/[0-9]/g, '');
+    setValue(fieldName, cleanedValue, { shouldValidate: true });
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -67,61 +81,74 @@ export default function AddFarmer() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('name')}
                 className={`block w-full px-4 py-3 border ${errors.name ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
                 placeholder="Enter full name"
               />
-              {errors.name && <p className="mt-1 text-sm text-error">{errors.name.message}</p>}
+              {errors.name && <p className="mt-1 text-sm text-red-500 font-medium">{errors.name.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
               <input
                 type="tel"
                 {...register('phone')}
                 className={`block w-full px-4 py-3 border ${errors.phone ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
                 placeholder="e.g. 9876543210"
               />
-              {errors.phone && <p className="mt-1 text-sm text-error">{errors.phone.message}</p>}
+              {errors.phone && <p className="mt-1 text-sm text-red-500 font-medium">{errors.phone.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Village</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Village <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('village')}
                 className={`block w-full px-4 py-3 border ${errors.village ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
                 placeholder="Enter village name"
               />
-              {errors.village && <p className="mt-1 text-sm text-error">{errors.village.message}</p>}
+              {errors.village && <p className="mt-1 text-sm text-red-500 font-medium">{errors.village.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Total Own Land (Acres)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Total Own Land (Acres) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('totalLand')}
                 className={`block w-full px-4 py-3 border ${errors.totalLand ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
                 placeholder="e.g. 15"
               />
-              {errors.totalLand && <p className="mt-1 text-sm text-error">{errors.totalLand.message}</p>}
+              {errors.totalLand && <p className="mt-1 text-sm text-red-500 font-medium">{errors.totalLand.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Temporary Land (Optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Temporary Land (Acres) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('temporaryLand')}
                 className={`block w-full px-4 py-3 border ${errors.temporaryLand ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
                 placeholder="e.g. 5"
               />
+              {errors.temporaryLand && <p className="mt-1 text-sm text-red-500 font-medium">{errors.temporaryLand.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Land Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Land Type <span className="text-red-500">*</span>
+              </label>
               <select
                 {...register('landType')}
                 className={`block w-full px-4 py-3 border ${errors.landType ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
@@ -130,37 +157,49 @@ export default function AddFarmer() {
                 <option value="farm">Farm</option>
                 <option value="open">Open</option>
               </select>
-              {errors.landType && <p className="mt-1 text-sm text-error">{errors.landType.message}</p>}
+              {errors.landType && <p className="mt-1 text-sm text-red-500 font-medium">{errors.landType.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Winter Crop Details</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Winter Crop Details <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('winterCrop')}
+                onChange={(e) => handleCropInputChange('winterCrop', e.target.value)}
                 className={`block w-full px-4 py-3 border ${errors.winterCrop ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
-                placeholder="e.g. Wheat, Gram"
+                placeholder="e.g. Wheat, Gram (Letters only)"
               />
+              {errors.winterCrop && <p className="mt-1 text-sm text-red-500 font-medium">{errors.winterCrop.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Summer Crop Details</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Summer Crop Details <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('summerCrop')}
+                onChange={(e) => handleCropInputChange('summerCrop', e.target.value)}
                 className={`block w-full px-4 py-3 border ${errors.summerCrop ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
-                placeholder="e.g. Bajra, Moong"
+                placeholder="e.g. Bajra, Moong (Letters only)"
               />
+              {errors.summerCrop && <p className="mt-1 text-sm text-red-500 font-medium">{errors.summerCrop.message}</p>}
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rain Crop Details</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Rain Crop Details <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 {...register('rainCrop')}
+                onChange={(e) => handleCropInputChange('rainCrop', e.target.value)}
                 className={`block w-full px-4 py-3 border ${errors.rainCrop ? 'border-error' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow bg-surface`}
-                placeholder="e.g. Rice, Cotton"
+                placeholder="e.g. Rice, Cotton (Letters only)"
               />
+              {errors.rainCrop && <p className="mt-1 text-sm text-red-500 font-medium">{errors.rainCrop.message}</p>}
             </div>
           </div>
           

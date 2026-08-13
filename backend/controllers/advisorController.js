@@ -177,8 +177,13 @@ const addFarmer = async (req, res) => {
         const { advisorId, name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body
         
         // Checking for all required data
-        if (!name || !phone || !village || !totalLand || !landType) {
-            return res.json({ success: false, message: 'Missing required details' })
+        if (!name || !phone || !village || !totalLand || !temporaryLand || !landType || !winterCrop || !summerCrop || !rainCrop) {
+            return res.json({ success: false, message: 'All farmer profile fields are required' })
+        }
+
+        // Validate that crop details do not contain numbers
+        if (/\d/.test(winterCrop) || /\d/.test(summerCrop) || /\d/.test(rainCrop)) {
+            return res.json({ success: false, message: 'Crop details cannot contain numbers' })
         }
 
         // Check if phone number already exists
@@ -206,11 +211,11 @@ const addFarmer = async (req, res) => {
             phone,
             village,
             totalLand,
-            temporaryLand: temporaryLand || '0',
+            temporaryLand,
             landType: normalizedLandType,
-            winterCrop: winterCrop || '',
-            summerCrop: summerCrop || '',
-            rainCrop: rainCrop || '',
+            winterCrop,
+            summerCrop,
+            rainCrop,
             role: 'farmer',
             assignedAdvisor: advisorId,
             advisorName: advisorName
@@ -270,6 +275,16 @@ const updateFarmer = async (req, res) => {
         const farmer = await userModel.findOne({ _id: farmerId, assignedAdvisor: advisorId, role: 'farmer' })
         if (!farmer) {
             return res.json({ success: false, message: 'Farmer not found or unauthorized' })
+        }
+
+        // Checking for all required data
+        if (!name || !phone || !village || !totalLand || !temporaryLand || !landType || !winterCrop || !summerCrop || !rainCrop) {
+            return res.json({ success: false, message: 'All farmer profile fields are required' })
+        }
+
+        // Validate that crop details do not contain numbers
+        if (/\d/.test(winterCrop) || /\d/.test(summerCrop) || /\d/.test(rainCrop)) {
+            return res.json({ success: false, message: 'Crop details cannot contain numbers' })
         }
 
         // If phone is changed, check if new phone number is taken by another user
