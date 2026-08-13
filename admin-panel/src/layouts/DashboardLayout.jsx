@@ -121,13 +121,13 @@ export default function DashboardLayout() {
             className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-primary-50 rounded-xl mb-4 transition-colors cursor-pointer group"
           >
             <div className="w-10 h-10 rounded-full bg-primary-100 group-hover:bg-primary-200 flex items-center justify-center text-primary-700 font-bold transition-colors shrink-0">
-              {(localStorage.getItem('adminName') || localStorage.getItem('adminEmail') || 'Super Admin').slice(0, 2).toUpperCase()}
+              {(localStorage.getItem('adminName') || localStorage.getItem('adminPhone') || 'Super Admin').slice(0, 2).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-gray-900 group-hover:text-primary-700 truncate transition-colors">
                 {localStorage.getItem('adminName') || 'Super Admin'}
               </p>
-              <p className="text-xs text-gray-500 truncate">{localStorage.getItem('adminEmail') || 'admin@gmail.com'}</p>
+              <p className="text-xs text-gray-500 truncate">{localStorage.getItem('adminPhone') || '9510459100'}</p>
             </div>
           </NavLink>
           <button

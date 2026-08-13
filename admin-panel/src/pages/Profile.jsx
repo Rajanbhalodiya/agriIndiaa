@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import PageHeader from '../components/PageHeader';
 import { 
   MdPerson, 
-  MdEmail, 
+  MdPhone, 
   MdShield, 
   MdVpnKey, 
   MdLogout, 
@@ -15,20 +15,20 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPhone, setAdminPhone] = useState('');
   const [adminName, setAdminName] = useState('');
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('adminEmail') || 'admin@gmail.com';
+    const savedPhone = localStorage.getItem('adminPhone') || '9510459100';
     const savedName = localStorage.getItem('adminName') || 'Super Admin';
-    setAdminEmail(savedEmail);
+    setAdminPhone(savedPhone);
     setAdminName(savedName);
   }, []);
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
-    localStorage.setItem('adminEmail', adminEmail);
+    localStorage.setItem('adminPhone', adminPhone);
     localStorage.setItem('adminName', adminName);
     setToastMessage('Admin Profile updated and permanently saved!');
     setTimeout(() => setToastMessage(''), 3000);
@@ -58,7 +58,7 @@ export default function Profile() {
       {/* Main Profile Header Banner */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center gap-6">
         <div className="w-24 h-24 rounded-full bg-primary-100 border-4 border-primary-200 flex items-center justify-center text-primary-700 font-extrabold text-3xl shadow-inner shrink-0">
-          {adminEmail ? adminEmail.slice(0, 2).toUpperCase() : 'SA'}
+          {adminPhone ? adminPhone.slice(0, 2).toUpperCase() : 'SA'}
         </div>
 
         <div className="flex-1 text-center sm:text-left space-y-2">
@@ -68,7 +68,7 @@ export default function Profile() {
               <MdAdminPanelSettings className="w-4 h-4" /> Super Administrator
             </span>
           </div>
-          <p className="text-sm font-medium text-gray-500">{adminEmail}</p>
+          <p className="text-sm font-medium text-gray-500">{adminPhone}</p>
           <div className="flex items-center justify-center sm:justify-start gap-2 pt-1 text-xs text-green-600 font-semibold">
             <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
             System Session Active • JWT Encrypted
@@ -100,6 +100,7 @@ export default function Profile() {
               <div className="relative">
                 <input
                   type="text"
+                  required
                   value={adminName}
                   onChange={(e) => setAdminName(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white"
@@ -110,17 +111,17 @@ export default function Profile() {
 
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                Admin Email Address
+                Admin Phone Number
               </label>
               <div className="relative">
                 <input
-                  type="email"
+                  type="tel"
                   required
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
+                  value={adminPhone}
+                  onChange={(e) => setAdminPhone(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white"
                 />
-                <MdEmail className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
+                <MdPhone className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
               </div>
             </div>
 

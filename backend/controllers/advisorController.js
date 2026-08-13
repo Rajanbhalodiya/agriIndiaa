@@ -178,10 +178,9 @@ const addFarmer = async (req, res) => {
         
         // Checking for all required data
         if (!name || !phone || !village || !totalLand || !temporaryLand || !landType || !winterCrop || !summerCrop || !rainCrop) {
-            return res.json({ success: false, message: 'All farmer profile fields are required' })
+            return res.json({ success: false, message: 'All fields are required' })
         }
 
-        // Validate that crop details do not contain numbers
         if (/\d/.test(winterCrop) || /\d/.test(summerCrop) || /\d/.test(rainCrop)) {
             return res.json({ success: false, message: 'Crop details cannot contain numbers' })
         }
@@ -211,11 +210,11 @@ const addFarmer = async (req, res) => {
             phone,
             village,
             totalLand,
-            temporaryLand,
+            temporaryLand: temporaryLand || '0',
             landType: normalizedLandType,
-            winterCrop,
-            summerCrop,
-            rainCrop,
+            winterCrop: winterCrop || '',
+            summerCrop: summerCrop || '',
+            rainCrop: rainCrop || '',
             role: 'farmer',
             assignedAdvisor: advisorId,
             advisorName: advisorName
@@ -277,12 +276,10 @@ const updateFarmer = async (req, res) => {
             return res.json({ success: false, message: 'Farmer not found or unauthorized' })
         }
 
-        // Checking for all required data
         if (!name || !phone || !village || !totalLand || !temporaryLand || !landType || !winterCrop || !summerCrop || !rainCrop) {
-            return res.json({ success: false, message: 'All farmer profile fields are required' })
+            return res.json({ success: false, message: 'All fields are required' })
         }
 
-        // Validate that crop details do not contain numbers
         if (/\d/.test(winterCrop) || /\d/.test(summerCrop) || /\d/.test(rainCrop)) {
             return res.json({ success: false, message: 'Crop details cannot contain numbers' })
         }

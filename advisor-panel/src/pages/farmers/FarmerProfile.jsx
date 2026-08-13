@@ -115,36 +115,41 @@ export default function FarmerProfile() {
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    let finalValue = value;
-
-    // Crop details cannot contain numbers
+    let sanitizedValue = value;
     if (['winterCrop', 'summerCrop', 'rainCrop'].includes(name)) {
-      finalValue = value.replace(/[0-9]/g, '');
+      sanitizedValue = value.replace(/[0-9]/g, '');
     }
-
-    setEditFormData(prev => ({ ...prev, [name]: finalValue }));
+    setEditFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     setEditError('');
 
-    // Check all fields are required
-    const requiredFields = ['name', 'phone', 'village', 'totalLand', 'temporaryLand', 'landType', 'winterCrop', 'summerCrop', 'rainCrop'];
-    for (const field of requiredFields) {
-      if (!editFormData[field] || String(editFormData[field]).trim() === '') {
-        setEditError('All fields are required. Please complete the form.');
-        return;
-      }
-    }
-
-    // Check no numbers in crop details
-    if (/\d/.test(editFormData.winterCrop) || /\d/.test(editFormData.summerCrop) || /\d/.test(editFormData.rainCrop)) {
-      setEditError('Crop details cannot contain numbers.');
+    const { name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = editFormData;
+    if (
+      !name?.trim() || 
+      !phone?.trim() || 
+      !village?.trim() || 
+      !totalLand?.trim() || 
+      !temporaryLand?.trim() || 
+      !landType?.trim() || 
+      !winterCrop?.trim() || 
+      !summerCrop?.trim() || 
+      !rainCrop?.trim()
+    ) {
+      setEditError('All fields are required. Please fill out all farmer details.');
+      setSaving(false);
       return;
     }
 
-    setSaving(true);
+    if (/\d/.test(winterCrop) || /\d/.test(summerCrop) || /\d/.test(rainCrop)) {
+      setEditError('Crop details cannot contain numbers.');
+      setSaving(false);
+      return;
+    }
+
     try {
       const data = await apiFetch('/advisor/update-farmer', {
         method: 'POST',
@@ -550,9 +555,7 @@ export default function FarmerProfile() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="name"
@@ -565,9 +568,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Phone Number <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number <span className="text-red-500">*</span></label>
                   <input
                     type="tel"
                     name="phone"
@@ -580,9 +581,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Village <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Village <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="village"
@@ -595,9 +594,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Total Own Land (Acres) <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Total Own Land (Acres) <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="totalLand"
@@ -610,9 +607,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Temporary Land (Acres) <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Temporary Land (Acres) <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="temporaryLand"
@@ -625,9 +620,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Land Type <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Land Type <span className="text-red-500">*</span></label>
                   <select
                     name="landType"
                     value={editFormData.landType}
@@ -641,9 +634,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Winter Crop Details <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Winter Crop Details <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="winterCrop"
@@ -651,14 +642,12 @@ export default function FarmerProfile() {
                     onChange={handleEditInputChange}
                     required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="e.g. Wheat, Gram (No numbers)"
+                    placeholder="e.g. Wheat, Gram"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Summer Crop Details <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Summer Crop Details <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="summerCrop"
@@ -666,14 +655,12 @@ export default function FarmerProfile() {
                     onChange={handleEditInputChange}
                     required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="e.g. Bajra, Moong (No numbers)"
+                    placeholder="e.g. Bajra, Moong"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Rain Crop Details (Monsoon) <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Rain Crop Details (Monsoon) <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="rainCrop"
@@ -681,7 +668,7 @@ export default function FarmerProfile() {
                     onChange={handleEditInputChange}
                     required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="e.g. Rice, Cotton (No numbers)"
+                    placeholder="e.g. Rice, Cotton"
                   />
                 </div>
               </div>

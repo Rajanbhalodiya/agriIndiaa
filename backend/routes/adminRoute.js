@@ -1,5 +1,5 @@
 import express from 'express'
-import { addAdvisor, allAdvisors, loginAdmin, sendAdminResetOTP, verifyAdminOTP, resetAdminPassword, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus, updateFarmerAdmin, updateAdvisorAdmin, getAdvisorLocationsAdmin } from '../controllers/adminController.js'
+import { addAdvisor, allAdvisors, loginAdmin, adminDashboard, allFarmers, productOrdersAdmin, updateProductOrderStatus, updateFarmerAdmin, updateAdvisorAdmin, getAdvisorLocationsAdmin } from '../controllers/adminController.js'
 import upload from '../middlewares/multer.js'
 import authAdmin from '../middlewares/authAdmin.js'
 import { changeAvailability } from '../controllers/advisorController.js'
@@ -8,9 +8,6 @@ const adminRouter = express.Router()
 
 adminRouter.post('/add-advisor', authAdmin, addAdvisor)
 adminRouter.post('/login', loginAdmin)
-adminRouter.post('/send-reset-otp', sendAdminResetOTP)
-adminRouter.post('/verify-otp', verifyAdminOTP)
-adminRouter.post('/reset-password', resetAdminPassword)
 adminRouter.post('/all-advisors', authAdmin, allAdvisors)
 adminRouter.post('/all-advisores', authAdmin, allAdvisors) // backward compatibility
 adminRouter.post('/all-farmers', authAdmin, allFarmers)

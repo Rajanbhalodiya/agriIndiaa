@@ -42,180 +42,18 @@ const addAdvisor = async (req, res) => {
     }
 }
 
-// API for admin Login (supports Phone number)
+// API for admin Login
 const loginAdmin = async (req, res) => {
     try {
         const { phone, password } = req.body
+        const adminPhone = process.env.ADMIN_PHONE || '9876543210'
 
-        if (!phone || !password) {
-            return res.json({ success: false, message: "Please provide phone number and password" })
-        }
-
-        // 1. Check MongoDB user by phone number
-        let adminUser = await userModel.findOne({ phone }).select('+password')
-        const adminPhoneEnv = process.env.ADMIN_PHONE || '9510459100'
-
-        // 2. If user document exists with this phone, ensure role is 'admin'
-        if (adminUser) {
-            if (adminUser.role !== 'admin' && (phone === adminPhoneEnv || password === process.env.ADMIN_PASSWORD)) {
-                adminUser.role = 'admin'
-                await adminUser.save()
-                adminUser = await userModel.findById(adminUser._id).select('+password')
-            }
-        } else if (phone === adminPhoneEnv && password === process.env.ADMIN_PASSWORD) {
-            // Only insert new user document if NO user exists with this phone number
-            adminUser = new userModel({
-                firstName: 'System',
-                lastName: 'Admin',
-                phone: adminPhoneEnv,
-                password: process.env.ADMIN_PASSWORD || 'admin@123',
-                role: 'admin'
-            })
-            await adminUser.save()
-            adminUser = await userModel.findById(adminUser._id).select('+password')
-        }
-
-        if (!adminUser || adminUser.role !== 'admin') {
-            return res.json({ success: false, message: "Invalid admin credentials" })
-        }
-
-        // Verify password safely
-        let isPasswordCorrect = false
-        if (adminUser.password) {
-            isPasswordCorrect = await bcrypt.compare(password, adminUser.password)
-        }
-
-        if (!isPasswordCorrect && password === process.env.ADMIN_PASSWORD) {
-            isPasswordCorrect = true
-            adminUser.password = password
-            await adminUser.save()
-        }
-
-        if (isPasswordCorrect) {
-            const token = jwt.sign(
-                { id: adminUser._id, role: 'admin', phone: adminUser.phone },
-                process.env.JWT_SECRET
-            )
-            res.json({ success: true, token, phone: adminUser.phone })
+        if (phone === adminPhone && password === process.env.ADMIN_PASSWORD) {
+            const token = jwt.sign(phone + password, process.env.JWT_SECRET)
+            res.json({ success: true, token })
         } else {
             res.json({ success: false, message: "Invalid credentials" })
         }
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-}
-
-// API to Send OTP for Admin Forgot Password
-const sendAdminResetOTP = async (req, res) => {
-    try {
-        const { phone } = req.body
-        if (!phone) {
-            return res.json({ success: false, message: "Phone number is required" })
-        }
-
-        let admin = await userModel.findOne({ phone })
-        const adminPhoneEnv = process.env.ADMIN_PHONE || '9510459100'
-
-        if (admin) {
-            if (admin.role !== 'admin' && phone === adminPhoneEnv) {
-                admin.role = 'admin'
-                await admin.save()
-            }
-        } else if (phone === adminPhoneEnv) {
-            admin = new userModel({
-                firstName: 'System',
-                lastName: 'Admin',
-                phone: adminPhoneEnv,
-                password: process.env.ADMIN_PASSWORD || 'admin@123',
-                role: 'admin'
-            })
-            await admin.save()
-        }
-
-        if (!admin || admin.role !== 'admin') {
-            return res.json({ success: false, message: "No admin user found with this phone number" })
-        }
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString()
-        const expiry = new Date(Date.now() + 10 * 60 * 1000)
-
-        admin.resetOtp = otp
-        admin.resetOtpExpire = expiry
-        await admin.save()
-
-        console.log(`[ADMIN OTP] Generated OTP for Admin (${phone}): ${otp}`)
-
-        res.json({
-            success: true,
-            message: `OTP sent to phone number ${phone}.`,
-            otp
-        })
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-}
-
-// API to Verify Admin OTP
-const verifyAdminOTP = async (req, res) => {
-    try {
-        const { phone, otp } = req.body
-        if (!phone || !otp) {
-            return res.json({ success: false, message: "Phone and OTP are required" })
-        }
-
-        const admin = await userModel.findOne({ phone })
-        if (!admin || admin.role !== 'admin') {
-            return res.json({ success: false, message: "Admin user not found" })
-        }
-
-        if (!admin.resetOtp || admin.resetOtp !== otp.toString().trim()) {
-            return res.json({ success: false, message: "Invalid OTP" })
-        }
-
-        if (new Date() > admin.resetOtpExpire) {
-            return res.json({ success: false, message: "OTP has expired. Please request a new one." })
-        }
-
-        res.json({ success: true, message: "OTP verified successfully" })
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-}
-
-// API to Reset Admin Password
-const resetAdminPassword = async (req, res) => {
-    try {
-        const { phone, otp, newPassword } = req.body
-        if (!phone || !otp || !newPassword) {
-            return res.json({ success: false, message: "Missing required fields" })
-        }
-
-        if (newPassword.length < 6) {
-            return res.json({ success: false, message: "Password must be at least 6 characters long" })
-        }
-
-        const admin = await userModel.findOne({ phone })
-        if (!admin || admin.role !== 'admin') {
-            return res.json({ success: false, message: "Admin user not found" })
-        }
-
-        if (!admin.resetOtp || admin.resetOtp !== otp.toString().trim()) {
-            return res.json({ success: false, message: "Invalid OTP verification state" })
-        }
-
-        if (new Date() > admin.resetOtpExpire) {
-            return res.json({ success: false, message: "OTP has expired" })
-        }
-
-        admin.password = newPassword
-        admin.resetOtp = ''
-        admin.resetOtpExpire = undefined
-        await admin.save()
-
-        res.json({ success: true, message: "Admin password reset successfully! Please sign in with your new password." })
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
@@ -359,10 +197,6 @@ const updateFarmerAdmin = async (req, res) => {
             }
         }
 
-        if ((winterCrop && /\d/.test(winterCrop)) || (summerCrop && /\d/.test(summerCrop)) || (rainCrop && /\d/.test(rainCrop))) {
-            return res.json({ success: false, message: 'Crop details cannot contain numbers' });
-        }
-
         const normalizedLandType = (landType || '').toLowerCase() === 'open' ? 'open' : 'farm';
 
         const updateData = {
@@ -472,9 +306,6 @@ export {
     addAdvisor,
     addAdvisor as addadvisor,
     loginAdmin,
-    sendAdminResetOTP,
-    verifyAdminOTP,
-    resetAdminPassword,
     allAdvisors,
     allAdvisors as alladvisores,
     adminDashboard,
