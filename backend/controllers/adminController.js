@@ -51,34 +51,40 @@ const loginAdmin = async (req, res) => {
             return res.json({ success: false, message: "Please provide phone number and password" })
         }
 
-        // 1. Check MongoDB user with role 'admin'
-        let adminUser = await userModel.findOne({
-            role: 'admin',
-            phone: phone
-        }).select('+password')
+        // 1. Check MongoDB user by phone number
+        let adminUser = await userModel.findOne({ phone }).select('+password')
+        const adminPhoneEnv = process.env.ADMIN_PHONE || '9510459100'
 
-        // Fallback: If no DB admin found yet, seed from env if credentials match
-        if (!adminUser) {
-            const adminPhoneEnv = process.env.ADMIN_PHONE || '9510459100'
-            if (phone === adminPhoneEnv && password === process.env.ADMIN_PASSWORD) {
-                adminUser = new userModel({
-                    firstName: 'System',
-                    lastName: 'Admin',
-                    phone: adminPhoneEnv,
-                    password: process.env.ADMIN_PASSWORD || 'admin@123',
-                    role: 'admin'
-                })
+        // 2. If user document exists with this phone, ensure role is 'admin'
+        if (adminUser) {
+            if (adminUser.role !== 'admin' && (phone === adminPhoneEnv || password === process.env.ADMIN_PASSWORD)) {
+                adminUser.role = 'admin'
                 await adminUser.save()
                 adminUser = await userModel.findById(adminUser._id).select('+password')
             }
+        } else if (phone === adminPhoneEnv && password === process.env.ADMIN_PASSWORD) {
+            // Only insert new user document if NO user exists with this phone number
+            adminUser = new userModel({
+                firstName: 'System',
+                lastName: 'Admin',
+                phone: adminPhoneEnv,
+                password: process.env.ADMIN_PASSWORD || 'admin@123',
+                role: 'admin'
+            })
+            await adminUser.save()
+            adminUser = await userModel.findById(adminUser._id).select('+password')
         }
 
-        if (!adminUser) {
+        if (!adminUser || adminUser.role !== 'admin') {
             return res.json({ success: false, message: "Invalid admin credentials" })
         }
 
-        // Verify password
-        let isPasswordCorrect = await bcrypt.compare(password, adminUser.password)
+        // Verify password safely
+        let isPasswordCorrect = false
+        if (adminUser.password) {
+            isPasswordCorrect = await bcrypt.compare(password, adminUser.password)
+        }
+
         if (!isPasswordCorrect && password === process.env.ADMIN_PASSWORD) {
             isPasswordCorrect = true
             adminUser.password = password
@@ -108,11 +114,15 @@ const sendAdminResetOTP = async (req, res) => {
             return res.json({ success: false, message: "Phone number is required" })
         }
 
-        let admin = await userModel.findOne({ phone, role: 'admin' })
-        
-        // If not in DB, seed admin if phone matches env
+        let admin = await userModel.findOne({ phone })
         const adminPhoneEnv = process.env.ADMIN_PHONE || '9510459100'
-        if (!admin && phone === adminPhoneEnv) {
+
+        if (admin) {
+            if (admin.role !== 'admin' && phone === adminPhoneEnv) {
+                admin.role = 'admin'
+                await admin.save()
+            }
+        } else if (phone === adminPhoneEnv) {
             admin = new userModel({
                 firstName: 'System',
                 lastName: 'Admin',
@@ -123,7 +133,7 @@ const sendAdminResetOTP = async (req, res) => {
             await admin.save()
         }
 
-        if (!admin) {
+        if (!admin || admin.role !== 'admin') {
             return res.json({ success: false, message: "No admin user found with this phone number" })
         }
 
@@ -155,8 +165,8 @@ const verifyAdminOTP = async (req, res) => {
             return res.json({ success: false, message: "Phone and OTP are required" })
         }
 
-        const admin = await userModel.findOne({ phone, role: 'admin' })
-        if (!admin) {
+        const admin = await userModel.findOne({ phone })
+        if (!admin || admin.role !== 'admin') {
             return res.json({ success: false, message: "Admin user not found" })
         }
 
@@ -187,8 +197,8 @@ const resetAdminPassword = async (req, res) => {
             return res.json({ success: false, message: "Password must be at least 6 characters long" })
         }
 
-        const admin = await userModel.findOne({ phone, role: 'admin' })
-        if (!admin) {
+        const admin = await userModel.findOne({ phone })
+        if (!admin || admin.role !== 'admin') {
             return res.json({ success: false, message: "Admin user not found" })
         }
 
