@@ -1,7 +1,8 @@
-import jwt from  'jsonwebtoken'
+import jwt from 'jsonwebtoken'
+import adminModel from '../models/adminModel.js'
 
 // admin authentication middleware
-const authAdmin = async (req,res,next) => {
+const authAdmin = async (req, res, next) => {
     try {
 
         let atoken = req.headers.atoken;
@@ -12,21 +13,31 @@ const authAdmin = async (req,res,next) => {
         }
 
         if (!atoken) {
-            return res.json({success:false,message:"NOt Authorized Login Again"})
+            return res.json({ success: false, message: "Not Authorized Login Again" });
         }
-        const token_decode = jwt.verify(atoken,process.env.JWT_SECRET)
+        const token_decode = jwt.verify(atoken, process.env.JWT_SECRET);
 
-        const adminPhone = process.env.ADMIN_PHONE || '9876543210'
-
-        if(token_decode !== adminPhone + process.env.ADMIN_PASSWORD) {
-            return res.json({success:false,message:"Not Authorized Login Again"})
+        let admin = null;
+        if (token_decode && token_decode.id) {
+            admin = await adminModel.findById(token_decode.id);
+        } else if (token_decode && token_decode.phone) {
+            admin = await adminModel.findOne({ phone: token_decode.phone });
+        } else {
+            // Legacy token fallback
+            const adminPhone = process.env.ADMIN_PHONE || '9876543210';
+            admin = await adminModel.findOne({ phone: adminPhone });
         }
 
-        next()
+        if (!admin) {
+            return res.json({ success: false, message: "Not Authorized Login Again" });
+        }
+
+        req.admin = admin;
+        next();
         
     } catch (error) {
-        console.log(error)
-        res.json({success:false,message:error.message})
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
 }
 

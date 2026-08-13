@@ -18,6 +18,10 @@ export const generateWhatsAppBillText = (order) => {
     itemsText = '1. Order Items';
   }
 
+  const paymentStatusText = order.paymentStatus 
+    ? order.paymentStatus 
+    : (order.payment ? 'PAID ✅' : 'PENDING ⏳');
+
   const message = 
 `🌾 *AGRIINDIA - OFFICIAL ORDER INVOICE* 🌾
 ━━━━━━━━━━━━━━━━━━━━━
@@ -31,8 +35,9 @@ export const generateWhatsAppBillText = (order) => {
 ${itemsText}
 
 💰 *TOTAL AMOUNT:* ₹${(order.totalAmount || 0).toLocaleString()}
-💳 *Payment Mode:* ${order.paymentMethod || (order.payment ? 'Paid' : 'Cash on Delivery')}
-⚡ *Order Status:* ACCEPTED & CONFIRMED ✅
+💳 *Payment Mode:* ${order.paymentMethod || 'Cash on Delivery'}
+💵 *Payment Status:* ${paymentStatusText}
+⚡ *Order Status:* ${order.status ? order.status.toUpperCase() : 'ACCEPTED & CONFIRMED'} ✅
 ━━━━━━━━━━━━━━━━━━━━━
 Thank you for choosing AgriIndiaa! For support, contact your advisor or admin. 🙏`;
 
