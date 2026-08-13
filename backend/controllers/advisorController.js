@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js"
 import productOrderModel from "../models/productOrderModel.js"
+import { sendSMS } from "../utils/smsService.js"
 
 const changeAvailability = async (req , res) => {
     try {
@@ -336,6 +337,12 @@ const forgotPasswordAdvisor = async (req, res) => {
         advisor.resetOtp = otp;
         advisor.resetOtpExpire = expiry;
         await advisor.save();
+
+        // Dispatch real SMS
+        await sendSMS({
+            phone: advisor.phone,
+            message: `Your AgriIndia Advisor password reset OTP verification code is ${otp}. Valid for 10 minutes.`
+        });
 
         res.json({
             success: true,

@@ -7,6 +7,7 @@ import userModel from "../models/userModel.js"
 import productModel from "../models/productModel.js"
 import productOrderModel from "../models/productOrderModel.js"
 import adminModel, { seedDefaultAdmin } from "../models/adminModel.js"
+import { sendSMS } from "../utils/smsService.js"
 
 // API for adding advisor
 const addAdvisor = async (req, res) => {
@@ -351,6 +352,12 @@ const sendResetOtpAdmin = async (req, res) => {
         admin.resetOtp = otp;
         admin.resetOtpExpire = expiry;
         await admin.save();
+
+        // Dispatch real SMS
+        await sendSMS({
+            phone: admin.phone,
+            message: `Your AgriIndia Admin password reset OTP verification code is ${otp}. Valid for 10 minutes.`
+        });
 
         res.json({
             success: true,
