@@ -13,10 +13,6 @@ const adminSchema = new mongoose.Schema(
       required: [true, 'Please provide admin phone number'],
       unique: true,
     },
-    email: {
-      type: String,
-      lowercase: true,
-    },
     password: {
       type: String,
       required: [true, 'Please provide password'],
@@ -41,7 +37,7 @@ const adminSchema = new mongoose.Schema(
 // Pre-save hook to hash password if modified
 adminSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   if (!this.password.startsWith('$2a$') && !this.password.startsWith('$2b$') && !this.password.startsWith('$2y$')) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -72,7 +68,6 @@ export const seedDefaultAdmin = async () => {
       await adminModel.create({
         name: 'Super Admin',
         phone: defaultPhone,
-        email: 'admin@agriindia.com',
         password: hashedPassword,
         role: 'admin',
       });
