@@ -44,9 +44,9 @@ export default function Login() {
         },
         body: JSON.stringify({ phone, password })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('adminPhone', phone);
@@ -364,4 +364,3 @@ export default function Login() {
       )}
     </>
   );
-}
