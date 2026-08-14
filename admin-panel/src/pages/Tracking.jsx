@@ -81,10 +81,11 @@ export default function Tracking() {
   // 2. Fetch live advisor locations from backend
   const fetchLocations = async () => {
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('aToken') || '';
+      const token = sessionStorage.getItem('token') || sessionStorage.getItem('aToken') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/advisor-locations`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         }
       });
       const data = await response.json();

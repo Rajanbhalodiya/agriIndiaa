@@ -19,7 +19,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       navigate('/', { replace: true });
     }
@@ -37,7 +37,8 @@ export default function Login() {
       });
 
       if (result.success) {
-        localStorage.setItem('token', result.token);
+        sessionStorage.setItem('token', result.token);
+        localStorage.removeItem('token');
         window.location.href = '/'; 
       } else {
         alert(result.message || 'Login failed');

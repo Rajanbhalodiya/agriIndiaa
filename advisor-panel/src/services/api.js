@@ -4,7 +4,7 @@ export const API_BASE_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localho
  * Standardized fetch helper for advisor-panel
  */
 export const apiFetch = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const isFormData = options.body instanceof FormData;
   const headers = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
@@ -24,6 +24,7 @@ export const apiFetch = async (endpoint, options = {}) => {
     const data = await response.json();
 
     if (!data.success && (data.message === 'Not Authorized. Please login again' || response.status === 401)) {
+      sessionStorage.removeItem('token');
       localStorage.removeItem('token');
       if (window.location.pathname !== '/auth/login') {
         window.location.href = '/auth/login';

@@ -114,10 +114,12 @@ export default function EditProduct() {
         form.append('image', imageFile);
       }
 
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/product/update`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         },
         body: form
       });

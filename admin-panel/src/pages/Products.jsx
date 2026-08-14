@@ -34,11 +34,13 @@ export default function Products() {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/product/remove`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         },
         body: JSON.stringify({ id })
       });

@@ -14,10 +14,12 @@ export default function Farmers() {
 
   const fetchFarmers = async () => {
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/all-farmers`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         }
       });
       const data = await response.json();

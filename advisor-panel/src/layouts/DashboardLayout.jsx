@@ -77,6 +77,7 @@ export default function DashboardLayout() {
   }, []);
 
   const handleLogout = () => {
+    sessionStorage.removeItem('token');
     localStorage.removeItem('token');
     window.location.href = '/auth/login';
   };

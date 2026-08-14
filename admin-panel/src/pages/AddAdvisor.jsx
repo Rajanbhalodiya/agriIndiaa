@@ -35,11 +35,13 @@ export default function AddAdvisor() {
     setLoading(true);
 
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/add-advisor`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         },
         body: JSON.stringify(formData)
       });

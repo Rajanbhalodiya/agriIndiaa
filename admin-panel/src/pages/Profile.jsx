@@ -25,7 +25,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token') || localStorage.getItem('aToken') || '';
+      const token = sessionStorage.getItem('token') || sessionStorage.getItem('aToken') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -36,17 +36,16 @@ export default function Profile() {
       if (data.success && data.admin) {
         setAdminName(data.admin.name || 'Admin');
         setAdminPhone(data.admin.phone || '');
-        localStorage.setItem('adminPhone', data.admin.phone || '');
-        localStorage.setItem('adminName', data.admin.name || '');
+        sessionStorage.setItem('adminPhone', data.admin.phone || '');
+        sessionStorage.setItem('adminName', data.admin.name || '');
       } else {
-        // Fallback to local storage if needed
-        setAdminPhone(localStorage.getItem('adminPhone') || '9876543210');
-        setAdminName(localStorage.getItem('adminName') || 'Super Admin');
+        setAdminPhone(sessionStorage.getItem('adminPhone') || localStorage.getItem('adminPhone') || '9510459100');
+        setAdminName(sessionStorage.getItem('adminName') || localStorage.getItem('adminName') || 'Super Admin');
       }
     } catch (error) {
       console.error('Error fetching admin profile:', error);
-      setAdminPhone(localStorage.getItem('adminPhone') || '9876543210');
-      setAdminName(localStorage.getItem('adminName') || 'Super Admin');
+      setAdminPhone(sessionStorage.getItem('adminPhone') || localStorage.getItem('adminPhone') || '9510459100');
+      setAdminName(sessionStorage.getItem('adminName') || localStorage.getItem('adminName') || 'Super Admin');
     } finally {
       setLoading(false);
     }
@@ -62,7 +61,7 @@ export default function Profile() {
     setSaving(true);
 
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('aToken') || '';
+      const token = sessionStorage.getItem('token') || sessionStorage.getItem('aToken') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/update-profile`, {
         method: 'POST',
         headers: {
@@ -75,8 +74,8 @@ export default function Profile() {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('adminPhone', adminPhone);
-        localStorage.setItem('adminName', adminName);
+        sessionStorage.setItem('adminPhone', adminPhone);
+        sessionStorage.setItem('adminName', adminName);
         setToastMessage(data.message || 'Admin profile updated in database!');
         setTimeout(() => setToastMessage(''), 3500);
       } else {
@@ -91,6 +90,7 @@ export default function Profile() {
   };
 
   const handleLogout = () => {
+    sessionStorage.clear();
     localStorage.removeItem('token');
     localStorage.removeItem('aToken');
     navigate('/login');

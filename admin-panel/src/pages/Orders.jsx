@@ -31,9 +31,11 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/product-orders`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         }
       });
       const data = await response.json();
@@ -51,22 +53,21 @@ export default function Orders() {
     fetchOrders();
   }, []);
 
-  const updateStatus = async (targetOrder, newStatus) => {
-    const orderId = typeof targetOrder === 'string' ? targetOrder : targetOrder._id;
-    const orderObj = typeof targetOrder === 'object' ? targetOrder : orders.find(o => o._id === orderId);
-
-    const confirmMsg = newStatus === 'Completed' 
-      ? `Are you sure you want to accept this order? (WhatsApp invoice bill will be sent automatically to farmer)`
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    const confirmMsg = newStatus === 'Cancelled'
+      ? 'Are you sure you want to CANCEL this order?'
       : `Are you sure you want to mark this order as ${newStatus}?`;
 
     if (!window.confirm(confirmMsg)) return;
 
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/update-product-order-status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         },
         body: JSON.stringify({ orderId, status: newStatus })
       });

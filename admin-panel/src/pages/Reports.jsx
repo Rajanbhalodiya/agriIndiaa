@@ -46,8 +46,8 @@ export default function Reports() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token') || '';
-      const headers = { 'Authorization': `Bearer ${token}` };
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
+      const headers = { 'Authorization': `Bearer ${token}`, 'atoken': token };
 
       const [ordersRes, advisorsRes, farmersRes] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/product-orders`, { headers }).then(r => r.json()).catch(() => ({ success: false })),

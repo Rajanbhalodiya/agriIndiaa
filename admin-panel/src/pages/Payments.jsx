@@ -30,9 +30,11 @@ export default function Payments() {
 
   const fetchOrders = async () => {
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/product-orders`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         }
       });
       const data = await response.json();
@@ -54,11 +56,13 @@ export default function Payments() {
     if (!window.confirm(`Are you sure you want to mark this order as ${newStatus}?`)) return;
 
     try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/update-product-order-status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         },
         body: JSON.stringify({ orderId, status: newStatus })
       });

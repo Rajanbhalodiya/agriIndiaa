@@ -72,11 +72,12 @@ export default function AddProduct() {
       form.append('image', imageFile);
 
       // We use the absolute URL to bypass proxy issues during dev, assuming backend is on 4000
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/product/add`, {
         method: 'POST',
         headers: {
-          // Token would go here
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`,
+          'atoken': token
         },
         body: form
       });
