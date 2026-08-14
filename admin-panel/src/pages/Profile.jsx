@@ -182,10 +182,10 @@ export default function Profile() {
               <input
                 type="tel"
                 required
+                readOnly
                 value={adminPhone}
-                onChange={(e) => setAdminPhone(e.target.value)}
-                placeholder="Enter Phone Number"
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+                placeholder="Admin Phone Number"
+                className="w-full pl-10 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 cursor-not-allowed outline-none"
               />
               <MdPhone className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
             </div>

@@ -22,6 +22,7 @@ const authAdvisor = async (req, res, next) => {
 
     // ✅ Attach advisor info safely
     req.advisor = { id: token_decode.id };
+    req.advisorId = token_decode.id;
     req.body.advisorId = token_decode.id;
 
     // ✅ Continue to next middleware or controller

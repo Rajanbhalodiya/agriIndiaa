@@ -7385,3 +7385,475 @@
 2026-08-13 17:26:58 info: Server Started on port 4000
 2026-08-13 17:27:22 info: Server Started on port 4000
 2026-08-13 17:29:21 info: Server Started on port 4000
+2026-08-13 17:33:31 info: Server Started on port 4000
+2026-08-14 10:08:53 info: Server Started on port 4000
+2026-08-14 10:13:06 info: Server Started on port 4000
+2026-08-14 10:14:02 info: Server Started on port 4000
+2026-08-14 10:17:48 info: Server Started on port 4000
+2026-08-14 10:18:39 info: Server Started on port 4000
+2026-08-14 10:18:44 info: Server Started on port 4000
+2026-08-14 10:18:49 info: Server Started on port 4000
+2026-08-14 10:18:55 info: Server Started on port 4000
+2026-08-14 10:19:09 info: Server Started on port 4000
+2026-08-14 10:19:17 info: Server Started on port 4000
+2026-08-14 10:20:10 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-08-14 10:20:26 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-08-14 10:20:55 info: POST /api/auth/send-phone-otp
+2026-08-14 10:20:55 warn: [Twilio Service] Twilio credentials are not fully configured in backend .env
+2026-08-14 10:20:55 error: sendPhoneOTP error: SMS service is not fully configured on server. Please add valid Twilio credentials to .env.
+2026-08-14 10:21:04 info: POST /api/auth/forgot-password/send-otp
+2026-08-14 10:22:12 info: POST /api/auth/send-phone-otp
+2026-08-14 10:22:12 warn: [Twilio Service] Twilio credentials are not fully configured in backend .env
+2026-08-14 10:22:12 error: sendPhoneOTP error: SMS service is not fully configured on server. Please add valid Twilio credentials to .env.
+2026-08-14 10:22:25 info: POST /api/auth/verify-phone-otp
+2026-08-14 10:22:25 warn: [Twilio Service] Twilio credentials are not fully configured in backend .env
+2026-08-14 10:22:25 error: verifyPhoneOTP error: SMS service is not fully configured on server.
+2026-08-14 10:22:44 info: POST /api/auth/forgot-password/verify-otp
+2026-08-14 10:22:44 warn: [Twilio Service] Twilio credentials are not fully configured in backend .env
+2026-08-14 10:22:44 error: forgotPasswordVerifyOTP error: SMS service is not fully configured on server.
+2026-08-14 10:22:58 info: POST /api/auth/forgot-password/reset-password
+2026-08-14 11:43:51 info: Server Started on port 4000
+2026-08-14 12:03:58 info: Server Started on port 4000
+2026-08-14 12:12:02 info: Server Started on port 4000
+2026-08-14 12:13:38 info: Server Started on port 4000
+2026-08-14 13:54:09 info: Server Started on port 4000
+2026-08-14 13:54:20 info: Server Started on port 4000
+2026-08-14 13:54:28 info: Server Started on port 4000
+2026-08-14 13:54:36 info: Server Started on port 4000
+2026-08-14 14:03:45 info: Server Started on port 4000
+2026-08-14 14:05:09 info: Server Started on port 4000
+2026-08-14 14:05:19 info: Server Started on port 4000
+2026-08-14 14:05:26 info: Server Started on port 4000
+2026-08-14 14:05:35 info: Server Started on port 4000
+2026-08-14 14:05:42 info: Server Started on port 4000
+2026-08-14 14:12:57 info: Server Started on port 4000
+2026-08-14 14:13:03 info: Server Started on port 4000
+2026-08-14 14:13:10 info: Server Started on port 4000
+2026-08-14 14:22:19 info: GET /api/advisor/profile
+2026-08-14 14:22:19 info: GET /api/advisor/profile
+2026-08-14 14:22:20 info: GET /api/advisor/profile
+2026-08-14 14:22:20 info: GET /api/advisor/profile
+2026-08-14 14:22:30 info: GET /api/advisor/profile
+2026-08-14 14:22:30 info: GET /api/advisor/profile
+2026-08-14 14:22:30 info: GET /api/advisor/profile
+2026-08-14 14:22:30 info: GET /api/advisor/profile
+2026-08-14 14:22:30 info: GET /api/advisor/profile
+2026-08-14 14:22:38 info: POST /api/advisor/update-profile
+2026-08-14 14:22:47 info: GET /api/advisor/profile
+2026-08-14 14:22:47 info: GET /api/advisor/profile
+2026-08-14 14:22:47 info: GET /api/advisor/profile
+2026-08-14 14:22:47 info: GET /api/advisor/profile
+2026-08-14 14:22:57 info: GET /api/advisor/farmers
+2026-08-14 14:22:57 info: GET /api/advisor/farmers
+2026-08-14 14:22:59 info: POST /api/advisor/farmer
+2026-08-14 14:22:59 info: POST /api/advisor/farmer
+2026-08-14 14:23:09 info: POST /api/advisor/update-farmer
+2026-08-14 14:23:12 info: POST /api/advisor/farmer
+2026-08-14 14:23:16 info: POST /api/advisor/farmer
+2026-08-14 14:23:16 info: POST /api/advisor/farmer
+2026-08-14 14:23:16 info: GET /api/advisor/profile
+2026-08-14 14:23:16 info: GET /api/advisor/profile
+2026-08-14 14:23:26 info: POST /api/advisor/update-farmer
+2026-08-14 14:23:26 info: POST /api/advisor/farmer
+2026-08-14 14:23:30 info: POST /api/advisor/farmer
+2026-08-14 14:23:30 info: POST /api/advisor/farmer
+2026-08-14 14:23:30 info: GET /api/advisor/profile
+2026-08-14 14:23:30 info: GET /api/advisor/profile
+2026-08-14 14:23:34 info: GET /api/advisor/farmers
+2026-08-14 14:23:34 info: GET /api/advisor/farmers
+2026-08-14 14:23:37 info: GET /api/advisor/farmers
+2026-08-14 14:23:37 info: GET /api/advisor/farmers
+2026-08-14 14:23:37 info: GET /api/advisor/profile
+2026-08-14 14:23:37 info: GET /api/advisor/profile
+2026-08-14 14:24:06 info: GET /api/advisor/farmers
+2026-08-14 14:24:06 info: GET /api/advisor/profile
+2026-08-14 14:24:06 info: GET /api/advisor/profile
+2026-08-14 14:24:06 info: GET /api/advisor/farmers
+2026-08-14 14:24:06 info: GET /api/advisor/profile
+2026-08-14 14:24:06 info: GET /api/advisor/farmers
+2026-08-14 14:24:06 info: GET /api/advisor/profile
+2026-08-14 14:24:08 info: POST /api/advisor/farmer
+2026-08-14 14:24:08 info: POST /api/advisor/farmer
+2026-08-14 14:24:11 info: POST /api/advisor/farmer
+2026-08-14 14:24:11 info: POST /api/advisor/farmer
+2026-08-14 14:24:11 info: GET /api/advisor/profile
+2026-08-14 14:24:11 info: GET /api/advisor/profile
+2026-08-14 14:24:11 info: POST /api/advisor/farmer
+2026-08-14 14:24:11 info: GET /api/advisor/profile
+2026-08-14 14:24:11 info: POST /api/advisor/farmer
+2026-08-14 14:24:11 info: GET /api/advisor/profile
+2026-08-14 14:28:25 info: POST /api/advisor/farmer
+2026-08-14 14:28:25 info: POST /api/advisor/farmer
+2026-08-14 14:28:25 info: GET /api/advisor/profile
+2026-08-14 14:28:25 info: GET /api/advisor/profile
+2026-08-14 14:37:07 info: GET /api/advisor/farmers
+2026-08-14 14:37:07 info: GET /api/advisor/farmers
+2026-08-14 14:37:10 info: POST /api/advisor/farmer
+2026-08-14 14:37:10 info: POST /api/advisor/farmer
+2026-08-14 14:37:23 info: POST /api/advisor/update-farmer
+2026-08-14 14:37:26 info: POST /api/advisor/farmer
+2026-08-14 14:37:35 info: GET /api/advisor/farmers
+2026-08-14 14:37:35 info: GET /api/advisor/farmers
+2026-08-14 14:38:51 info: Server Started on port 4000
+2026-08-14 14:39:00 info: Server Started on port 4000
+2026-08-14 14:39:20 info: POST /api/advisor/farmer
+2026-08-14 14:39:20 info: POST /api/advisor/farmer
+2026-08-14 14:39:22 info: POST /api/advisor/farmer
+2026-08-14 14:39:50 info: GET /api/advisor/profile
+2026-08-14 14:39:50 info: GET /api/advisor/profile
+2026-08-14 14:39:57 info: GET /api/advisor/farmers
+2026-08-14 14:39:57 info: GET /api/advisor/farmers
+2026-08-14 14:39:59 info: POST /api/advisor/farmer
+2026-08-14 14:39:59 info: POST /api/advisor/farmer
+2026-08-14 14:40:07 info: POST /api/advisor/update-farmer
+2026-08-14 14:40:07 info: POST /api/advisor/farmer
+2026-08-14 14:40:15 info: GET /api/advisor/farmers
+2026-08-14 14:40:15 info: GET /api/advisor/farmers
+2026-08-14 14:43:51 info: Server Started on port 4000
+2026-08-14 14:48:34 info: Server Started on port 4000
+2026-08-14 14:50:27 info: Server Started on port 4000
+2026-08-14 14:50:31 info: Server Started on port 4000
+2026-08-14 14:59:33 info: Server Started on port 4000
+2026-08-14 15:09:20 info: Server Started on port 4000
+2026-08-14 15:12:28 info: Server Started on port 4000
+2026-08-14 15:13:18 info: Server Started on port 4000
+2026-08-14 15:14:29 info: Server Started on port 4000
+2026-08-14 15:17:02 info: Server Started on port 4000
+2026-08-14 15:22:49 info: GET /api/admin/profile
+2026-08-14 15:22:49 info: GET /api/admin/profile
+2026-08-14 15:22:50 info: GET /api/admin/profile
+2026-08-14 15:22:50 info: GET /api/admin/profile
+2026-08-14 15:22:52 info: GET /api/admin/profile
+2026-08-14 15:22:52 info: GET /api/admin/profile
+2026-08-14 15:22:53 info: GET /api/admin/profile
+2026-08-14 15:22:53 info: GET /api/admin/profile
+2026-08-14 15:23:20 info: POST /api/admin/login
+2026-08-14 15:23:20 info: GET /api/admin/dashboard
+2026-08-14 15:23:20 info: GET /api/admin/dashboard
+2026-08-14 15:23:25 info: GET /api/admin/dashboard
+2026-08-14 15:23:25 info: GET /api/admin/dashboard
+2026-08-14 15:23:26 info: GET /api/admin/dashboard
+2026-08-14 15:23:26 info: GET /api/admin/dashboard
+2026-08-14 15:23:38 info: POST /api/admin/login
+2026-08-14 15:23:38 info: GET /api/admin/dashboard
+2026-08-14 15:23:38 info: GET /api/admin/dashboard
+2026-08-14 15:23:41 info: POST /api/admin/all-advisors
+2026-08-14 15:23:41 info: POST /api/admin/all-advisors
+2026-08-14 15:23:42 info: POST /api/admin/all-farmers
+2026-08-14 15:23:42 info: POST /api/admin/all-farmers
+2026-08-14 15:23:44 info: GET /api/admin/dashboard
+2026-08-14 15:23:44 info: GET /api/admin/dashboard
+2026-08-14 15:23:46 info: POST /api/admin/all-farmers
+2026-08-14 15:23:46 info: POST /api/admin/all-farmers
+2026-08-14 15:23:48 info: GET /api/product/list
+2026-08-14 15:23:48 info: GET /api/product/list
+2026-08-14 15:23:50 info: GET /api/admin/product-orders
+2026-08-14 15:23:50 info: GET /api/admin/product-orders
+2026-08-14 15:23:52 info: GET /api/admin/product-orders
+2026-08-14 15:23:52 info: GET /api/admin/product-orders
+2026-08-14 15:23:54 info: GET /api/admin/product-orders
+2026-08-14 15:23:54 info: POST /api/admin/all-advisors
+2026-08-14 15:23:54 info: GET /api/admin/product-orders
+2026-08-14 15:23:54 info: POST /api/admin/all-advisors
+2026-08-14 15:23:54 info: POST /api/admin/all-farmers
+2026-08-14 15:23:54 info: POST /api/admin/all-farmers
+2026-08-14 15:23:55 info: GET /api/admin/advisor-locations
+2026-08-14 15:23:55 info: GET /api/admin/advisor-locations
+2026-08-14 15:23:58 info: GET /api/admin/profile
+2026-08-14 15:23:58 info: GET /api/admin/profile
+2026-08-14 15:24:20 info: GET /api/admin/dashboard
+2026-08-14 15:24:20 info: GET /api/admin/dashboard
+2026-08-14 15:24:23 info: POST /api/admin/all-advisors
+2026-08-14 15:24:23 info: POST /api/admin/all-advisors
+2026-08-14 15:24:25 info: POST /api/admin/all-farmers
+2026-08-14 15:24:25 info: POST /api/admin/all-farmers
+2026-08-14 15:24:26 info: GET /api/admin/product-orders
+2026-08-14 15:24:26 info: GET /api/admin/product-orders
+2026-08-14 15:24:53 info: GET /api/admin/profile
+2026-08-14 15:24:53 info: GET /api/admin/profile
+2026-08-14 15:24:55 info: GET /api/admin/product-orders
+2026-08-14 15:24:55 info: GET /api/admin/product-orders
+2026-08-14 15:24:57 info: GET /api/admin/product-orders
+2026-08-14 15:24:57 info: GET /api/admin/product-orders
+2026-08-14 15:25:04 info: POST /api/admin/all-farmers
+2026-08-14 15:25:04 info: POST /api/admin/all-farmers
+2026-08-14 15:25:06 info: GET /api/product/list
+2026-08-14 15:25:06 info: GET /api/product/list
+2026-08-14 15:25:10 info: GET /api/admin/product-orders
+2026-08-14 15:25:10 info: GET /api/admin/product-orders
+2026-08-14 15:25:13 info: GET /api/product-order/list
+2026-08-14 15:25:13 info: GET /api/product-order/list
+2026-08-14 15:25:15 info: GET /api/product-order/list
+2026-08-14 15:25:15 info: GET /api/product-order/list
+2026-08-14 15:26:29 info: Server Started on port 4000
+2026-08-14 15:26:36 info: Server Started on port 4000
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:12 info: GET /api/admin/product-orders
+2026-08-14 15:27:20 info: POST /api/admin/all-farmers
+2026-08-14 15:27:20 info: POST /api/admin/all-farmers
+2026-08-14 15:27:22 info: POST /api/admin/all-advisors
+2026-08-14 15:27:22 info: POST /api/admin/all-advisors
+2026-08-14 15:27:23 info: GET /api/admin/dashboard
+2026-08-14 15:27:23 info: GET /api/admin/dashboard
+2026-08-14 15:27:25 info: GET /api/admin/product-orders
+2026-08-14 15:27:25 info: GET /api/admin/product-orders
+2026-08-14 15:27:45 info: GET /api/admin/product-orders
+2026-08-14 15:27:45 info: GET /api/admin/product-orders
+2026-08-14 15:27:45 info: GET /api/admin/product-orders
+2026-08-14 15:27:45 info: GET /api/admin/product-orders
+2026-08-14 15:27:46 info: GET /api/admin/product-orders
+2026-08-14 15:27:46 info: GET /api/admin/product-orders
+2026-08-14 15:27:50 info: GET /api/product/list
+2026-08-14 15:27:50 info: GET /api/product/list
+2026-08-14 15:27:51 info: POST /api/admin/all-farmers
+2026-08-14 15:27:51 info: POST /api/admin/all-farmers
+2026-08-14 15:27:53 info: GET /api/admin/product-orders
+2026-08-14 15:27:53 info: GET /api/admin/product-orders
+2026-08-14 15:27:54 info: GET /api/admin/product-orders
+2026-08-14 15:27:54 info: GET /api/admin/product-orders
+2026-08-14 15:27:55 info: GET /api/admin/product-orders
+2026-08-14 15:27:55 info: GET /api/admin/product-orders
+2026-08-14 15:27:56 info: POST /api/admin/all-farmers
+2026-08-14 15:27:56 info: POST /api/admin/all-farmers
+2026-08-14 15:27:56 info: GET /api/admin/product-orders
+2026-08-14 15:27:56 info: POST /api/admin/all-advisors
+2026-08-14 15:27:56 info: POST /api/admin/all-advisors
+2026-08-14 15:27:56 info: GET /api/admin/product-orders
+2026-08-14 15:27:57 info: GET /api/admin/advisor-locations
+2026-08-14 15:27:57 info: GET /api/admin/advisor-locations
+2026-08-14 15:28:03 info: GET /api/admin/advisor-locations
+2026-08-14 15:28:09 info: GET /api/admin/advisor-locations
+2026-08-14 15:28:11 info: GET /api/admin/product-orders
+2026-08-14 15:28:11 info: GET /api/admin/product-orders
+2026-08-14 15:29:01 info: GET /api/product/list
+2026-08-14 15:29:01 info: GET /api/product/list
+2026-08-14 15:29:02 info: POST /api/admin/all-advisors
+2026-08-14 15:29:02 info: POST /api/admin/all-advisors
+2026-08-14 15:29:20 info: POST /api/admin/all-advisors
+2026-08-14 15:29:20 info: POST /api/admin/all-advisors
+2026-08-14 15:29:23 info: GET /api/product/list
+2026-08-14 15:29:23 info: GET /api/product/list
+2026-08-14 15:29:24 info: GET /api/admin/product-orders
+2026-08-14 15:29:24 info: GET /api/admin/product-orders
+2026-08-14 15:29:25 info: GET /api/admin/product-orders
+2026-08-14 15:29:25 info: GET /api/admin/product-orders
+2026-08-14 15:30:29 info: GET /api/admin/product-orders
+2026-08-14 15:30:29 info: GET /api/admin/product-orders
+2026-08-14 15:36:40 info: GET /api/admin/product-orders
+2026-08-14 15:36:40 info: GET /api/admin/product-orders
+2026-08-14 15:36:40 info: GET /api/admin/product-orders
+2026-08-14 15:36:40 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:41 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:42 info: GET /api/admin/product-orders
+2026-08-14 15:36:43 info: GET /api/admin/product-orders
+2026-08-14 15:36:43 info: GET /api/admin/product-orders
+2026-08-14 15:36:43 info: GET /api/admin/product-orders
+2026-08-14 15:36:43 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:44 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:45 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:46 info: GET /api/admin/product-orders
+2026-08-14 15:36:47 info: GET /api/admin/product-orders
+2026-08-14 15:36:47 info: GET /api/admin/dashboard
+2026-08-14 15:36:47 info: GET /api/admin/dashboard
+2026-08-14 15:36:48 info: POST /api/admin/all-advisors
+2026-08-14 15:36:48 info: POST /api/admin/all-advisors
+2026-08-14 15:36:49 info: POST /api/admin/all-farmers
+2026-08-14 15:36:49 info: POST /api/admin/all-farmers
+2026-08-14 15:36:50 info: GET /api/product/list
+2026-08-14 15:36:50 info: GET /api/product/list
+2026-08-14 15:36:50 info: GET /api/admin/product-orders
+2026-08-14 15:36:50 info: GET /api/admin/product-orders
+2026-08-14 15:36:51 info: GET /api/admin/product-orders
+2026-08-14 15:36:51 info: GET /api/admin/product-orders
+2026-08-14 15:36:52 info: GET /api/admin/product-orders
+2026-08-14 15:36:52 info: GET /api/admin/product-orders
+2026-08-14 15:36:52 info: POST /api/admin/all-advisors
+2026-08-14 15:36:52 info: POST /api/admin/all-farmers
+2026-08-14 15:36:52 info: POST /api/admin/all-advisors
+2026-08-14 15:36:52 info: POST /api/admin/all-farmers
+2026-08-14 15:37:05 info: POST /api/admin/login
+2026-08-14 15:37:05 info: GET /api/admin/dashboard
+2026-08-14 15:37:06 info: GET /api/admin/dashboard
+2026-08-14 15:37:22 info: POST /api/admin/all-advisors
+2026-08-14 15:37:22 info: POST /api/admin/all-advisors
+2026-08-14 15:37:22 info: POST /api/admin/all-farmers
+2026-08-14 15:37:22 info: POST /api/admin/all-farmers
+2026-08-14 15:37:23 info: GET /api/admin/product-orders
+2026-08-14 15:37:23 info: GET /api/admin/product-orders
+2026-08-14 15:37:30 info: GET /api/admin/product-orders
+2026-08-14 15:37:30 info: GET /api/admin/product-orders
+2026-08-14 15:37:38 info: Server Started on port 4000
+2026-08-14 15:39:10 info: GET /api/admin/product-orders
+2026-08-14 15:39:10 info: GET /api/admin/product-orders
+2026-08-14 15:39:52 info: GET /api/admin/profile
+2026-08-14 15:39:52 info: GET /api/admin/profile
+2026-08-14 15:39:58 info: GET /api/product/list
+2026-08-14 15:39:58 info: GET /api/product/list
+2026-08-14 15:40:01 info: GET /api/admin/product-orders
+2026-08-14 15:40:01 info: GET /api/admin/product-orders
+2026-08-14 15:40:03 info: GET /api/admin/product-orders
+2026-08-14 15:40:03 info: GET /api/admin/product-orders
+2026-08-14 15:40:03 info: POST /api/admin/all-advisors
+2026-08-14 15:40:03 info: POST /api/admin/all-farmers
+2026-08-14 15:40:03 info: POST /api/admin/all-advisors
+2026-08-14 15:40:03 info: POST /api/admin/all-farmers
+2026-08-14 15:40:06 info: GET /api/admin/product-orders
+2026-08-14 15:40:06 info: GET /api/admin/product-orders
+2026-08-14 15:40:08 info: POST /api/admin/all-advisors
+2026-08-14 15:40:08 info: POST /api/admin/all-advisors
+2026-08-14 15:40:09 info: GET /api/admin/dashboard
+2026-08-14 15:40:09 info: GET /api/admin/dashboard
+2026-08-14 15:40:16 info: GET /api/product-order/list
+2026-08-14 15:40:16 info: GET /api/advisor/profile
+2026-08-14 15:40:16 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/advisor/profile
+2026-08-14 15:40:17 info: GET /api/product-order/list
+2026-08-14 15:40:23 info: GET /api/admin/dashboard
+2026-08-14 15:40:23 info: GET /api/admin/dashboard
+2026-08-14 15:40:23 info: GET /api/admin/dashboard
+2026-08-14 15:40:23 info: GET /api/admin/dashboard
+2026-08-14 15:40:23 info: GET /api/admin/dashboard
+2026-08-14 15:40:23 info: GET /api/admin/dashboard
+2026-08-14 15:40:24 info: GET /api/admin/dashboard
+2026-08-14 15:40:24 info: GET /api/admin/dashboard
+2026-08-14 15:40:25 info: POST /api/admin/all-farmers
+2026-08-14 15:40:25 info: POST /api/admin/all-farmers
+2026-08-14 15:40:36 info: POST /api/admin/login
+2026-08-14 15:40:40 info: POST /api/admin/login
+2026-08-14 15:40:40 info: GET /api/admin/dashboard
+2026-08-14 15:40:40 info: GET /api/admin/dashboard
+2026-08-14 15:41:27 info: Server Started on port 4000
+2026-08-14 15:42:46 info: GET /api/admin/dashboard
+2026-08-14 15:42:46 info: GET /api/admin/dashboard
+2026-08-14 15:42:46 info: GET /api/admin/dashboard
+2026-08-14 15:42:46 info: GET /api/admin/dashboard
+2026-08-14 15:45:34 info: GET /api/admin/dashboard
+2026-08-14 15:45:52 info: Server Started on port 4000
+2026-08-14 15:46:01 info: GET /api/admin/dashboard
+2026-08-14 15:46:11 info: POST /api/admin/all-farmers
+2026-08-14 15:46:11 info: POST /api/admin/all-advisors
+2026-08-14 15:46:11 info: GET /api/admin/product-orders
+2026-08-14 15:46:26 info: GET /api/admin/dashboard
+2026-08-14 15:46:26 info: GET /api/admin/dashboard
+2026-08-14 15:46:27 info: GET /api/admin/dashboard
+2026-08-14 15:46:27 info: GET /api/admin/dashboard
+2026-08-14 15:46:31 info: GET /api/admin/product-orders
+2026-08-14 15:46:31 info: GET /api/admin/product-orders
+2026-08-14 15:46:32 info: GET /api/admin/product-orders
+2026-08-14 15:46:33 info: GET /api/admin/product-orders
+2026-08-14 15:46:53 info: GET /api/admin/product-orders
+2026-08-14 15:46:53 info: GET /api/admin/product-orders
+2026-08-14 15:46:55 info: GET /api/admin/product-orders
+2026-08-14 15:46:55 info: POST /api/admin/all-advisors
+2026-08-14 15:46:55 info: POST /api/admin/all-farmers
+2026-08-14 15:46:55 info: POST /api/admin/all-advisors
+2026-08-14 15:46:55 info: POST /api/admin/all-farmers
+2026-08-14 15:46:55 info: GET /api/admin/product-orders
+2026-08-14 15:46:59 info: GET /api/admin/profile
+2026-08-14 15:46:59 info: GET /api/admin/profile
+2026-08-14 15:47:30 info: POST /api/admin/update-profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:53 info: GET /api/admin/profile
+2026-08-14 15:47:54 info: GET /api/admin/profile
+2026-08-14 15:47:54 info: GET /api/admin/profile
+2026-08-14 15:47:54 info: GET /api/admin/profile
+2026-08-14 15:47:54 info: GET /api/admin/profile
+2026-08-14 15:47:55 info: GET /api/admin/profile
+2026-08-14 15:47:55 info: GET /api/admin/profile
+2026-08-14 15:47:55 info: GET /api/admin/profile
+2026-08-14 15:47:55 info: GET /api/admin/profile
+2026-08-14 15:48:06 info: GET /api/admin/advisor-locations
+2026-08-14 15:48:06 info: GET /api/admin/advisor-locations
+2026-08-14 15:48:12 info: GET /api/admin/advisor-locations
+2026-08-14 15:48:13 info: POST /api/admin/all-advisors
+2026-08-14 15:48:13 info: POST /api/admin/all-farmers
+2026-08-14 15:48:13 info: GET /api/admin/product-orders
+2026-08-14 15:48:13 info: POST /api/admin/all-advisors
+2026-08-14 15:48:13 info: POST /api/admin/all-farmers
+2026-08-14 15:48:13 info: GET /api/admin/product-orders
+2026-08-14 15:48:17 info: GET /api/admin/product-orders
+2026-08-14 15:48:17 info: GET /api/admin/product-orders
+2026-08-14 15:48:21 info: GET /api/admin/product-orders
+2026-08-14 15:48:21 info: GET /api/admin/product-orders
+2026-08-14 15:48:22 info: GET /api/product/list
+2026-08-14 15:48:22 info: GET /api/product/list
+2026-08-14 15:48:22 info: POST /api/admin/all-farmers
+2026-08-14 15:48:22 info: POST /api/admin/all-farmers
+2026-08-14 15:48:23 info: POST /api/admin/all-advisors
+2026-08-14 15:48:23 info: POST /api/admin/all-advisors
+2026-08-14 15:48:23 info: GET /api/admin/dashboard
+2026-08-14 15:48:23 info: GET /api/admin/dashboard
+2026-08-14 15:48:37 info: POST /api/admin/login
+2026-08-14 15:48:37 info: POST /api/admin/login
+2026-08-14 15:48:40 info: POST /api/admin/login
+2026-08-14 15:48:44 info: POST /api/admin/login
+2026-08-14 15:48:44 info: GET /api/admin/dashboard
+2026-08-14 15:48:44 info: GET /api/admin/dashboard

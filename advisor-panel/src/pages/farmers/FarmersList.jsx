@@ -85,12 +85,16 @@ export default function FarmersList() {
                 className="bg-surface border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-primary-200 transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
               >
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="w-11 h-11 bg-primary-50 text-primary-700 rounded-full flex items-center justify-center text-lg font-bold border border-primary-100 flex-shrink-0">
-                    {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : 'F'}
+                  <div className="w-11 h-11 bg-primary-50 text-primary-700 rounded-full flex items-center justify-center text-lg font-bold border border-primary-100 flex-shrink-0 overflow-hidden">
+                    {(farmer.profileImage && farmer.profileImage !== 'default.jpg') || farmer.image ? (
+                      <img src={farmer.profileImage || farmer.image} alt={farmer.firstName || farmer.farmerName} className="w-full h-full object-cover" />
+                    ) : (
+                      farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : (farmer.farmerName ? farmer.farmerName.charAt(0).toUpperCase() : 'F')
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-gray-900 leading-tight truncate">
-                      {farmer.firstName} {farmer.lastName}
+                      {farmer.farmerName || `${farmer.firstName || ''} ${farmer.lastName || ''}`.trim()}
                     </h3>
                     <div className="flex items-center text-gray-500 text-xs mt-1">
                       <MdLocationOn className="w-3.5 h-3.5 mr-0.5 text-gray-400 flex-shrink-0" />

@@ -28,6 +28,9 @@ export default function FarmerProfile() {
     summerCrop: '',
     rainCrop: ''
   });
+  const [farmerImageFile, setFarmerImageFile] = useState(null);
+  const [farmerImagePreview, setFarmerImagePreview] = useState('');
+  const [removeFarmerPhoto, setRemoveFarmerPhoto] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState('');
 
@@ -109,8 +112,17 @@ export default function FarmerProfile() {
       summerCrop: farmer.summerCrop || '',
       rainCrop: farmer.rainCrop || ''
     });
+    setFarmerImageFile(null);
+    setFarmerImagePreview(farmer.profileImage || farmer.image || '');
+    setRemoveFarmerPhoto(false);
     setEditError('');
     setIsEditing(true);
+  };
+
+  const handleRemoveFarmerPhoto = () => {
+    setFarmerImageFile(null);
+    setFarmerImagePreview('');
+    setRemoveFarmerPhoto(true);
   };
 
   const handleEditInputChange = (e) => {
@@ -151,12 +163,21 @@ export default function FarmerProfile() {
     }
 
     try {
+      const formData = new FormData();
+      formData.append('farmerId', id);
+      Object.keys(editFormData).forEach(key => {
+        formData.append(key, editFormData[key]);
+      });
+      if (farmerImageFile) {
+        formData.append('image', farmerImageFile);
+      }
+      if (removeFarmerPhoto) {
+        formData.append('removePhoto', 'true');
+      }
+
       const data = await apiFetch('/advisor/update-farmer', {
         method: 'POST',
-        body: JSON.stringify({
-          farmerId: id,
-          ...editFormData
-        })
+        body: formData
       });
 
       if (data.success) {
@@ -206,8 +227,12 @@ export default function FarmerProfile() {
 
         <div className="bg-surface rounded-3xl shadow-md3-2 overflow-hidden">
           <div className="bg-primary-600 h-28 sm:h-36 relative">
-            <div className="absolute -bottom-10 left-4 sm:-bottom-12 sm:left-8 w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border-4 border-white flex items-center justify-center text-2xl sm:text-3xl font-bold text-primary-600 shadow-md">
-              {farmerFullName ? farmerFullName.charAt(0).toUpperCase() : 'F'}
+            <div className="absolute -bottom-10 left-4 sm:-bottom-12 sm:left-8 w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border-4 border-white flex items-center justify-center text-2xl sm:text-3xl font-bold text-primary-600 shadow-md overflow-hidden">
+              {(farmer?.profileImage && farmer.profileImage !== 'default.jpg') || farmer?.image ? (
+                <img src={farmer.profileImage || farmer.image} alt={farmerFullName} className="w-full h-full object-cover" />
+              ) : (
+                farmerFullName ? farmerFullName.charAt(0).toUpperCase() : 'F'
+              )}
             </div>
           </div>
           <div className="pt-12 sm:pt-16 pb-5 sm:pb-6 px-4 sm:px-8 flex justify-between items-end">
@@ -554,6 +579,43 @@ export default function FarmerProfile() {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2 flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center font-bold text-primary-700 shrink-0 border border-primary-200">
+                    {farmerImagePreview ? (
+                      <img src={farmerImagePreview} alt="Farmer Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      'Photo'
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Farmer Profile Photo</label>
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files && e.target.files[0];
+                          if (file) {
+                            setFarmerImageFile(file);
+                            setFarmerImagePreview(URL.createObjectURL(file));
+                            setRemoveFarmerPhoto(false);
+                          }
+                        }}
+                        className="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
+                      />
+                      {farmerImagePreview && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveFarmerPhoto}
+                          className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors shrink-0"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name <span className="text-red-500">*</span></label>
                   <input

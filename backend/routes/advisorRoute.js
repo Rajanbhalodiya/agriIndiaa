@@ -10,30 +10,27 @@ import {
   advisorFarmers,
   getFarmer,
   updateFarmer,
-  forgotPasswordAdvisor,
-  resetPasswordAdvisor,
   updateLocationAdvisor
 } from '../controllers/advisorController.js';
 import authAdvisor from '../middlewares/authAdvisor.js';
+import upload from '../middlewares/multer.js';
 
 const advisorRouter = express.Router();
 
 advisorRouter.get('/list', advisorList);
 advisorRouter.post('/login', loginAdvisor);
-advisorRouter.post('/forgot-password', forgotPasswordAdvisor);
-advisorRouter.post('/reset-password', resetPasswordAdvisor);
 
 // Protected Advisor routes
 advisorRouter.use(authAdvisor);
 
 advisorRouter.get('/dashboard', advisorDashboard);
 advisorRouter.get('/profile', advisorProfile);
-advisorRouter.post('/update-profile', updateAdvisorProfile);
+advisorRouter.post('/update-profile', upload.single('image'), updateAdvisorProfile);
 advisorRouter.post('/update-location', updateLocationAdvisor);
-advisorRouter.post("/add-farmer", authAdvisor, addFarmer)
-advisorRouter.get("/farmers", authAdvisor, advisorFarmers)
-advisorRouter.post("/farmer", authAdvisor, getFarmer)
-advisorRouter.post("/update-farmer", authAdvisor, updateFarmer)
+advisorRouter.post("/add-farmer", upload.single('image'), addFarmer)
+advisorRouter.get("/farmers", advisorFarmers)
+advisorRouter.post("/farmer", getFarmer)
+advisorRouter.post("/update-farmer", upload.single('image'), updateFarmer)
 
 export default advisorRouter;
 

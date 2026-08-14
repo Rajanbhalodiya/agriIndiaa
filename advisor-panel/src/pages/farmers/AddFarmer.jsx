@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,15 +22,25 @@ const farmerSchema = z.object({
 
 export default function AddFarmer() {
   const navigate = useNavigate();
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(farmerSchema),
   });
 
   const onSubmit = async (data) => {
     try {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        formData.append(key, data[key]);
+      });
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
       const result = await apiFetch('/advisor/add-farmer', {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: formData
       });
       
       if (result.success) {
@@ -66,6 +77,31 @@ export default function AddFarmer() {
       <div className="bg-surface rounded-3xl shadow-md3-2 p-6 md:p-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2 flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="w-14 h-14 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center font-bold text-primary-700 shrink-0 border border-primary-200">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  'Photo'
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Farmer Profile Photo (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                      setImageFile(file);
+                      setImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
               <input

@@ -126,8 +126,12 @@ export default function DashboardLayout() {
         {profile && (
           <div className="mx-1 p-3 bg-primary-50 rounded-xl border border-primary-100">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary-200 flex items-center justify-center text-primary-800 font-bold text-sm flex-shrink-0">
-                {profile.name ? profile.name.charAt(0).toUpperCase() : 'A'}
+              <div className="w-8 h-8 rounded-full bg-primary-200 flex items-center justify-center text-primary-800 font-bold text-sm flex-shrink-0 overflow-hidden border border-primary-200">
+                {profile?.image ? (
+                  <img src={profile.image} alt={profile.name} className="w-full h-full object-cover" />
+                ) : (
+                  profile.name ? profile.name.charAt(0).toUpperCase() : 'A'
+                )}
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-gray-900 truncate">{profile.name}</p>

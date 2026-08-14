@@ -39,6 +39,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'default.jpg',
     },
+    image: {
+      type: String,
+    },
     active: {
       type: Boolean,
       default: true,
@@ -60,11 +63,6 @@ const userSchema = new mongoose.Schema(
       ref: 'User',
     },
     advisorName: String,
-    // OTP fields
-    otp: String,
-    otpExpires: Date,
-    resetOtp: { type: String, default: '' },
-    resetOtpExpire: Date,
   },
   {
     timestamps: true,
@@ -85,16 +83,6 @@ userSchema.methods.correctPassword = async function (
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
-};
-
-userSchema.methods.createOTP = function () {
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
-  
-  // Hash the OTP before saving to DB
-  this.otp = crypto.createHash('sha256').update(otpCode).digest('hex');
-  this.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  return otpCode;
 };
 
 const User = mongoose.model('User', userSchema);

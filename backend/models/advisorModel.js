@@ -13,8 +13,6 @@ const advisorSchema = new mongoose.Schema({
     image: { type: String },
     available: { type: Boolean, default: true },
     date: { type: Date },
-    resetOtp: { type: String, default: '' },
-    resetOtpExpire: { type: Date },
     location: {
         lat: { type: Number, default: 22.3072 },
         lng: { type: Number, default: 73.1812 },

@@ -109,11 +109,11 @@ export default function Farmers() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
-                      {farmer.profileImage && farmer.profileImage !== "default.jpg" ? (
-                        <img src={farmer.profileImage} alt={farmer.firstName} className="w-full h-full object-cover" />
+                      {(farmer.profileImage && farmer.profileImage !== "default.jpg") || farmer.image ? (
+                        <img src={farmer.profileImage || farmer.image} alt={farmer.firstName || farmer.farmerName} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
-                          {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : 'F'}
+                          {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : (farmer.farmerName ? farmer.farmerName.charAt(0).toUpperCase() : 'F')}
                         </div>
                       )}
                     </div>
@@ -178,11 +178,11 @@ export default function Farmers() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
-                            {farmer.profileImage && farmer.profileImage !== "default.jpg" ? (
-                              <img src={farmer.profileImage} alt={farmer.firstName} className="w-full h-full object-cover" />
+                            {(farmer.profileImage && farmer.profileImage !== "default.jpg") || farmer.image ? (
+                              <img src={farmer.profileImage || farmer.image} alt={farmer.firstName || farmer.farmerName} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-primary-50 text-primary-600">
-                                {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : 'F'}
+                                {farmer.firstName ? farmer.firstName.charAt(0).toUpperCase() : (farmer.farmerName ? farmer.farmerName.charAt(0).toUpperCase() : 'F')}
                               </div>
                             )}
                           </div>
@@ -237,10 +237,10 @@ export default function Farmers() {
               {/* Profile Header */}
               <div className="flex items-center gap-3 sm:gap-5">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-2xl sm:text-3xl shrink-0">
-                  {selectedFarmer.profileImage && selectedFarmer.profileImage !== "default.jpg" ? (
-                    <img src={selectedFarmer.profileImage} alt={selectedFarmer.firstName} className="w-full h-full object-cover" />
+                  {(selectedFarmer.profileImage && selectedFarmer.profileImage !== "default.jpg") || selectedFarmer.image ? (
+                    <img src={selectedFarmer.profileImage || selectedFarmer.image} alt={selectedFarmer.firstName || selectedFarmer.farmerName} className="w-full h-full object-cover" />
                   ) : (
-                    selectedFarmer.firstName ? selectedFarmer.firstName.charAt(0).toUpperCase() : 'F'
+                    selectedFarmer.firstName ? selectedFarmer.firstName.charAt(0).toUpperCase() : (selectedFarmer.farmerName ? selectedFarmer.farmerName.charAt(0).toUpperCase() : 'F')
                   )}
                 </div>
                 <div>

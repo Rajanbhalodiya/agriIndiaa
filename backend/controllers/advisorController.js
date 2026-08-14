@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js"
 import productOrderModel from "../models/productOrderModel.js"
-import { sendSMS } from "../utils/smsService.js"
+import { v2 as cloudinary } from 'cloudinary'
 
 const changeAvailability = async (req , res) => {
     try {
@@ -103,7 +103,7 @@ const registerAdvisor = async (req, res) => {
 // API to get dashboard data for Advisor panel
 const advisorDashboard = async (req, res) => {
     try {
-        const { advisorId } = req.body
+        const advisorId = req.advisor?.id || req.body.advisorId;
         const productOrders = await productOrderModel.find({ advisorId }).sort({ createdAt: -1 })
         const farmers = await userModel.find({ assignedAdvisor: advisorId, role: 'farmer' })
 
@@ -149,7 +149,7 @@ const advisorDashboard = async (req, res) => {
 // API to get Advisor profile for Advisor panel
 const advisorProfile = async (req, res) => {
     try {
-        const { advisorId } = req.body
+        const advisorId = req.advisor?.id || req.body.advisorId;
         const profileData = await advisorModel.findById(advisorId).select('-password')
         res.json({ success: true, profileData })
         
@@ -162,9 +162,25 @@ const advisorProfile = async (req, res) => {
 // API to update Advisor profile data from Advisor panel
 const updateAdvisorProfile = async (req, res) => {
     try {
-        const { advisorId, price, address } = req.body
-        await advisorModel.findByIdAndUpdate(advisorId, { price, address })
-        res.json({ success: true, message: 'Profile Updated' })
+        const advisorId = req.advisor?.id || req.body.advisorId;
+        const { price, address, removePhoto } = req.body;
+        const imageFile = req.file;
+
+        let updateData = {};
+        if (price !== undefined) updateData.price = Number(price);
+        if (address !== undefined) updateData.address = address;
+
+        if (imageFile) {
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+            updateData.image = imageUpload.secure_url;
+        } else if (removePhoto === 'true' || removePhoto === true) {
+            updateData.image = '';
+        }
+
+        await advisorModel.findByIdAndUpdate(advisorId, updateData)
+        const updatedProfile = await advisorModel.findById(advisorId).select('-password')
+
+        res.json({ success: true, message: 'Profile Updated', profileData: updatedProfile })
         
     } catch (error) {
         console.log(error)
@@ -175,7 +191,8 @@ const updateAdvisorProfile = async (req, res) => {
 // API to add a new farmer by Advisor
 const addFarmer = async (req, res) => {
     try {
-        const { advisorId, name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body
+        const advisorId = req.advisor?.id || req.body.advisorId;
+        const { name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body
         
         // Checking for all required data
         if (!name || !phone || !village || !totalLand || !temporaryLand || !landType || !winterCrop || !summerCrop || !rainCrop) {
@@ -204,6 +221,13 @@ const addFarmer = async (req, res) => {
             }
         }
 
+        const imageFile = req.file;
+        let imageUrl = '';
+        if (imageFile) {
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+            imageUrl = imageUpload.secure_url;
+        }
+
         // Create new farmer document
         const farmerData = {
             farmerName: name,
@@ -218,7 +242,8 @@ const addFarmer = async (req, res) => {
             rainCrop: rainCrop || '',
             role: 'farmer',
             assignedAdvisor: advisorId,
-            advisorName: advisorName
+            advisorName: advisorName,
+            ...(imageUrl ? { profileImage: imageUrl, image: imageUrl } : {})
         }
 
         const newFarmer = new userModel(farmerData)
@@ -235,7 +260,7 @@ const addFarmer = async (req, res) => {
 // API to get all farmers added by the logged-in Advisor
 const advisorFarmers = async (req, res) => {
     try {
-        const { advisorId } = req.body
+        const advisorId = req.advisor?.id || req.body.advisorId;
         const farmers = await userModel.find({ assignedAdvisor: advisorId, role: 'farmer' }).select('-password').sort({ createdAt: -1 })
         res.json({ success: true, farmers })
     } catch (error) {
@@ -247,8 +272,9 @@ const advisorFarmers = async (req, res) => {
 // API to get a single farmer's details and order history by ID for the logged-in Advisor
 const getFarmer = async (req, res) => {
     try {
-        const { advisorId, farmerId } = req.body
-        const farmer = await userModel.findOne({ _id: farmerId, assignedAdvisor: advisorId, role: 'farmer' }).select('-password')
+        const advisorId = req.advisor?.id || req.body.advisorId;
+        const farmerId = req.body.farmerId || req.body.id || req.body._id;
+        const farmer = await userModel.findOne({ _id: farmerId, role: 'farmer' }).select('-password')
         if (!farmer) {
             return res.json({ success: false, message: 'Farmer not found' })
         }
@@ -265,14 +291,22 @@ const getFarmer = async (req, res) => {
 // API to update a farmer's details by Advisor
 const updateFarmer = async (req, res) => {
     try {
-        const { advisorId, farmerId, name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body
+        const advisorId = req.advisor?.id || req.body.advisorId;
+        const farmerId = req.body.farmerId || req.body.id || req.body._id;
+        const { name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body;
 
         if (!farmerId) {
             return res.json({ success: false, message: 'Farmer ID is required' })
         }
 
-        // Verify farmer exists and belongs to this advisor
-        const farmer = await userModel.findOne({ _id: farmerId, assignedAdvisor: advisorId, role: 'farmer' })
+        // Verify farmer exists
+        let farmer;
+        if (advisorId) {
+            farmer = await userModel.findOne({ _id: farmerId, assignedAdvisor: advisorId, role: 'farmer' });
+        }
+        if (!farmer) {
+            farmer = await userModel.findOne({ _id: farmerId, role: 'farmer' });
+        }
         if (!farmer) {
             return res.json({ success: false, message: 'Farmer not found or unauthorized' })
         }
@@ -308,6 +342,17 @@ const updateFarmer = async (req, res) => {
             rainCrop: rainCrop !== undefined ? rainCrop : farmer.rainCrop,
         }
 
+        const { removePhoto } = req.body;
+        const imageFile = req.file;
+        if (imageFile) {
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+            updateData.profileImage = imageUpload.secure_url;
+            updateData.image = imageUpload.secure_url;
+        } else if (removePhoto === 'true' || removePhoto === true) {
+            updateData.profileImage = 'default.jpg';
+            updateData.image = '';
+        }
+
         const updatedFarmer = await userModel.findByIdAndUpdate(farmerId, updateData, { new: true }).select('-password');
 
         res.json({ success: true, message: 'Farmer details updated successfully', farmer: updatedFarmer })
@@ -317,84 +362,7 @@ const updateFarmer = async (req, res) => {
     }
 }
 
-// API to send OTP for Advisor Forgot Password
-const forgotPasswordAdvisor = async (req, res) => {
-    try {
-        const { phone } = req.body;
-        if (!phone) {
-            return res.json({ success: false, message: 'Phone number is required' });
-        }
 
-        const advisor = await advisorModel.findOne({ phone });
-        if (!advisor) {
-            return res.json({ success: false, message: 'No advisor account found with this phone number' });
-        }
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
-        advisor.resetOtp = otp;
-        advisor.resetOtpExpire = expiry;
-        await advisor.save();
-
-        // Dispatch real SMS
-        await sendSMS({
-            phone: advisor.phone,
-            message: `Your AgriIndia Advisor password reset OTP verification code is ${otp}. Valid for 10 minutes.`
-        });
-
-        res.json({
-            success: true,
-            message: `Verification OTP sent to phone. (Testing OTP: ${otp})`,
-            otp
-        });
-    } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: error.message });
-    }
-};
-
-// API to Reset Password using OTP for Advisor
-const resetPasswordAdvisor = async (req, res) => {
-    try {
-        const { phone, otp, newPassword } = req.body;
-        if (!phone || !otp || !newPassword) {
-            return res.json({ success: false, message: 'All fields are required' });
-        }
-
-        if (newPassword.length < 6) {
-            return res.json({ success: false, message: 'Password must be at least 6 characters' });
-        }
-
-        const advisor = await advisorModel.findOne({ phone });
-        if (!advisor) {
-            return res.json({ success: false, message: 'Advisor not found' });
-        }
-
-        if (!advisor.resetOtp || advisor.resetOtp !== otp) {
-            return res.json({ success: false, message: 'Invalid OTP' });
-        }
-
-        if (new Date() > advisor.resetOtpExpire) {
-            return res.json({ success: false, message: 'OTP has expired' });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        advisor.password = hashedPassword;
-        advisor.plainPassword = newPassword;
-        advisor.resetOtp = '';
-        advisor.resetOtpExpire = undefined;
-        await advisor.save();
-
-        res.json({ success: true, message: 'Password reset successfully! Please login with your new password.' });
-    } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: error.message });
-    }
-};
 
 // API for Advisor to update live location
 const updateLocationAdvisor = async (req, res) => {
@@ -448,7 +416,5 @@ export {
     advisorFarmers,
     getFarmer,
     updateFarmer,
-    forgotPasswordAdvisor,
-    resetPasswordAdvisor,
     updateLocationAdvisor
 }

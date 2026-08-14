@@ -6,8 +6,6 @@ import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js"
 import productModel from "../models/productModel.js"
 import productOrderModel from "../models/productOrderModel.js"
-import adminModel, { seedDefaultAdmin } from "../models/adminModel.js"
-import { sendSMS } from "../utils/smsService.js"
 
 // API for adding advisor
 const addAdvisor = async (req, res) => {
@@ -53,32 +51,23 @@ const loginAdmin = async (req, res) => {
             return res.json({ success: false, message: "Phone number and password are required" })
         }
 
-        // Seed default admin if admin database table is empty
-        await seedDefaultAdmin();
+        const adminPhone = (process.env.ADMIN_PHONE || '9510459100').replace(/['"]/g, '').trim();
+        const adminPassword = (process.env.ADMIN_PASSWORD || 'admin123').replace(/['"]/g, '').trim();
 
-        // Fetch admin from database admin table
-        const admin = await adminModel.findOne({ phone });
-
-        if (!admin) {
+        if (phone.toString().trim() !== adminPhone || password.toString() !== adminPassword) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        const isMatch = await admin.comparePassword(password);
-        if (!isMatch) {
-            return res.json({ success: false, message: "Invalid credentials" });
-        }
-
-        const tokenPayload = { id: admin._id, phone: admin.phone };
+        const tokenPayload = { phone: adminPhone, role: 'admin' };
         const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.json({
             success: true,
             token,
             admin: {
-                id: admin._id,
-                name: admin.name,
-                phone: admin.phone,
-                email: admin.email
+                name: 'Admin',
+                phone: adminPhone,
+                role: 'admin'
             }
         });
     } catch (error) {
@@ -206,7 +195,8 @@ const updateProductOrderStatus = async (req, res) => {
 // API to update a farmer's details by Admin
 const updateFarmerAdmin = async (req, res) => {
     try {
-        const { farmerId, name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body;
+        const farmerId = req.body.farmerId || req.body.id || req.body._id;
+        const { name, phone, village, totalLand, temporaryLand, landType, winterCrop, summerCrop, rainCrop } = req.body;
 
         if (!farmerId) {
             return res.json({ success: false, message: 'Farmer ID is required' });
@@ -238,6 +228,17 @@ const updateFarmerAdmin = async (req, res) => {
             summerCrop: summerCrop !== undefined ? summerCrop : farmer.summerCrop,
             rainCrop: rainCrop !== undefined ? rainCrop : farmer.rainCrop,
         };
+
+        const { removePhoto } = req.body;
+        const imageFile = req.file;
+        if (imageFile) {
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+            updateData.profileImage = imageUpload.secure_url;
+            updateData.image = imageUpload.secure_url;
+        } else if (removePhoto === 'true' || removePhoto === true) {
+            updateData.profileImage = 'default.jpg';
+            updateData.image = '';
+        }
 
         const updatedFarmer = await userModel.findByIdAndUpdate(farmerId, updateData, { new: true }).select('-password');
 
@@ -292,6 +293,15 @@ const updateAdvisorAdmin = async (req, res) => {
             updateData.plainPassword = password;
         }
 
+        const { removePhoto } = req.body;
+        const advisorImageFile = req.file;
+        if (advisorImageFile) {
+            const imageUpload = await cloudinary.uploader.upload(advisorImageFile.path, { resource_type: "image" });
+            updateData.image = imageUpload.secure_url;
+        } else if (removePhoto === 'true' || removePhoto === true) {
+            updateData.image = '';
+        }
+
         const updatedAdvisor = await advisorModel.findByIdAndUpdate(advisorId, updateData, { new: true }).select('-password');
 
         res.json({ success: true, message: 'Advisor details updated successfully', advisor: updatedAdvisor });
@@ -329,113 +339,17 @@ const getAdvisorLocationsAdmin = async (req, res) => {
     }
 };
 
-// API to send OTP for Admin Forgot Password
-const sendResetOtpAdmin = async (req, res) => {
-    try {
-        const { phone } = req.body;
-        if (!phone) {
-            return res.json({ success: false, message: 'Phone number is required' });
-        }
-
-        // Ensure default admin exists if collection empty
-        await seedDefaultAdmin();
-
-        const admin = await adminModel.findOne({ phone });
-        if (!admin) {
-            return res.json({ success: false, message: 'Admin not found with this phone number' });
-        }
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-        admin.resetOtp = otp;
-        admin.resetOtpExpire = expiry;
-        await admin.save();
-
-        // Dispatch real SMS
-        await sendSMS({
-            phone: admin.phone,
-            message: `Your AgriIndia Admin password reset OTP verification code is ${otp}. Valid for 10 minutes.`
-        });
-
-        res.json({
-            success: true,
-            message: `OTP sent to registered phone number. (OTP: ${otp})`,
-            otp
-        });
-    } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: error.message });
-    }
-};
-
-// API to Reset Password using OTP for Admin
-const resetPasswordAdmin = async (req, res) => {
-    try {
-        const { phone, otp, newPassword } = req.body;
-        if (!phone || !otp || !newPassword) {
-            return res.json({ success: false, message: 'All fields are required' });
-        }
-
-        if (newPassword.length < 6) {
-            return res.json({ success: false, message: 'Password must be at least 6 characters' });
-        }
-
-        const admin = await adminModel.findOne({ phone });
-        if (!admin) {
-            return res.json({ success: false, message: 'Admin not found' });
-        }
-
-        if (!admin.resetOtp || admin.resetOtp !== otp) {
-            return res.json({ success: false, message: 'Invalid OTP' });
-        }
-
-        if (new Date() > admin.resetOtpExpire) {
-            return res.json({ success: false, message: 'OTP has expired' });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        admin.password = hashedPassword;
-        admin.resetOtp = '';
-        admin.resetOtpExpire = undefined;
-        await admin.save();
-
-        res.json({ success: true, message: 'Admin password updated successfully in database! Please login with your new password.' });
-    } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: error.message });
-    }
-};
-
-// API to get logged-in Admin profile from database table
+// API to get logged-in Admin profile from environment configuration
 const getAdminProfile = async (req, res) => {
     try {
-        const adminId = req.admin ? req.admin._id : null;
-        let admin = null;
-        if (adminId) {
-            admin = await adminModel.findById(adminId).select('-password');
-        }
-        if (!admin && req.admin && req.admin.phone) {
-            admin = await adminModel.findOne({ phone: req.admin.phone }).select('-password');
-        }
-        if (!admin) {
-            await seedDefaultAdmin();
-            admin = await adminModel.findOne({}).select('-password');
-        }
-
-        if (!admin) {
-            return res.json({ success: false, message: 'Admin profile not found in database' });
-        }
+        const adminPhone = (process.env.ADMIN_PHONE || '9510459100').replace(/['"]/g, '').trim();
 
         res.json({
             success: true,
             admin: {
-                _id: admin._id,
-                name: admin.name,
-                phone: admin.phone
+                name: 'Admin',
+                phone: adminPhone,
+                role: 'admin'
             }
         });
     } catch (error) {
@@ -444,48 +358,19 @@ const getAdminProfile = async (req, res) => {
     }
 };
 
-// API to update Admin profile in database table
+// API to update Admin profile
 const updateAdminProfile = async (req, res) => {
     try {
         const { name, phone } = req.body;
-        const adminId = req.admin ? req.admin._id : null;
-
-        let admin = null;
-        if (adminId) {
-            admin = await adminModel.findById(adminId);
-        }
-        if (!admin && req.admin && req.admin.phone) {
-            admin = await adminModel.findOne({ phone: req.admin.phone });
-        }
-        if (!admin) {
-            admin = await adminModel.findOne({});
-        }
-
-        if (!admin) {
-            return res.json({ success: false, message: 'Admin profile not found in database' });
-        }
-
-        if (phone && phone !== admin.phone) {
-            const existingAdmin = await adminModel.findOne({ phone, _id: { $ne: admin._id } });
-            if (existingAdmin) {
-                return res.json({ success: false, message: 'Another admin is already using this phone number' });
-            }
-            admin.phone = phone;
-        }
-
-        if (name) {
-            admin.name = name;
-        }
-
-        await admin.save();
+        const adminPhone = (process.env.ADMIN_PHONE || '9510459100').replace(/['"]/g, '').trim();
 
         res.json({
             success: true,
-            message: 'Admin profile updated successfully in database!',
+            message: 'Admin profile retrieved',
             admin: {
-                _id: admin._id,
-                name: admin.name,
-                phone: admin.phone
+                name: name || 'Admin',
+                phone: phone || adminPhone,
+                role: 'admin'
             }
         });
     } catch (error) {
@@ -507,8 +392,6 @@ export {
     updateFarmerAdmin,
     updateAdvisorAdmin,
     getAdvisorLocationsAdmin,
-    sendResetOtpAdmin,
-    resetPasswordAdmin,
     getAdminProfile,
     updateAdminProfile
 }

@@ -46,3 +46,9 @@
 2026-08-13 09:22:56 error: 400 - Bad escaped character in JSON at position 9 (line 1 column 10)
 2026-08-13 09:23:12 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
 2026-08-13 17:25:13 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-08-14 10:20:10 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-08-14 10:20:26 error: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-08-14 10:20:55 error: sendPhoneOTP error: SMS service is not fully configured on server. Please add valid Twilio credentials to .env.
+2026-08-14 10:22:12 error: sendPhoneOTP error: SMS service is not fully configured on server. Please add valid Twilio credentials to .env.
+2026-08-14 10:22:25 error: verifyPhoneOTP error: SMS service is not fully configured on server.
+2026-08-14 10:22:44 error: forgotPasswordVerifyOTP error: SMS service is not fully configured on server.

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MdPerson, MdPhone, MdLocationOn, MdSave, MdCheckCircle, MdOutlineShield } from 'react-icons/md';
+import { MdPerson, MdPhone, MdLocationOn, MdSave, MdCheckCircle, MdOutlineShield, MdPhotoCamera, MdDelete } from 'react-icons/md';
 import { apiFetch } from '../../services/api';
 import { PageLoader, ButtonSpinner, OverlayLoader } from '../../components/Loader';
 
@@ -14,6 +14,9 @@ export default function Settings() {
     available: true,
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [removePhoto, setRemovePhoto] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -34,6 +37,9 @@ export default function Settings() {
           price: data.profileData.price || 0,
           available: data.profileData.available !== undefined ? data.profileData.available : true,
         });
+        if (data.profileData.image) {
+          setImagePreview(data.profileData.image);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch profile:', error);
@@ -42,27 +48,55 @@ export default function Settings() {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setRemovePhoto(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setRemovePhoto(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
 
     try {
+      const formData = new FormData();
+      formData.append('price', Number(profile.price));
+      formData.append('address', profile.address || profile.village);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+      if (removePhoto) {
+        formData.append('removePhoto', 'true');
+      }
+
       const data = await apiFetch('/advisor/update-profile', {
         method: 'POST',
-        body: JSON.stringify({
-          price: Number(profile.price),
-          address: profile.address || profile.village,
-        }),
+        body: formData,
       });
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Settings updated successfully!' });
+        setMessage({ type: 'success', text: 'Profile updated successfully!' });
+        if (data.profileData) {
+          setImagePreview(data.profileData.image || '');
+          setImageFile(null);
+          setRemovePhoto(false);
+        }
       } else {
-        setMessage({ type: 'error', text: data.message || 'Failed to update settings.' });
+        setMessage({ type: 'error', text: data.message || 'Failed to update profile.' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error updating settings.' });
+      console.error(error);
+      setMessage({ type: 'error', text: 'Error updating profile.' });
     } finally {
       setSaving(false);
     }
@@ -77,7 +111,7 @@ export default function Settings() {
       {saving && <OverlayLoader message="Saving Settings..." />}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Account Settings</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage your profile details and preferences.</p>
+        <p className="text-gray-500 text-sm mt-1">Manage your profile details, photo, and preferences.</p>
       </div>
 
       {message && (
@@ -93,13 +127,57 @@ export default function Settings() {
 
       <div className="bg-surface rounded-2xl shadow-md3-1 p-6 md:p-8 border border-gray-100">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
-            <div className="w-16 h-16 rounded-full bg-primary-100 border-2 border-primary-200 flex items-center justify-center text-primary-700 font-bold text-2xl">
-              {profile.name ? profile.name.charAt(0).toUpperCase() : 'A'}
+          <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
+            <div className="relative group shrink-0">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-primary-100 border-2 border-primary-200 flex items-center justify-center text-primary-700 font-bold text-2xl shadow-sm">
+                {imagePreview ? (
+                  <img src={imagePreview} alt={profile.name} className="w-full h-full object-cover" />
+                ) : (
+                  profile.name ? profile.name.charAt(0).toUpperCase() : 'A'
+                )}
+              </div>
+              <label 
+                htmlFor="advisor-photo-upload" 
+                className="absolute bottom-0 right-0 p-2 bg-primary-600 hover:bg-primary-700 text-white rounded-full cursor-pointer shadow-md transition-all"
+                title="Upload Profile Photo"
+              >
+                <MdPhotoCamera className="w-4 h-4" />
+                <input 
+                  id="advisor-photo-upload" 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={handleImageChange}
+                />
+              </label>
+              {imagePreview && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-1 -right-1 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full cursor-pointer shadow-md transition-all"
+                  title="Remove Profile Photo"
+                >
+                  <MdDelete className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{profile.name}</h2>
               <p className="text-sm text-primary-600 font-medium">Agricultural Advisor</p>
+              <div className="flex items-center gap-3 mt-1">
+                <label htmlFor="advisor-photo-upload" className="text-xs text-primary-600 hover:underline cursor-pointer font-medium">
+                  Change photo
+                </label>
+                {imagePreview && (
+                  <button 
+                    type="button" 
+                    onClick={handleRemoveImage} 
+                    className="text-xs text-red-600 hover:underline cursor-pointer font-medium"
+                  >
+                    Remove photo
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
