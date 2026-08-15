@@ -40,8 +40,6 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-    window.addEventListener('app:refresh', fetchProduct);
-    return () => window.removeEventListener('app:refresh', fetchProduct);
   }, [id]);
 
   if (loading) {

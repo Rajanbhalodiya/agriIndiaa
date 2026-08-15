@@ -50,8 +50,6 @@ export default function FarmerProfile() {
 
   useEffect(() => {
     fetchFarmer();
-    window.addEventListener('app:refresh', fetchFarmer);
-    return () => window.removeEventListener('app:refresh', fetchFarmer);
   }, [id]);
 
   const fetchFarmer = async () => {

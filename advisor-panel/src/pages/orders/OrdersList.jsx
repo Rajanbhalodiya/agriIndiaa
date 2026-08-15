@@ -16,11 +16,7 @@ export default function OrdersList() {
   const [paymentMethod, setPaymentMethod] = useState('qr');
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
 
-  useEffect(() => { 
-    fetchOrders(); 
-    window.addEventListener('app:refresh', fetchOrders);
-    return () => window.removeEventListener('app:refresh', fetchOrders);
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
   const fetchOrders = async () => {
     try {

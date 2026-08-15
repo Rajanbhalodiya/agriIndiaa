@@ -27,12 +27,6 @@ export default function ProductsList() {
   useEffect(() => {
     fetchProducts();
     fetchFarmers();
-    const handleAppRefresh = () => {
-      fetchProducts();
-      fetchFarmers();
-    };
-    window.addEventListener('app:refresh', handleAppRefresh);
-    return () => window.removeEventListener('app:refresh', handleAppRefresh);
   }, []);
 
   const fetchFarmers = async () => {

@@ -8241,3 +8241,7 @@
 2026-08-15 11:01:00 info: GET /api/advisor/dashboard
 2026-08-15 11:01:00 info: GET /api/product-order/list
 2026-08-15 11:01:01 info: GET /api/advisor/dashboard
+2026-08-15 11:05:45 info: GET /api/product-order/list
+2026-08-15 11:05:45 info: GET /api/advisor/profile
+2026-08-15 11:05:45 info: GET /api/advisor/profile
+2026-08-15 11:05:45 info: GET /api/advisor/dashboard

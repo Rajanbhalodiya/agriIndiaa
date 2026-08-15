@@ -23,8 +23,6 @@ export default function Settings() {
 
   useEffect(() => {
     fetchProfile();
-    window.addEventListener('app:refresh', fetchProfile);
-    return () => window.removeEventListener('app:refresh', fetchProfile);
   }, []);
 
   const fetchProfile = async () => {
