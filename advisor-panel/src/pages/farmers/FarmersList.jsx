@@ -11,7 +11,11 @@ export default function FarmersList() {
   const [farmers, setFarmers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchFarmers(); }, []);
+  useEffect(() => { 
+    fetchFarmers(); 
+    window.addEventListener('app:refresh', fetchFarmers);
+    return () => window.removeEventListener('app:refresh', fetchFarmers);
+  }, []);
 
   const fetchFarmers = async () => {
     try {

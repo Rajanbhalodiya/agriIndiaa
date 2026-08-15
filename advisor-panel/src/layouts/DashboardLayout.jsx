@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { MdDashboard, MdPeople, MdInventory, MdPointOfSale, MdReceipt, MdSettings, MdNotifications, MdLogout, MdPhone, MdLocationOn, MdMenu, MdClose } from 'react-icons/md';
+import { MdDashboard, MdPeople, MdInventory, MdPointOfSale, MdReceipt, MdSettings, MdNotifications, MdLogout, MdPhone, MdLocationOn, MdMenu, MdClose, MdRefresh } from 'react-icons/md';
 import clsx from 'clsx';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +18,13 @@ export default function DashboardLayout() {
   const [profile, setProfile] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+
   const profileRef = useRef(null);
+  const mainRef = useRef(null);
+  const touchStartYRef = useRef(0);
 
   // Close sidebar when route changes
   useEffect(() => {
@@ -35,17 +41,65 @@ export default function DashboardLayout() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const fetchProfileData = async () => {
+    try {
+      const result = await apiFetch('/advisor/profile');
+      if (result.success) setProfile(result.profileData);
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const result = await apiFetch('/advisor/profile');
-        if (result.success) setProfile(result.profileData);
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      }
-    };
-    fetchProfile();
+    fetchProfileData();
   }, []);
+
+  // Manual & Pull Refresh Handler
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    setIsPullRefreshing(true);
+
+    try {
+      await fetchProfileData();
+      window.dispatchEvent(new CustomEvent('app:refresh'));
+    } catch (err) {
+      console.error('Refresh error:', err);
+    } finally {
+      setTimeout(() => {
+        setIsRefreshing(false);
+        setIsPullRefreshing(false);
+        setPullDistance(0);
+      }, 700);
+    }
+  };
+
+  // Mobile Pull-to-Refresh Touch Handlers
+  const handleTouchStart = (e) => {
+    if (mainRef.current && mainRef.current.scrollTop === 0) {
+      touchStartYRef.current = e.touches[0].clientY;
+    } else {
+      touchStartYRef.current = 0;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (touchStartYRef.current > 0 && mainRef.current && mainRef.current.scrollTop === 0) {
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - touchStartYRef.current;
+      if (distance > 0) {
+        setPullDistance(Math.min(distance * 0.45, 90));
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullDistance > 60) {
+      handleManualRefresh();
+    } else {
+      setPullDistance(0);
+    }
+    touchStartYRef.current = 0;
+  };
 
   // Background Live GPS Location Pinger
   useEffect(() => {
@@ -154,7 +208,22 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-background flex overflow-x-hidden w-full">
+    <div className="min-h-screen bg-background flex overflow-x-hidden w-full relative">
+      {/* Pull To Refresh Mobile Indicator */}
+      <AnimatePresence>
+        {(pullDistance > 12 || isPullRefreshing) && (
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: isPullRefreshing ? 20 : Math.min(pullDistance, 55) }}
+            exit={{ opacity: 0, y: -30 }}
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center bg-white border border-gray-200 shadow-md rounded-full px-4 py-2 gap-2 text-xs font-semibold text-primary-700 pointer-events-none"
+          >
+            <MdRefresh className={clsx("w-5 h-5 text-primary-600", (pullDistance > 60 || isPullRefreshing) && "animate-spin")} />
+            <span>{isPullRefreshing ? "Refreshing data..." : pullDistance > 60 ? "Release to refresh" : "Pull down to refresh"}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Desktop Sidebar (lg+) */}
       <aside className="w-60 bg-surface shadow-md3-1 hidden lg:flex flex-col z-20 flex-shrink-0">
         <SidebarContent />
@@ -297,7 +366,13 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-20 md:pb-24 lg:pb-6 bg-background">
+        <main
+          ref={mainRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-20 md:pb-24 lg:pb-6 bg-background"
+        >
           <div className="max-w-7xl mx-auto w-full">
             <Outlet />
           </div>

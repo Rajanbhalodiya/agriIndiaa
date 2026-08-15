@@ -21,7 +21,11 @@ export default function Dashboard() {
     recentFarmers: []
   });
 
-  useEffect(() => { fetchDashboardData(); }, []);
+  useEffect(() => { 
+    fetchDashboardData(); 
+    window.addEventListener('app:refresh', fetchDashboardData);
+    return () => window.removeEventListener('app:refresh', fetchDashboardData);
+  }, []);
 
   const fetchDashboardData = async () => {
     setLoading(true);

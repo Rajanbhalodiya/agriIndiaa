@@ -17,7 +17,8 @@ import {
   MdLogout,
   MdMenu,
   MdClose,
-  MdSearch
+  MdSearch,
+  MdRefresh
 } from 'react-icons/md';
 
 const navItems = [
@@ -34,6 +35,7 @@ const navItems = [
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +50,14 @@ export default function DashboardLayout() {
     localStorage.removeItem('token');
     localStorage.removeItem('aToken');
     navigate('/login');
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    window.dispatchEvent(new CustomEvent('app:refresh'));
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 700);
   };
 
   const [globalSearch, setGlobalSearch] = useState('');
