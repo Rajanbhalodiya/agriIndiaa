@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
-import { MdAdd, MdEdit, MdDelete } from 'react-icons/md';
+import { MdAdd, MdEdit, MdDelete, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
 import { CardSkeleton } from '../components/Loader';
 
@@ -11,6 +11,8 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchProducts = async () => {
     try {
@@ -30,6 +32,10 @@ export default function Products() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryFilter]);
+
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
@@ -46,6 +52,9 @@ export default function Products() {
       });
       const data = await response.json();
       if (data.success) {
+        if (currentProducts.length === 1 && currentPage > 1) {
+          setCurrentPage(prev => prev - 1);
+        }
         fetchProducts();
       } else {
         alert(data.message || 'Failed to delete product');
@@ -64,6 +73,11 @@ export default function Products() {
     const matchesCategory = categoryFilter === 'All' || product.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const indexOfLastProduct = currentPage * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   return (
     <div className="max-w-7xl mx-auto pb-10">
@@ -131,12 +145,15 @@ export default function Products() {
         <div className="space-y-4">
           {/* Mobile Card View (< md) */}
           <div className="grid grid-cols-1 gap-4 md:hidden">
-            {filteredProducts.map((product) => (
+            {currentProducts.map((product, index) => (
               <div
                 key={product._id}
                 className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3"
               >
                 <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-lg bg-gray-100 text-gray-700 text-xs font-bold flex items-center justify-center shrink-0">
+                    #{indexOfFirstProduct + index + 1}
+                  </span>
                   <img
                     src={product.image}
                     alt={product.name}
@@ -203,6 +220,7 @@ export default function Products() {
               <table className="w-full text-left text-sm text-gray-500">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-700">
                   <tr>
+                    <th className="px-4 py-4 font-semibold text-center w-14">#</th>
                     <th className="px-6 py-4 font-semibold">Product</th>
                     <th className="px-6 py-4 font-semibold">Category</th>
                     <th className="px-6 py-4 font-semibold">Price & Packaging Options (Stock)</th>
@@ -212,8 +230,11 @@ export default function Products() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filteredProducts.map((product) => (
+                  {currentProducts.map((product, index) => (
                     <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-4 py-4 text-center font-medium text-gray-500 text-xs">
+                        {indexOfFirstProduct + index + 1}
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <img
@@ -284,8 +305,58 @@ export default function Products() {
               </table>
             </div>
           </div>
+
+          {/* Pagination Bar */}
+          {filteredProducts.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 bg-white px-6 py-4 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-xs font-medium text-gray-500">
+                Showing <span className="font-semibold text-gray-900">{indexOfFirstProduct + 1}</span> to{' '}
+                <span className="font-semibold text-gray-900">{Math.min(indexOfLastProduct, filteredProducts.length)}</span> of{' '}
+                <span className="font-semibold text-gray-900">{filteredProducts.length}</span> products
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <MdChevronLeft className="w-4 h-4" />
+                    <span>Previous</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`min-w-[32px] h-8 px-2 rounded-xl text-xs font-semibold transition-colors ${
+                          currentPage === page
+                            ? 'bg-primary-600 text-white shadow-sm'
+                            : 'text-gray-600 hover:bg-gray-100 border border-transparent'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span>Next</span>
+                    <MdChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
+
