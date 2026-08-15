@@ -8245,3 +8245,4 @@
 2026-08-15 11:05:45 info: GET /api/advisor/profile
 2026-08-15 11:05:45 info: GET /api/advisor/profile
 2026-08-15 11:05:45 info: GET /api/advisor/dashboard
+2026-08-15 11:09:17 info: Server Started on port 4000

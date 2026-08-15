@@ -37,7 +37,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token') || sessionStorage.getItem('aToken');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || sessionStorage.getItem('aToken');
     if (!token) {
       navigate('/login');
     }
@@ -45,8 +45,7 @@ export default function DashboardLayout() {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    localStorage.removeItem('token');
-    localStorage.removeItem('aToken');
+    localStorage.clear();
     navigate('/login');
   };
 

@@ -13,7 +13,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token') || sessionStorage.getItem('aToken');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || sessionStorage.getItem('aToken');
     if (token) {
       navigate('/dashboard', { replace: true });
     }
@@ -36,10 +36,10 @@ export default function Login() {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('adminPhone', phone);
         sessionStorage.setItem('token', data.token);
         sessionStorage.setItem('adminPhone', phone);
-        localStorage.removeItem('token');
-        localStorage.removeItem('aToken');
         navigate('/dashboard');
       } else {
         setError(data.message || 'Login failed');

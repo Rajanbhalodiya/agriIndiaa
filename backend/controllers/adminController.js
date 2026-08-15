@@ -59,7 +59,7 @@ const loginAdmin = async (req, res) => {
         }
 
         const tokenPayload = { phone: adminPhone, role: 'admin' };
-        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '24h' });
 
         res.json({
             success: true,
