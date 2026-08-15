@@ -10,6 +10,7 @@ const advisorSchema = new mongoose.Schema({
     email: { type: String },
     password: { type: String, required: true },
     plainPassword: { type: String },
+    passwordChangedAt: { type: Date },
     image: { type: String },
     available: { type: Boolean, default: true },
     date: { type: Date },

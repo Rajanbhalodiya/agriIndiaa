@@ -280,7 +280,7 @@ export default function Settings() {
           <MdOutlineShield className="w-6 h-6 text-primary-600" />
           <div>
             <h3 className="font-bold text-gray-900">Security & Authentication</h3>
-            <p className="text-xs text-gray-500">Your account is secured with JWT Token authentication.</p>
+            <p className="text-xs text-gray-500">Your account is secured with JWT Token authentication stored in localStorage.</p>
           </div>
         </div>
       </div>

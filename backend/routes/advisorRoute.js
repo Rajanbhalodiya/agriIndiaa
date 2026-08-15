@@ -10,7 +10,8 @@ import {
   advisorFarmers,
   getFarmer,
   updateFarmer,
-  updateLocationAdvisor
+  updateLocationAdvisor,
+  changeAdvisorPassword
 } from '../controllers/advisorController.js';
 import authAdvisor from '../middlewares/authAdvisor.js';
 import upload from '../middlewares/multer.js';
@@ -26,6 +27,7 @@ advisorRouter.use(authAdvisor);
 advisorRouter.get('/dashboard', advisorDashboard);
 advisorRouter.get('/profile', advisorProfile);
 advisorRouter.post('/update-profile', upload.single('image'), updateAdvisorProfile);
+advisorRouter.post('/change-password', changeAdvisorPassword);
 advisorRouter.post('/update-location', updateLocationAdvisor);
 advisorRouter.post("/add-farmer", upload.single('image'), addFarmer)
 advisorRouter.get("/farmers", advisorFarmers)

@@ -404,6 +404,45 @@ const updateLocationAdvisor = async (req, res) => {
     }
 };
 
+// API to change Advisor Password from Advisor Panel
+const changeAdvisorPassword = async (req, res) => {
+    try {
+        const advisorId = req.advisor?.id || req.body.advisorId;
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.json({ success: false, message: 'Current password and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.json({ success: false, message: 'New password must be at least 6 characters long' });
+        }
+
+        const advisor = await advisorModel.findById(advisorId);
+        if (!advisor) {
+            return res.json({ success: false, message: 'Advisor account not found' });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, advisor.password);
+        if (!isMatch) {
+            return res.json({ success: false, message: 'Current password is incorrect' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        advisor.password = hashedPassword;
+        advisor.plainPassword = newPassword;
+        advisor.passwordChangedAt = new Date();
+        await advisor.save();
+
+        res.json({ success: true, message: 'Password updated successfully. Please login with your new password.' });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
 export { 
     changeAvailability, 
     advisorList, 
@@ -416,5 +455,6 @@ export {
     advisorFarmers,
     getFarmer,
     updateFarmer,
-    updateLocationAdvisor
+    updateLocationAdvisor,
+    changeAdvisorPassword
 }

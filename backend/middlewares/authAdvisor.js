@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import advisorModel from "../models/advisorModel.js";
 
 // advisor authentication middleware
 const authAdvisor = async (req, res, next) => {
@@ -17,6 +18,26 @@ const authAdvisor = async (req, res, next) => {
     // ✅ Verify token
     const token_decode = jwt.verify(dtoken, process.env.JWT_SECRET);
 
+    // ✅ Check if advisor exists in database
+    const advisor = await advisorModel.findById(token_decode.id);
+    if (!advisor) {
+      return res.json({
+        success: false,
+        message: "Not Authorized. Account not found. Please login again",
+      });
+    }
+
+    // ✅ Check if password was changed after token issuance
+    if (advisor.passwordChangedAt && token_decode.iat) {
+      const passwordChangedTime = Math.floor(new Date(advisor.passwordChangedAt).getTime() / 1000);
+      if (token_decode.iat < passwordChangedTime) {
+        return res.json({
+          success: false,
+          message: "Password changed. Please login again",
+        });
+      }
+    }
+
     // ✅ Safely create req.body if undefined
     req.body = req.body || {};
 
@@ -29,7 +50,7 @@ const authAdvisor = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, message: "Not Authorized. Please login again" });
   }
 };
 

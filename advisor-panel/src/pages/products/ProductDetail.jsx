@@ -104,8 +104,8 @@ export default function ProductDetail() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="grid md:grid-cols-2 gap-8 p-6 md:p-8">
-          <div className="bg-gray-50 rounded-xl overflow-hidden aspect-square flex items-center justify-center border border-gray-100">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+          <div className="bg-gray-50 rounded-xl overflow-hidden aspect-square flex items-center justify-center border border-gray-100 p-3">
+            <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
           </div>
 
           <div className="flex flex-col space-y-6">
@@ -136,12 +136,14 @@ export default function ProductDetail() {
               <p className="whitespace-pre-wrap">{product.description}</p>
             </div>
 
-            <div className="mt-auto space-y-4">
-              {product.packSizes && product.packSizes.length > 1 && (
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Select Size & Stock:</h3>
-                  <div className="flex flex-wrap gap-2">
+            <div className="mt-auto space-y-5">
+              {/* Pack Sizes Selection */}
+              {product.packSizes && product.packSizes.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Select Pack Size:</h3>
+                  <div className="flex flex-wrap gap-2.5">
                     {product.packSizes.map((pack, index) => {
+                      const isSelected = selectedPackIndex === index;
                       const pStock = pack.stock !== undefined ? pack.stock : product.stock;
                       return (
                         <button
@@ -150,24 +152,38 @@ export default function ProductDetail() {
                             setSelectedPackIndex(index);
                             setQuantity(1);
                           }}
-                          className={`px-4 py-2 rounded-xl border text-sm font-medium transition-colors flex items-center gap-2 ${
-                            selectedPackIndex === index
-                              ? 'bg-primary-50 border-primary-500 text-primary-700'
-                              : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300'
+                          className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all flex items-center gap-2.5 ${
+                            isSelected
+                              ? 'bg-primary-50 border-primary-600 text-primary-800 ring-2 ring-primary-500/20 shadow-sm'
+                              : 'bg-white border-gray-200 text-gray-700 hover:border-primary-300 hover:bg-gray-50'
                           }`}
                         >
                           <span>{pack.size}</span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
-                            pStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-                          }`}>
-                            {pStock > 0 ? `Qty: ${pStock}` : 'Out'}
-                          </span>
+                          <span className="text-xs font-bold opacity-80">₹{pack.price}</span>
+                          {pStock <= 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-600 font-semibold">
+                              Out
+                            </span>
+                          )}
                         </button>
                       );
                     })}
                   </div>
                 </div>
               )}
+
+              {/* Separate Stock Availability Display */}
+              <div className="flex items-center justify-between p-3.5 bg-gray-50 rounded-xl border border-gray-200/80">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <MdInventory className="w-5 h-5 text-primary-600" />
+                  <span>Stock Availability:</span>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  currentPackStock > 0 ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
+                }`}>
+                  {currentPackStock > 0 ? `${currentPackStock} Units Available` : 'Out of Stock'}
+                </span>
+              </div>
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden h-12">

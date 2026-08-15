@@ -18,7 +18,7 @@ import Payments from './pages/payments/Payments';
 import Settings from './pages/settings/Settings';
 
 function ProtectedRoute({ children }) {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   if (!token) {
     return <Navigate to="/auth/login" replace />;
   }

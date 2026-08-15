@@ -69,11 +69,12 @@ export default function Advisors() {
     }
     setSaving(true);
     try {
+      const token = sessionStorage.getItem('token') || sessionStorage.getItem('aToken') || localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE_URL}/admin/update-advisor`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editFormData)
       });

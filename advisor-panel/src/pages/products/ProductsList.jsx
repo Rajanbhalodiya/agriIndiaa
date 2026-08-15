@@ -150,10 +150,10 @@ export default function ProductsList() {
               className="bg-surface border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
             >
               <div
-                className="h-32 sm:h-40 md:h-44 w-full bg-gray-100 cursor-pointer"
+                className="h-32 sm:h-40 md:h-44 w-full bg-gray-50 cursor-pointer p-2 flex items-center justify-center border-b border-gray-100"
                 onClick={() => navigate(`/products/${product._id}`)}
               >
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
               </div>
               <div className="p-3 flex flex-col flex-1">
                 <span className="text-xs font-medium text-gray-500 mb-1">{product.category}</span>

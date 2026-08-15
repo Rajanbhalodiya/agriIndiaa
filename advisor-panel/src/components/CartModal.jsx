@@ -113,8 +113,8 @@ export default function CartModal({ isOpen, onClose }) {
               ) : (
                 cartItems.map((item) => (
                   <div key={item.cartItemId} className="flex gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="w-16 h-16 rounded-lg bg-white overflow-hidden border border-gray-200">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <div className="w-16 h-16 rounded-lg bg-white overflow-hidden border border-gray-200 p-1 flex items-center justify-center">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900 text-sm line-clamp-1">{item.name}</h4>

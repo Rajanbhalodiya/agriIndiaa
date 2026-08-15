@@ -140,7 +140,7 @@ export default function Products() {
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-14 h-14 rounded-xl object-cover bg-gray-100 border border-gray-100 shrink-0"
+                    className="w-14 h-14 rounded-xl object-contain bg-gray-50 border border-gray-100 p-1 shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
@@ -219,7 +219,7 @@ export default function Products() {
                           <img
                             src={product.image}
                             alt={product.name}
-                            className="w-12 h-12 rounded-lg object-cover bg-gray-100 border border-gray-100 shrink-0"
+                            className="w-12 h-12 rounded-lg object-contain bg-gray-50 border border-gray-100 p-1 shrink-0"
                           />
                           <div>
                             <div className="font-semibold text-gray-900">{product.name}</div>
