@@ -12,7 +12,11 @@ export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('All');
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { 
+    fetchOrders(); 
+    window.addEventListener('app:refresh', fetchOrders);
+    return () => window.removeEventListener('app:refresh', fetchOrders);
+  }, []);
 
   const fetchOrders = async () => {
     try {
