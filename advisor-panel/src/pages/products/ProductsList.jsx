@@ -121,12 +121,15 @@ export default function ProductsList() {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+      <div 
+        className="flex flex-wrap sm:flex-nowrap gap-2 overflow-x-auto pb-1 no-scrollbar"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${activeCategory === cat
+            className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${activeCategory === cat
               ? 'bg-primary-600 text-white shadow-md'
               : 'bg-surface text-gray-600 hover:bg-gray-100 border border-gray-200'
               }`}
