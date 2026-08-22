@@ -4,6 +4,7 @@ import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { API_BASE_URL } from '../services/api';
 import { PageLoader } from '../components/Loader';
+import { formatPrice } from '../utils/formatters';
 import { 
   MdBarChart, 
   MdTrendingUp, 
@@ -727,7 +728,7 @@ export default function Reports() {
                           </span>
                           <div>
                             <span className="font-bold text-gray-900 text-base block">{product.name}</span>
-                            <span className="text-xs text-gray-500">Unit Price: ₹{product.price}</span>
+                            <span className="text-xs text-gray-500">Unit Price: ₹{formatPrice(product.price)}</span>
                           </div>
                         </div>
                         <div className="text-right">
@@ -760,7 +761,7 @@ export default function Reports() {
                             <div key={fk} className="bg-white p-2.5 rounded-xl border border-gray-200/80 flex items-center justify-between shadow-2xs">
                               <div>
                                 <span className="font-bold text-gray-900 text-xs block">📦 Pack: {pack.packSize}</span>
-                                <span className="text-[11px] text-gray-500">Unit Price: ₹{pack.price}</span>
+                                <span className="text-[11px] text-gray-500">Unit Price: ₹{formatPrice(pack.price)}</span>
                               </div>
                               <div className="text-right">
                                 <span className="font-extrabold text-green-700 text-xs block">{pack.totalQty} Units</span>
@@ -896,7 +897,7 @@ export default function Reports() {
                               {order.payment ? (order.paymentMethod || 'Cash') : 'N/A'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 font-bold text-gray-900">₹{order.totalAmount}</td>
+                          <td className="px-6 py-4 font-bold text-gray-900">₹{formatPrice(order.totalAmount)}</td>
                           <td className="px-6 py-4">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                               order.payment ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'

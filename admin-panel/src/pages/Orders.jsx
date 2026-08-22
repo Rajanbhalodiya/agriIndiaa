@@ -7,6 +7,7 @@ import { sendWhatsAppBill } from '../utils/whatsappHelper';
 import { downloadInvoice, printInvoice } from '../utils/invoiceHelper';
 import { API_BASE_URL } from '../services/api';
 import { TableSkeleton } from '../components/Loader';
+import { formatPrice } from '../utils/formatters';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -199,7 +200,7 @@ export default function Orders() {
                   </div>
                   <div className="text-right">
                     <span className="text-gray-400 block">Total</span>
-                    <span className="text-base font-bold text-gray-900">₹{order.totalAmount}</span>
+                    <span className="text-base font-bold text-gray-900">₹{formatPrice(order.totalAmount)}</span>
                   </div>
                 </div>
 
@@ -284,7 +285,7 @@ export default function Orders() {
                           ))}
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-900">₹{order.totalAmount}</td>
+                      <td className="px-6 py-4 font-medium text-gray-900">₹{formatPrice(order.totalAmount)}</td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           order.status === 'Completed' ? 'bg-green-100 text-green-700' :
@@ -416,8 +417,8 @@ export default function Orders() {
                           {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
                         </td>
                         <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
-                        <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
-                        <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>
+                        <td className="px-4 py-3 text-gray-600 text-right">₹{formatPrice(item.price)}</td>
+                        <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{formatPrice(item.price * item.quantity)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -428,11 +429,11 @@ export default function Orders() {
                 <div className="w-1/2 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900 font-medium">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-gray-900 font-medium">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t border-gray-100 pt-3">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-primary-600">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-primary-600">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                 </div>
               </div>

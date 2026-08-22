@@ -5,6 +5,7 @@ import EmptyState from '../components/EmptyState';
 import { MdAdd, MdEdit, MdDelete, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { API_BASE_URL } from '../services/api';
 import { CardSkeleton } from '../components/Loader';
+import { formatPrice } from '../utils/formatters';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -179,7 +180,7 @@ export default function Products() {
                       <div className="space-y-1">
                         {product.packSizes.map((p, idx) => (
                           <div key={idx} className="flex items-center gap-1.5 text-xs flex-wrap">
-                            <span className="font-bold text-gray-900">₹{p.price}</span>
+                            <span className="font-bold text-gray-900">₹{formatPrice(p.price)}</span>
                             <span className="bg-primary-50 text-primary-700 border border-primary-100 px-1.5 py-0.5 rounded text-[10px] font-semibold">{p.size}</span>
                             <span className="text-[10px] text-gray-500 font-medium">({p.stock !== undefined ? p.stock : product.stock} in stock)</span>
                           </div>
@@ -187,7 +188,7 @@ export default function Products() {
                       </div>
                     ) : (
                       <>
-                        <span className="font-bold text-gray-900">₹{product.price || 0}</span>
+                        <span className="font-bold text-gray-900">₹{formatPrice(product.price)}</span>
                         <span className="text-xs text-gray-400"> / {product.unit || 'kg'}</span>
                       </>
                     )}
@@ -259,7 +260,7 @@ export default function Products() {
                             {product.packSizes.map((p, idx) => (
                               <div key={idx} className="flex items-center justify-between gap-2 text-xs bg-gray-50 p-1.5 rounded-lg border border-gray-100">
                                 <span className="bg-primary-50 text-primary-700 border border-primary-100 px-1.5 py-0.5 rounded text-[11px] font-semibold">{p.size}</span>
-                                <span className="font-bold text-gray-900">₹{p.price}</span>
+                                <span className="font-bold text-gray-900">₹{formatPrice(p.price)}</span>
                                 <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${ (p.stock !== undefined ? p.stock : product.stock) > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600' }`}>
                                   Qty: {p.stock !== undefined ? p.stock : product.stock}
                                 </span>
@@ -268,7 +269,7 @@ export default function Products() {
                           </div>
                         ) : (
                           <span className="font-semibold text-gray-900">
-                            ₹{product.price || 0} <span className="text-xs font-normal text-gray-400">/ {product.unit || 'kg'}</span>
+                            ₹{formatPrice(product.price)} <span className="text-xs font-normal text-gray-400">/ {product.unit || 'kg'}</span>
                           </span>
                         )}
                       </td>

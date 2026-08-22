@@ -1,3 +1,5 @@
+import { formatPrice } from './formatters';
+
 const buildInvoiceHtml = (order, autoPrint = false) => {
   const orderId = order._id ? `#ORD-${order._id.slice(-6).toUpperCase()}` : '#ORD';
   const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAM1BMVEVHcEwAfjwAfTsAfTwAfDsAejoAeToAejoAejoAezsAezsAfDsAezsAezoAfDsAfz0Aezsop6StAAAAEXRSTlMAHD4tdOT/8NSnx0+CtpUOZs6ZJnkAAAClSURBVHgB7c9FFgQhDATQwgoJkvufdl7G3db9dxDH5h0HD49XQogxMZeK51yMlabJ83gfLdOMCbMAG6fDSyFTDxAaZmbFIQglGQdvBMRMmFgbK9Xxhm24BAYhBnUovOHX/W1WNWejTc9kaQzX4UqmUMjhZ8+ssTDVgotMa8nkz4fBtRIu7RUAlIILabUtGHRGGLjrDFWk5GCGP38O3NCJW03xp80O2XoGEx3EemAAAAAASUVORK5CYII=';
@@ -13,9 +15,9 @@ const buildInvoiceHtml = (order, autoPrint = false) => {
       <td style="padding: 10px; border-bottom: 1px solid #eee;">
         <strong>${item.name}</strong> ${item.packSize ? `<span style="color: #666; font-size: 12px;">(${item.packSize})</span>` : ''}
       </td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${(item.price || 0).toLocaleString()}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${formatPrice(item.price || 0)}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity || 1}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${((item.price || 0) * (item.quantity || 1)).toLocaleString()}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${formatPrice((item.price || 0) * (item.quantity || 1))}</td>
     </tr>
   `).join('');
 

@@ -1,3 +1,5 @@
+import { formatPrice } from './formatters';
+
 export const generateWhatsAppBillText = (order) => {
   const orderId = order._id ? `#ORD-${order._id.slice(-6).toUpperCase()}` : '#ORD';
   const dateStr = new Date(order.date || Date.now()).toLocaleString('en-IN', {
@@ -12,7 +14,7 @@ export const generateWhatsAppBillText = (order) => {
   let itemsText = '';
   if (order.items && order.items.length > 0) {
     itemsText = order.items.map((item, idx) => 
-      `${idx + 1}. *${item.name}* ${item.packSize ? `(${item.packSize})` : ''} x ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString()}`
+      `${idx + 1}. *${item.name}* ${item.packSize ? `(${item.packSize})` : ''} x ${item.quantity} = ₹${formatPrice(item.price * item.quantity)}`
     ).join('\n');
   } else {
     itemsText = '1. Order Items';

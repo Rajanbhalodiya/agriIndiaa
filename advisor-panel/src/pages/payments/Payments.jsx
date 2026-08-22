@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { apiFetch } from '../../services/api';
 import { downloadInvoice, printInvoice } from '../../utils/invoiceHelper';
 import { TableSkeleton } from '../../components/Loader';
+import { formatPrice } from '../../utils/formatters';
 
 export default function Payments() {
   const [orders, setOrders] = useState([]);
@@ -168,7 +169,7 @@ export default function Payments() {
                 <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                   <div>
                     <span className="text-xs text-gray-400 block">Total Amount</span>
-                    <span className="text-base font-bold text-gray-900">₹{order.totalAmount}</span>
+                    <span className="text-base font-bold text-gray-900">₹{formatPrice(order.totalAmount)}</span>
                   </div>
                   <button
                     onClick={() => setSelectedInvoiceOrder(order)}
@@ -211,7 +212,7 @@ export default function Payments() {
                           ? formatDateTime(order.paymentDate || order.updatedAt || order.date)
                           : <span className="text-amber-600">Pending</span>}
                       </td>
-                      <td className="px-5 py-4 font-bold text-gray-900">₹{order.totalAmount}</td>
+                      <td className="px-5 py-4 font-bold text-gray-900">₹{formatPrice(order.totalAmount)}</td>
                       <td className="px-5 py-4">
                         {order.payment ? (
                           <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
@@ -307,8 +308,8 @@ export default function Payments() {
                           {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
                         </td>
                         <td className="px-3 py-3 text-gray-600 text-center text-sm">{item.quantity}</td>
-                        <td className="px-3 py-3 text-gray-600 text-right text-sm">₹{item.price}</td>
-                        <td className="px-4 py-3 text-gray-900 font-semibold text-right text-sm">₹{item.price * item.quantity}</td>
+                        <td className="px-3 py-3 text-gray-600 text-right text-sm">₹{formatPrice(item.price)}</td>
+                        <td className="px-4 py-3 text-gray-900 font-semibold text-right text-sm">₹{formatPrice(item.price * item.quantity)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -319,11 +320,11 @@ export default function Payments() {
                 <div className="space-y-2 w-48">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900 font-medium">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-gray-900 font-medium">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                   <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-primary-600">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-primary-600">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                 </div>
               </div>

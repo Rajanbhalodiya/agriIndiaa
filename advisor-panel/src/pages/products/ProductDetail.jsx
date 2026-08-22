@@ -7,6 +7,7 @@ import { addToCart, selectCartItems } from '../../store/slices/cartSlice';
 import { apiFetch } from '../../services/api';
 import CartModal from '../../components/CartModal';
 import { PageLoader } from '../../components/Loader';
+import { formatPrice } from '../../utils/formatters';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -123,7 +124,7 @@ export default function ProductDetail() {
                 {product.name}
               </h1>
               <div className="flex items-end gap-3 mb-6">
-                <div className="text-3xl font-bold text-primary-700">₹{displayPrice}</div>
+                <div className="text-3xl font-bold text-primary-700">₹{formatPrice(displayPrice)}</div>
                 <div className="text-gray-500 mb-1">/ {displayUnit}</div>
               </div>
             </div>
@@ -159,7 +160,7 @@ export default function ProductDetail() {
                           }`}
                         >
                           <span>{pack.size}</span>
-                          <span className="text-xs font-bold opacity-80">₹{pack.price}</span>
+                          <span className="text-xs font-bold opacity-80">₹{formatPrice(pack.price)}</span>
                           {pStock <= 0 && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-600 font-semibold">
                               Out

@@ -3,6 +3,7 @@ import { MdPeople, MdAgriculture, MdInventory, MdShoppingCart, MdReceipt, MdPaym
 import { API_BASE_URL } from '../services/api';
 
 import { PageLoader } from '../components/Loader';
+import { formatPrice } from '../utils/formatters';
 
 export default function Dashboard() {
   const [dashData, setDashData] = useState(null);
@@ -77,7 +78,7 @@ export default function Dashboard() {
                     <div key={order._id} className="p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <h4 className="font-bold text-gray-900 text-sm">{order.farmerName || order.userData?.name || 'Farmer'}</h4>
-                        <span className="font-bold text-gray-900 text-sm">₹{order.totalAmount || order.amount}</span>
+                        <span className="font-bold text-gray-900 text-sm">₹{formatPrice(order.totalAmount || order.amount)}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <span>Advisor: {order.advisorName || order.advisorData?.name || 'N/A'}</span>
@@ -112,7 +113,7 @@ export default function Dashboard() {
                           <td className="px-6 py-4 font-medium text-gray-900">{order.farmerName || order.userData?.name || 'Farmer'}</td>
                           <td className="px-6 py-4">{order.date || order.slotDate}</td>
                           <td className="px-6 py-4">{order.advisorName || order.advisorData?.name || 'N/A'}</td>
-                          <td className="px-6 py-4 font-medium">₹{order.totalAmount || order.amount}</td>
+                          <td className="px-6 py-4 font-medium">₹{formatPrice(order.totalAmount || order.amount)}</td>
                           <td className="px-6 py-4">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                               order.status === 'Completed' ? 'bg-green-100 text-green-700' :

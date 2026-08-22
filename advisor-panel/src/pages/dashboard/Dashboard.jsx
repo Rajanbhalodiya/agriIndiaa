@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
 import { PageLoader, CardSkeleton } from '../../components/Loader';
+import { formatPrice } from '../../utils/formatters';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -175,7 +176,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <span className="font-bold text-gray-900 text-sm">₹{order.totalAmount}</span>
+                    <span className="font-bold text-gray-900 text-sm">₹{formatPrice(order.totalAmount)}</span>
                     <span className={`block text-[10px] font-semibold mt-0.5 ${order.payment ? 'text-green-600' : 'text-amber-600'}`}>
                       {order.payment ? 'PAID' : 'PENDING'}
                     </span>

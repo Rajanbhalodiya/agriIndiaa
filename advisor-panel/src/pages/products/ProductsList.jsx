@@ -7,6 +7,7 @@ import { addToCart, selectCartItems, setSelectedFarmerId, selectSelectedFarmerId
 import CartModal from '../../components/CartModal';
 import { apiFetch } from '../../services/api';
 import { CardSkeleton } from '../../components/Loader';
+import { formatPrice } from '../../utils/formatters';
 
 export default function ProductsList() {
   const navigate = useNavigate();
@@ -177,7 +178,7 @@ export default function ProductsList() {
                         return (
                           <>
                             <div className="text-base font-bold text-primary-700 flex items-baseline gap-1">
-                              ₹{chosenPack.price}
+                              ₹{formatPrice(chosenPack.price)}
                               <span className="text-xs font-normal text-gray-500">/ {chosenPack.size}</span>
                             </div>
                             <div className={`text-[11px] font-medium mt-0.5 ${packStock > 0 ? 'text-green-600' : 'text-red-500'}`}>
@@ -191,7 +192,7 @@ export default function ProductsList() {
                               >
                                 {product.packSizes.map(p => (
                                   <option key={p.size} value={p.size}>
-                                    {p.size} (₹{p.price})
+                                    {p.size} (₹{formatPrice(p.price)})
                                   </option>
                                 ))}
                               </select>
@@ -202,7 +203,7 @@ export default function ProductsList() {
                     ) : (
                       <>
                         <div className="text-base font-bold text-primary-700 flex items-baseline gap-1">
-                          ₹{product.price}
+                          ₹{formatPrice(product.price)}
                           <span className="text-xs font-normal text-gray-500">/ {product.unit || 'kg'}</span>
                         </div>
                         <div className={`text-[11px] font-medium mt-0.5 ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>

@@ -45,12 +45,18 @@ export default function EditProduct() {
           if (data.data.packSizes && data.data.packSizes.length > 0) {
             setPackSizes(data.data.packSizes.map(p => ({
               size: p.size,
-              price: p.price,
+              price: (p.price !== undefined && p.price !== null)
+                ? (Number(p.price) % 1 !== 0 ? Number(p.price).toFixed(2) : String(p.price))
+                : '',
               stock: p.stock !== undefined ? p.stock : (data.data.stock || 0)
             })));
           } else {
             // Fallback for older products
-            setPackSizes([{ size: data.data.unit || 'kg', price: data.data.price || '', stock: data.data.stock || 0 }]);
+            const origPrice = data.data.price;
+            const formattedOrigPrice = (origPrice !== undefined && origPrice !== null)
+              ? (Number(origPrice) % 1 !== 0 ? Number(origPrice).toFixed(2) : String(origPrice))
+              : '';
+            setPackSizes([{ size: data.data.unit || 'kg', price: formattedOrigPrice, stock: data.data.stock || 0 }]);
           }
           setImagePreview(data.data.image);
         } else {

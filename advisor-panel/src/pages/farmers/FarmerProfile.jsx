@@ -5,6 +5,7 @@ import { MdArrowBack, MdLocationOn, MdPhone, MdShoppingBag, MdReceipt, MdEdit, M
 import { apiFetch } from '../../services/api';
 import { downloadInvoice, printInvoice } from '../../utils/invoiceHelper';
 import { PageLoader, ButtonSpinner, OverlayLoader } from '../../components/Loader';
+import { formatPrice } from '../../utils/formatters';
 
 export default function FarmerProfile() {
   const { id } = useParams();
@@ -423,14 +424,14 @@ export default function FarmerProfile() {
                         {order.items?.map((item, idx) => (
                           <div key={idx} className="flex justify-between text-xs sm:text-sm text-gray-700">
                             <span>{item.name} {item.packSize ? `(${item.packSize})` : ''} <span className="text-gray-400">x {item.quantity}</span></span>
-                            <span className="font-medium">₹{item.price * item.quantity}</span>
+                            <span className="font-medium">₹{formatPrice(item.price * item.quantity)}</span>
                           </div>
                         ))}
                       </div>
 
                       <div className="flex justify-between items-center pt-2 border-t border-gray-200 text-sm">
                         <span className="font-medium text-gray-600 text-xs sm:text-sm">Total Amount</span>
-                        <span className="font-bold text-gray-900 text-sm sm:text-base">₹{order.totalAmount}</span>
+                        <span className="font-bold text-gray-900 text-sm sm:text-base">₹{formatPrice(order.totalAmount)}</span>
                       </div>
                     </div>
                   ))}
@@ -505,8 +506,8 @@ export default function FarmerProfile() {
                           {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
                         </td>
                         <td className="px-4 py-3 text-gray-600 text-center">{item.quantity}</td>
-                        <td className="px-4 py-3 text-gray-600 text-right">₹{item.price}</td>
-                        <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{item.price * item.quantity}</td>
+                        <td className="px-4 py-3 text-gray-600 text-right">₹{formatPrice(item.price)}</td>
+                        <td className="px-4 py-3 text-gray-900 font-medium text-right">₹{formatPrice(item.price * item.quantity)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -517,11 +518,11 @@ export default function FarmerProfile() {
                 <div className="w-1/2 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900 font-medium">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-gray-900 font-medium">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t border-gray-100 pt-3">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-primary-600">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-primary-600">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                 </div>
               </div>

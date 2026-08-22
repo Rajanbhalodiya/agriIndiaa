@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
 import { downloadInvoice, printInvoice } from '../../utils/invoiceHelper';
 import { TableSkeleton } from '../../components/Loader';
+import { formatPrice } from '../../utils/formatters';
 
 export default function OrdersList() {
   const navigate = useNavigate();
@@ -178,7 +179,7 @@ export default function OrdersList() {
                     {order.items?.map((item, idx) => (
                       <div key={idx} className="flex justify-between gap-2 text-gray-600">
                         <span className="truncate">{item.name} {item.packSize ? `(${item.packSize})` : ''} <span className="text-gray-400">×{item.quantity}</span></span>
-                        <span className="font-medium text-gray-800 flex-shrink-0">₹{item.price * item.quantity}</span>
+                        <span className="font-medium text-gray-800 flex-shrink-0">₹{formatPrice(item.price * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
@@ -187,7 +188,7 @@ export default function OrdersList() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-gray-400 block">Total</span>
-                      <span className="text-base font-bold text-gray-900">₹{order.totalAmount}</span>
+                      <span className="text-base font-bold text-gray-900">₹{formatPrice(order.totalAmount)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {!order.payment && order.status !== 'Cancelled' && (
@@ -246,7 +247,7 @@ export default function OrdersList() {
                             ))}
                           </div>
                         </td>
-                        <td className="p-4 font-bold text-gray-900">₹{order.totalAmount}</td>
+                        <td className="p-4 font-bold text-gray-900">₹{formatPrice(order.totalAmount)}</td>
                         <td className="p-4">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor(order.status)}`}>
                             {order.status}
@@ -351,8 +352,8 @@ export default function OrdersList() {
                           {item.packSize && <div className="text-xs text-gray-500">{item.packSize}</div>}
                         </td>
                         <td className="px-3 py-3 text-gray-600 text-center text-sm">{item.quantity}</td>
-                        <td className="px-3 py-3 text-gray-600 text-right text-sm">₹{item.price}</td>
-                        <td className="px-4 py-3 text-gray-900 font-semibold text-right text-sm">₹{item.price * item.quantity}</td>
+                        <td className="px-3 py-3 text-gray-600 text-right text-sm">₹{formatPrice(item.price)}</td>
+                        <td className="px-4 py-3 text-gray-900 font-semibold text-right text-sm">₹{formatPrice(item.price * item.quantity)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -363,11 +364,11 @@ export default function OrdersList() {
                 <div className="space-y-2 w-48">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="text-gray-900 font-medium">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-gray-900 font-medium">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                   <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-primary-600">₹{selectedInvoiceOrder.totalAmount}</span>
+                    <span className="text-primary-600">₹{formatPrice(selectedInvoiceOrder.totalAmount)}</span>
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { MdClose, MdDelete, MdPerson } from 'react-icons/md';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateQuantity, clearCart, selectCartItems, selectCartTotal, setSelectedFarmerId, selectSelectedFarmerId } from '../store/slices/cartSlice';
 import { apiFetch } from '../services/api';
+import { formatPrice } from '../utils/formatters';
 
 export default function CartModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -119,7 +120,7 @@ export default function CartModal({ isOpen, onClose }) {
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900 text-sm line-clamp-1">{item.name}</h4>
                       {item.packSize && <div className="text-xs text-gray-500 mt-0.5">{item.packSize}</div>}
-                      <div className="text-primary-600 font-bold text-sm mt-1">₹{item.price}</div>
+                      <div className="text-primary-600 font-bold text-sm mt-1">₹{formatPrice(item.price)}</div>
                       
                       <div className="flex items-center gap-3 mt-2">
                         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden h-8 bg-white">
@@ -169,7 +170,7 @@ export default function CartModal({ isOpen, onClose }) {
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-gray-600 font-medium">Total</span>
-                  <span className="text-2xl font-bold text-gray-900">₹{cartTotal}</span>
+                  <span className="text-2xl font-bold text-gray-900">₹{formatPrice(cartTotal)}</span>
                 </div>
                 
                 <button 
