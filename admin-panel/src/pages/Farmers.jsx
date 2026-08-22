@@ -206,9 +206,9 @@ export default function Farmers() {
                       <td className="px-6 py-4 capitalize">{farmer.landType || 'N/A'}</td>
                       <td className="px-6 py-4">
                         <div className="text-xs text-gray-500">
-                          {farmer.winterCrop && <div>Winter: {farmer.winterCrop}</div>}
-                          {farmer.summerCrop && <div>Summer: {farmer.summerCrop}</div>}
-                          {farmer.rainCrop && <div>Rain: {farmer.rainCrop}</div>}
+                          {farmer.winterCrop && <div>Rabi (Winter): {farmer.winterCrop}</div>}
+                          {farmer.summerCrop && <div>Zaid (Summer): {farmer.summerCrop}</div>}
+                          {farmer.rainCrop && <div>Kharif (Monsoon): {farmer.rainCrop}</div>}
                           {!farmer.winterCrop && !farmer.summerCrop && !farmer.rainCrop && 'N/A'}
                         </div>
                       </td>
@@ -301,15 +301,15 @@ export default function Farmers() {
                 <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 border-b border-gray-200 pb-2 text-sm sm:text-base">Crop Details</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div>
-                    <span className="block text-gray-500 mb-1">Winter</span>
+                    <span className="block text-gray-500 mb-1">Rabi Crop (Winter)</span>
                     <span className="font-medium text-gray-900">{selectedFarmer.winterCrop || 'None'}</span>
                   </div>
                   <div>
-                    <span className="block text-gray-500 mb-1">Summer</span>
+                    <span className="block text-gray-500 mb-1">Zaid Crop (Summer)</span>
                     <span className="font-medium text-gray-900">{selectedFarmer.summerCrop || 'None'}</span>
                   </div>
                   <div>
-                    <span className="block text-gray-500 mb-1">Monsoon</span>
+                    <span className="block text-gray-500 mb-1">Kharif Crop (Monsoon)</span>
                     <span className="font-medium text-gray-900">{selectedFarmer.rainCrop || 'None'}</span>
                   </div>
                 </div>

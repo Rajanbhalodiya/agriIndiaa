@@ -114,7 +114,7 @@ export default function FarmersList() {
                       <span className="font-semibold text-gray-900">{farmer.totalLand || 'N/A'} Acres</span>
                     </div>
                     <div className="text-xs text-right min-w-0">
-                      <span className="block text-gray-500">Winter Crop</span>
+                      <span className="block text-gray-500">Rabi Crop (Winter)</span>
                       <span className="font-semibold text-gray-900 truncate block">{farmer.winterCrop || 'N/A'}</span>
                     </div>
                   </div>

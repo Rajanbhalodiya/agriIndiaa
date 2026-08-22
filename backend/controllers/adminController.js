@@ -184,7 +184,34 @@ const productOrdersAdmin = async (req, res) => {
 const updateProductOrderStatus = async (req, res) => {
     try {
         const { orderId, status } = req.body;
-        await productOrderModel.findByIdAndUpdate(orderId, { status });
+        const existingOrder = await productOrderModel.findById(orderId);
+        if (!existingOrder) {
+            return res.json({ success: false, message: 'Order not found' });
+        }
+
+        // If order is being cancelled now and wasn't already cancelled, restore stock
+        if (status === 'Cancelled' && existingOrder.status !== 'Cancelled') {
+            for (const item of existingOrder.items || []) {
+                if (item.productId) {
+                    const product = await productModel.findById(item.productId);
+                    if (product) {
+                        if (product.packSizes && product.packSizes.length > 0 && item.packSize) {
+                            const pack = product.packSizes.find(p => p.size === item.packSize);
+                            if (pack && pack.stock !== undefined) {
+                                pack.stock += item.quantity;
+                            }
+                            product.stock = product.packSizes.reduce((acc, p) => acc + (p.stock || 0), 0);
+                        } else {
+                            product.stock += item.quantity;
+                        }
+                        await product.save();
+                    }
+                }
+            }
+        }
+
+        existingOrder.status = status;
+        await existingOrder.save();
         res.json({ success: true, message: 'Status Updated' });
     } catch (error) {
         console.log(error);

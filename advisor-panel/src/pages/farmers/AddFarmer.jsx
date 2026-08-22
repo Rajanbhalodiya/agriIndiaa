@@ -15,9 +15,9 @@ const farmerSchema = z.object({
   totalLand: z.string().min(1, 'Total land area is required'),
   temporaryLand: z.string().min(1, 'Temporary land area is required'),
   landType: z.string().min(1, 'Land type is required'),
-  winterCrop: z.string().min(1, 'Winter crop details are required').regex(/^[^\d]*$/, 'Crop details cannot contain numbers'),
-  summerCrop: z.string().min(1, 'Summer crop details are required').regex(/^[^\d]*$/, 'Crop details cannot contain numbers'),
-  rainCrop: z.string().min(1, 'Rain crop details are required').regex(/^[^\d]*$/, 'Crop details cannot contain numbers'),
+  winterCrop: z.string().min(1, 'Rabi crop (Winter) details are required').regex(/^[^\d]*$/, 'Crop details cannot contain numbers'),
+  summerCrop: z.string().min(1, 'Zaid crop (Summer) details are required').regex(/^[^\d]*$/, 'Crop details cannot contain numbers'),
+  rainCrop: z.string().min(1, 'Kharif crop (Monsoon) details are required').regex(/^[^\d]*$/, 'Crop details cannot contain numbers'),
 });
 
 export default function AddFarmer() {
@@ -177,7 +177,7 @@ export default function AddFarmer() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Winter Crop Details <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rabi Crop (Winter) Details <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 required
@@ -193,7 +193,7 @@ export default function AddFarmer() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Summer Crop Details <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Zaid Crop (Summer) Details <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 required
@@ -209,7 +209,7 @@ export default function AddFarmer() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rain Crop Details <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Kharif Crop (Monsoon) Details <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 required

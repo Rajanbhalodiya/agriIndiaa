@@ -349,15 +349,15 @@ export default function FarmerProfile() {
                   <p className="font-semibold text-gray-900 text-sm sm:text-base capitalize">{farmer.landType || 'N/A'}</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Winter Crop</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Rabi Crop (Winter)</p>
                   <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.winterCrop || 'None'}</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Summer Crop</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Zaid Crop (Summer)</p>
                   <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.summerCrop || 'None'}</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Rain Crop (Monsoon)</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Kharif Crop (Monsoon)</p>
                   <p className="font-semibold text-gray-900 text-sm sm:text-base">{farmer.rainCrop || 'None'}</p>
                 </div>
               </div>
@@ -696,7 +696,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Winter Crop Details <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Rabi Crop (Winter) Details <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="winterCrop"
@@ -709,7 +709,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Summer Crop Details <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Zaid Crop (Summer) Details <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="summerCrop"
@@ -722,7 +722,7 @@ export default function FarmerProfile() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Rain Crop Details (Monsoon) <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Kharif Crop (Monsoon) Details <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="rainCrop"

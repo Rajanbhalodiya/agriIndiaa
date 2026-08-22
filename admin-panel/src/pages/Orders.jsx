@@ -53,7 +53,10 @@ export default function Orders() {
     fetchOrders();
   }, []);
 
-  const handleUpdateStatus = async (orderId, newStatus) => {
+  const handleUpdateStatus = async (order, newStatus) => {
+    const orderId = typeof order === 'object' ? order._id : order;
+    const orderObj = typeof order === 'object' ? order : orders.find(o => o._id === orderId);
+
     const confirmMsg = newStatus === 'Cancelled'
       ? 'Are you sure you want to CANCEL this order?'
       : `Are you sure you want to mark this order as ${newStatus}?`;
@@ -220,17 +223,17 @@ export default function Orders() {
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    {order.payment && order.status !== 'Completed' && order.status !== 'Cancelled' && (
+                    {order.status !== 'Completed' && order.status !== 'Cancelled' && (
                       <div className="flex gap-2">
                         <button 
-                          onClick={() => updateStatus(order, 'Completed')}
+                          onClick={() => handleUpdateStatus(order, 'Completed')}
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg border border-green-200"
                           title="Approve Order & Send Bill"
                         >
                           <MdCheckCircle className="w-5 h-5" />
                         </button>
                         <button 
-                          onClick={() => updateStatus(order, 'Cancelled')}
+                          onClick={() => handleUpdateStatus(order, 'Cancelled')}
                           className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
                           title="Cancel Order"
                         >
@@ -315,17 +318,17 @@ export default function Orders() {
                           >
                             <FaWhatsapp className="w-5 h-5" />
                           </button>
-                          {order.payment && order.status !== 'Completed' && order.status !== 'Cancelled' && (
+                          {order.status !== 'Completed' && order.status !== 'Cancelled' && (
                             <div className="flex justify-end gap-2 border-l pl-3 border-gray-200">
                               <button 
-                                onClick={() => updateStatus(order, 'Completed')}
+                                onClick={() => handleUpdateStatus(order, 'Completed')}
                                 className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
                                 title="Approve Order & Send Bill"
                               >
                                 <MdCheckCircle className="w-5 h-5" />
                               </button>
                               <button 
-                                onClick={() => updateStatus(order, 'Cancelled')}
+                                onClick={() => handleUpdateStatus(order, 'Cancelled')}
                                 className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
                                 title="Cancel Order"
                               >
